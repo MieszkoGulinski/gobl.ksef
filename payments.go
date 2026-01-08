@@ -3,9 +3,9 @@ package ksef
 import (
 	"fmt"
 
+	"github.com/invopop/gobl/addons/pl/favat"
 	"github.com/invopop/gobl/bill"
 	"github.com/invopop/gobl/cbc"
-	"github.com/invopop/gobl/regimes/pl"
 )
 
 // AdvancePayment defines the XML structure for KSeF advance payments
@@ -126,28 +126,10 @@ func NewPayment(pay *bill.PaymentDetails, totals *bill.Totals) *Payment {
 }
 
 func findPaymentMeansCode(key cbc.Key) (string, error) {
-	keyDef := findPaymentKeyDefinition(key)
-
-	if keyDef == nil {
-		return "", fmt.Errorf("FormaPlatnosci Code not found for payment method key '%s'", key)
-	}
-
-	code := keyDef.Map[pl.KeyFAVATPaymentType]
+	code := favat.PaymentMeansExtensions()[key]
 	if code == "" {
-		return "", fmt.Errorf("FormaPlatnosci Code not found for payment method key '%s'", key)
+		return "", fmt.Errorf("Code not found for payment method key '%s'", key)
 	}
 
 	return code.String(), nil
-}
-
-func findPaymentKeyDefinition(key cbc.Key) *cbc.Definition {
-	// TODO in the newest gobl library version it's moved from regime to addon
-	// The addon will be at github.com/invopop/gobl/addons/pl/favat
-
-	for _, keyDef := range regime.PaymentMeansKeys {
-		if key == keyDef.Key {
-			return keyDef
-		}
-	}
-	return nil
 }

@@ -4,11 +4,11 @@ import (
 	"testing"
 
 	ksef "github.com/invopop/gobl.ksef"
+	"github.com/invopop/gobl/addons/pl/favat"
 	"github.com/invopop/gobl/bill"
 	"github.com/invopop/gobl/currency"
 	"github.com/invopop/gobl/l10n"
 	"github.com/invopop/gobl/org"
-	"github.com/invopop/gobl/regimes/pl"
 	"github.com/invopop/gobl/tax"
 	"github.com/stretchr/testify/assert"
 )
@@ -74,7 +74,7 @@ func TestNewInv(t *testing.T) {
 			Preceding: []*org.DocumentRef{
 				{
 					Ext: tax.Extensions{
-						pl.ExtKeyKSeFEffectiveDate: "1",
+						favat.ExtKeyEffectiveDate: "1",
 					},
 				},
 			},

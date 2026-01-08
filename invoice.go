@@ -4,9 +4,9 @@ package ksef
 import (
 	"fmt"
 
+	"github.com/invopop/gobl/addons/pl/favat"
 	"github.com/invopop/gobl/bill"
 	"github.com/invopop/gobl/cbc"
-	"github.com/invopop/gobl/regimes/pl"
 	"github.com/invopop/gobl/tax"
 )
 
@@ -102,14 +102,14 @@ func NewInv(inv *bill.Invoice) *Inv {
 		for _, prc := range inv.Preceding {
 			Inv.CorrectedInv = NewCorrectedInv(prc)
 			Inv.CorrectionReason = prc.Reason
-			if prc.Ext.Has(pl.ExtKeyKSeFEffectiveDate) {
-				Inv.CorrectionType = prc.Ext[pl.ExtKeyKSeFEffectiveDate].String()
+			if prc.Ext.Has(favat.ExtKeyEffectiveDate) {
+				Inv.CorrectionType = prc.Ext[favat.ExtKeyEffectiveDate].String()
 			}
 		}
 	}
 
 	ss := inv.ScenarioSummary() //nolint:staticcheck
-	Inv.InvoiceType = ss.Codes[pl.KeyFAVATInvoiceType].String()
+	Inv.InvoiceType = ss.Codes[favat.ExtKeyInvoiceType].String()
 	if inv.OperationDate != nil {
 		Inv.CompletionDate = inv.OperationDate.String()
 	}
@@ -121,7 +121,7 @@ func NewInv(inv *bill.Invoice) *Inv {
 		for _, rate := range cat.Rates {
 			if rate.Percent != nil {
 				switch rate.Key {
-				case tax.RateStandard:
+				case tax.RateGeneral:
 					Inv.StandardRateNetSale = rate.Base.Rescale(cu).String()
 					Inv.StandardRateTax = rate.Amount.Rescale(cu).String()
 				case tax.RateReduced:
