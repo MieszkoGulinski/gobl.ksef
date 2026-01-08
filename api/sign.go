@@ -6,8 +6,8 @@ import (
 	"net/url"
 
 	"github.com/invopop/gobl"
+	"github.com/invopop/gobl/addons/pl/favat"
 	"github.com/invopop/gobl/head"
-	"github.com/invopop/gobl/regimes/pl"
 )
 
 // UPO defines the XML structure for KSeF UPO
@@ -25,20 +25,20 @@ func Sign(env *gobl.Envelope, upoBytes []byte, c *Client) error {
 
 	env.Head.AddStamp(
 		&head.Stamp{
-			Provider: pl.StampProviderKSeFID,
+			Provider: favat.StampID,
 			Value:    upo.KSeFNumber,
 		},
 	)
 	env.Head.AddStamp(
 		&head.Stamp{
-			Provider: pl.StampProviderKSeFHash,
+			Provider: favat.StampHash,
 			Value:    upo.KSeFHash,
 		},
 	)
 	env.Head.AddStamp(
 		&head.Stamp{
-			Provider: pl.StampProviderKSeFQR,
-			Value:    c.url + "/web/verify/" + upo.KSeFNumber + "/" + url.QueryEscape(upo.KSeFHash),
+			Provider: favat.StampQR,
+			Value:    c.url + "/web/verify/" + upo.KSeFNumber + "/" + url.QueryEscape(upo.KSeFHash), // TODO check if this is correct
 		},
 	)
 
