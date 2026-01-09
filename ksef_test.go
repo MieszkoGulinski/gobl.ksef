@@ -51,73 +51,55 @@ func TestNewDocument(t *testing.T) {
 	})
 
 	t.Run("should generate valid KSeF document", func(t *testing.T) {
-		err := xsdvalidate.Init()
-		require.NoError(t, err)
-		defer xsdvalidate.Cleanup()
-
-		xsdBuf, err := test.LoadSchemaFile("FA3.xsd")
-		require.NoError(t, err)
-
-		xsdhandler, err := xsdvalidate.NewXsdHandlerMem(xsdBuf, xsdvalidate.ParsErrVerbose)
-		require.NoError(t, err)
-		defer xsdhandler.Free()
-
 		doc, err := test.NewDocumentFrom("invoice-pl-pl.json")
 		require.NoError(t, err)
 
 		data, err := doc.Bytes()
 		require.NoError(t, err)
 
-		validation := xsdhandler.ValidateMem(data, xsdvalidate.ParsErrDefault)
-		assert.Nil(t, validation)
+		validateAgainstFA3Schema(t, data)
 	})
 
 	t.Run("should generate valid credit-note", func(t *testing.T) {
-		err := xsdvalidate.Init()
-		require.NoError(t, err)
-		defer xsdvalidate.Cleanup()
-
-		xsdBuf, err := test.LoadSchemaFile("FA3.xsd")
-		require.NoError(t, err)
-
-		xsdhandler, err := xsdvalidate.NewXsdHandlerMem(xsdBuf, xsdvalidate.ParsErrVerbose)
-		require.NoError(t, err)
-		defer xsdhandler.Free()
-
 		doc, err := test.NewDocumentFrom("credit-note.json")
 		require.NoError(t, err)
 
 		data, err := doc.Bytes()
 		require.NoError(t, err)
 
-		validation := xsdhandler.ValidateMem(data, xsdvalidate.ParsErrDefault)
-		assert.Nil(t, validation)
+		validateAgainstFA3Schema(t, data)
 	})
 
 	t.Run("should generate valid self-billed invoice", func(t *testing.T) {
-		err := xsdvalidate.Init()
-		require.NoError(t, err)
-		defer xsdvalidate.Cleanup()
-
-		xsdBuf, err := test.LoadSchemaFile("FA3.xsd")
-		require.NoError(t, err)
-
-		xsdhandler, err := xsdvalidate.NewXsdHandlerMem(xsdBuf, xsdvalidate.ParsErrVerbose)
-		require.NoError(t, err)
-		defer xsdhandler.Free()
-
 		doc, err := test.NewDocumentFrom("invoice-self-billed.json")
 		require.NoError(t, err)
 
 		data, err := doc.Bytes()
 		require.NoError(t, err)
 
-		validation := xsdhandler.ValidateMem(data, xsdvalidate.ParsErrDefault)
-		assert.Nil(t, validation)
+		validateAgainstFA3Schema(t, data)
 
 		output, err := test.LoadOutputFile("invoice-self-billed.xml")
 		require.NoError(t, err)
 
 		assert.Equal(t, string(output), string(data))
 	})
+}
+
+func validateAgainstFA3Schema(t *testing.T, data []byte) {
+	t.Helper()
+
+	err := xsdvalidate.Init()
+	require.NoError(t, err)
+	t.Cleanup(xsdvalidate.Cleanup)
+
+	xsdBuf, err := test.LoadSchemaFile("FA3.xsd")
+	require.NoError(t, err)
+
+	xsdhandler, err := xsdvalidate.NewXsdHandlerMem(xsdBuf, xsdvalidate.ParsErrVerbose)
+	require.NoError(t, err)
+	t.Cleanup(xsdhandler.Free)
+
+	validation := xsdhandler.ValidateMem(data, xsdvalidate.ParsErrDefault)
+	assert.Nil(t, validation)
 }
