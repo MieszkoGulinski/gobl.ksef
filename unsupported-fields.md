@@ -18,9 +18,9 @@ Here are features not supported by the converter.
 | `Fa>P_18A` | `SplitPaymentMechanism` | `2` | |
 | `Fa>Adnotacje>Zwolnienie>P_19N` | `NoTaxExemptGoods` | `1` | For tax exempt goods, set `P_19` to 1, otherwise set `P_19N` to 1 |
 | `Fa>NoweSrodkiTransportu>P_22N` | `NoNewTransportIntraCommunitySupply` | `1` | For new transport intra-community supply, set `P_22` to 1 (rare special case), otherwise set `P_22N` to 1 |
-| `Fa>P_23` | `SimplifiedProcedureBySecondTaxpayer` | `2` | For simplified procedure by second taxpayer, set `P_23` to 1, otherwise set `P_23` to 2 |
-| `Fa>PMarzy>P_PMarzyN` | `NoMarginProcedures` | `1` | For margin procedures, set `P_PMarzy` to 1, otherwise set `P_PMarzyN` to 1 |
-| `Fa>Platnosc>RachunekBankowyFaktora` | `FactorBankAccounts` | `[]` | TODO research what it does, it appears on example invoice 4 |
+| `Fa>P_23` | `SimplifiedProcedureBySecondTaxpayer` | `2` | For simplified procedure by second taxpayer (for three-party transactions inside the European Union), set `P_23` to 1, otherwise set `P_23` to 2 |
+| `Fa>PMarzy>P_PMarzyN` | `NoMarginProcedures` | `1` | For margin procedure (applies to specific types of goods and services), set `P_PMarzy` to 1, otherwise set `P_PMarzyN` to 1 |
+| `Fa>Platnosc>RachunekBankowyFaktora` | `FactorBankAccounts` | `[]` | Bank account of the factor (third party) |
 
 ## Not mapped
 
@@ -37,6 +37,8 @@ The following fields are not present in the structs to be converted to XML:
 | `Podmiot3>Rola` | role of the third party - required if a third party is present, enum with values from 1 to 11 |
 | `Podmiot3>RolaInna` | role of the third party - required if a third party is present, set to "1" for "other" role, not included in options above  |
 | `Podmiot3>OpisRoli` | role of the third party - required if a third party is present, fill with description of the role if "RolaInna" is set to "1" |
+| `Podmiot3>Udzial` | percentage share of the third party (when there are two buyers) |
+| `Podmiot3>NrKlienta` | similar to `Podmiot2>NrKlienta` but for the third party |
 | `Fa>WZ` | warehouse document(s) number - not required in schema |
 | `Fa>FaWiersz>CN` | Combined Nomenclature product type code - not required in schema |
 | `Fa>Rozliczenie` | additional discounts and charges - not required in schema |
@@ -55,6 +57,7 @@ The following fields are not present in the structs to be converted to XML:
 | `Fa>Adnotacje>Zwolnienie>P_19A` | For tax exempt goods (Polish VAT law), text of legal basis |
 | `Fa>Adnotacje>Zwolnienie>P_19B` | For tax exempt goods (directive 2006/112/EC), text of legal basis |
 | `Fa>Adnotacje>Zwolnienie>P_19C` | For tax exempt goods (other legal basis), text of legal basis |
+| `Fa>Zamowienie` | Information about the order (for advance invoices), contains total order value (`WartoscZamowienia`) and order line items (`ZamowienieWiersz`) |
 
 `WarunkiTransakcji` (transaction conditions) may contain (taken from example 4):
 - `Umowy` - contract(s) date and number
@@ -62,6 +65,10 @@ The following fields are not present in the structs to be converted to XML:
 - `NrPartiiTowaru` - product batch number
 - `WarunkiDostawy` - conditions of delivery
 - `Transport` - how the goods will be transported (contains many nested fields specifying e.g. transport company, destination address, etc.)
+
+`DodatkowyOpis` (additional description), if added, contains:
+- `Klucz` - key (free form text)
+- `Wartość` - value (free form text)
 
 ## Unset fields
 
@@ -104,6 +111,7 @@ Note that this particular check:
 7. Differs from example 6 by having a line item (`FaWiersz`) - meaning that the invoice corrects only part of the earlier deliveries, not all of them
 8. Sale of used goods - uses margin scheme, contains partial payment, contains `P_PMarzy_3_1` field, contains `P_11A` field
 9. Invoice to a local government unit, contains both tax exempt items (`P_13_7`) and standard tax items (`P_13_1`)
+10. Advance invoice, already paid in full, with two customers, each having 50% share
 
 ## References
 
@@ -113,5 +121,10 @@ What is FP:
 GTU codes:
 - https://www.podatki.biz/artykuly/jpkvat-z-deklaracja-oznaczenia-dostawy-i-swiadczenia-uslug-gtu_4_45232.htm
 
-When should P_11A be used - art. 106e ust. 7 i 8:
+When should `P_11A` be used - art. 106e ust. 7 i 8:
 - https://sip.lex.pl/akty-prawne/dzu-dziennik-ustaw/podatek-od-towarow-i-uslug-17086198/art-106-e
+
+When should `P_23` be used:
+- https://isp-modzelewski.pl/serwis/wewnatrzwspolnotowe-transakcje-trojstronne/#:~:text=ramach%20procedury%20uproszczonej.-,Zgodnie%20z%20art.,dodanej%20ostatniego%20w%20kolejno%C5%9Bci%20podatnika.
+- https://www.krgroup.pl/procedura-uproszczona-rozliczenia-vat-w-wewnatrzwspolnotowej-transakcji-trojstronnej/#:~:text=Warunki%20zastosowania%20procedury,realizowanej%20w%20ramach%20procedury%20uproszczonej.
+- https://sip.lex.pl/akty-prawne/dzu-dziennik-ustaw/podatek-od-towarow-i-uslug-17086198/dz-12-roz-8
