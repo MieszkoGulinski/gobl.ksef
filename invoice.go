@@ -47,7 +47,8 @@ type Inv struct {
 	CorrectionReason                   string                       `xml:"PrzyczynaKorekty,omitempty"`
 	CorrectionType                     string                       `xml:"TypKorekty,omitempty"`
 	CorrectedInv                       *CorrectedInv                `xml:"DaneFaKorygowanej,omitempty"`
-	Lines                              []*Line                      `xml:"FaWiersz"`
+	Lines                              []*Line                      `xml:"FaWiersz,omitempty"` // empty for ZAL and KOR_ZAL, use Order instead
+	Order                              *Order                       `xml:"Zamowienie,omitempty"`
 	Payment                            *Payment                     `xml:"Platnosc"`
 	AdditionalDescription              []*AdditionalDescriptionLine `xml:"DodatkowyOpis,omitempty"`
 }
@@ -68,6 +69,12 @@ type Annotations struct {
 type AdditionalDescriptionLine struct {
 	Key   string `xml:"Klucz"`
 	Value string `xml:"Wartosc"`
+}
+
+// Order defines the XML structure for KSeF "Zamowienie" (order) field, required for ZAL and KOR_ZAL types
+type Order struct {
+	OrderAmount string       `xml:"WartoscZamowienia"`
+	LineItems   []*OrderLine `xml:"WierszZamowienia,omitempty"`
 }
 
 // newAnnotations sets annotations data
@@ -97,7 +104,6 @@ func NewInv(inv *bill.Invoice) *Inv {
 		IssueDate:             inv.IssueDate.String(),
 		SequentialNumber:      invoiceNumber(inv.Series, inv.Code),
 		TotalAmountReceivable: inv.Totals.Payable.Rescale(cu).String(),
-		Lines:                 NewLines(inv.Lines),
 		Payment:               NewPayment(inv.Payment, inv.Totals),
 	}
 
@@ -129,6 +135,17 @@ func NewInv(inv *bill.Invoice) *Inv {
 	if inv.OperationDate != nil {
 		Inv.CompletionDate = inv.OperationDate.String()
 	}
+
+	// Depending on the invoice type, we attach line items in different places
+	if Inv.InvoiceType == "ZAL" || Inv.InvoiceType == "KOR_ZAL" {
+		Inv.Order = &Order{
+			OrderAmount: inv.Totals.Payable.Rescale(cu).String(),
+			LineItems:   NewOrderLines(inv.Lines, cu),
+		}
+	} else {
+		Inv.Lines = NewLines(inv.Lines, cu)
+	}
+
 	for _, cat := range inv.Totals.Taxes.Categories {
 		if cat.Code != tax.CategoryVAT {
 			continue
