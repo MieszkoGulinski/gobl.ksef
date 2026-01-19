@@ -57,7 +57,10 @@ The following fields are not present in the structs to be converted to XML:
 | `Fa>Adnotacje>Zwolnienie>P_19B` | For tax exempt goods (directive 2006/112/EC), text of legal basis |
 | `Fa>Adnotacje>Zwolnienie>P_19C` | For tax exempt goods (other legal basis), text of legal basis |
 | `Fa>Zamowienie` | Information about the order (for advance invoices), contains total order value (`WartoscZamowienia`) and order line items (`ZamowienieWiersz`), required for `ZAL` (advance payment) type invoices |
-| `Fa>P_15ZK` | For KOR_ZAL, amount to pay before correction, for other cases, remaining amount to pay before correction |
+| `Fa>P_15ZK` | For `KOR_ZAL`, amount to pay before correction (obligatory), for other correction cases, remaining amount to pay before correction (optional) |
+| `Fa>FakturaZaliczkowa` | For `ROZ` (settlement invoice), contains identifiers of the preceding advance payment invoice(s) |
+| `Fa>FaWiersz>KursWaluty` | Currency exchange rate |
+| `Zalacznik` | Attachment - allows adding custom data to the invoice (as key-value pairs or tables) |
 
 `WarunkiTransakcji` (transaction conditions) may contain (taken from example 4):
 - `Umowy` - contract(s) date and number
@@ -82,6 +85,13 @@ The following fields are present in the struct to be converted to XML, but are n
 | `Fa>FaWiersz>GTU` | `SpecialGoodsCode` | Code identifying certain classes of goods and services (01 = alcoholic beverages, 02 = vehicle fuels...), values GTU_01 to GTU_13
 | `Fa>P_6_Od` | Start of the invoice period. Mapped incorrectly in code (elements `P_6_Od` and `P_6_Do` should be wrapped in `OkresFa` tag) |
 | `Fa>P_6_Do` | End of the invoice period. Mapped incorrectly in code (elements `P_6_Od` and `P_6_Do` should be wrapped in `OkresFa` tag) |
+| `Fa>P_13_6_1` | `ZeroTaxExceptIntraCommunityNetSale` | Tax-exempt sale amount other than intra-EU supply and export |
+| `Fa>P_13_6_2` | `IntraCommunityNetSale` | Intra-EU supply, tax-exempt sale amount |
+| `Fa>P_13_6_3` | `ExportNetSale` | Export tax-exempt sale amount |
+
+## Other cases 
+
+- `P_12` in our code always contains a number, but in the examples 22 and 23 the field contains text `0 WDT` and `0 EX` respectively.
 
 ## How the listing is done
 
@@ -96,7 +106,7 @@ Note that this particular check:
 - Does not cover all possible fields in the XML schema, only the ones present in the sample files
 - Does not detect fields in our code that are not present in the sample files, or in the XML schema at all
 
-### List of test cases
+### List of test cases from the sample pack
 
 1. FP invoice (invoice added to receipt)
 2. Correction invoice with `StanPrzed` - two lines, one with `StanPrzed` set to 1 (shows the state before the correction), another without (after correction)
@@ -109,6 +119,21 @@ Note that this particular check:
 9. Invoice to a local government unit, contains both tax exempt items (`P_13_7`) and standard tax items (`P_13_1`)
 10. Advance invoice, already paid in full, with two customers, each having 50% share
 11. Corrects invoice from example 10 because of incorrect used tax rate, type `KOR_ZAL`, contains negative numbers for the incorrect tax rate in fields `P_13_1` and `P_14_1`, contains `P_13_2` and `P_14_2` fields for the correct tax rate
+12. Similar to example 11, but corrects amount of advance payment.
+13. Similar to example 11, but corrects total payment amount.
+14. Settlement invoice (`ROZ`) finalizing a series of advance invoices. Finalizes transaction from examples 10, 11, 12, 13.
+15. Simplified invoice (`UPR`) containing `P_13_1` and `P_14_1` fields (total net amount and total tax amount)
+16. Simplified invoice (`UPR`) not containing these fields, but total net amount and tax amount is possible to calculate from the line items (field `P_12` containing tax percentage) - in this case, this is allowed, but the converter does not need to handle this alternative
+17. Similar to example 14 but containing incorrectly calculated values
+18. Correction to a settlement invoice (type `KOR_ROZ`) - corrects invoice from example 17
+19. Invoice using margin scheme, contains `P_PMarzy` and `P_PMarzy_2` fields, meaning that the seller is a travel agency
+20. Regular invoice, but using EUR instead of PLN, contains `KursWaluty` (currency exchange rate) for each line item, and `P_14_1W` for totals converted to PLN. Also contains `WarunkiTransakcji` (transaction conditions) with transport-related information inside.
+21. Similar to example 20, but each line item has different currency exchange rate (even though the whole invoice is in EUR).
+22. Intra-EU supply, tax-exempt - contains `P_13_6_2` field, customer is identified by EU VAT number (`KodUE` + `NrVatUE`)
+23. Export outside European Union, tax-exempt - contains `P_13_6_3` field, customer is identified by respective country's tax identifier (`KodKraju` + `NrID`)
+24. Invoice containing an attachment, missing values in a table are marked with `-`
+25. Invoice containing an attachment, missing values in a table are marked with empty XML element (alternative to example 24)
+26. Invoice containing additional charges (in the example, additional charges are for package recycling) - contains `Rozliczenie` field
 
 ## References
 
