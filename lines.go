@@ -70,7 +70,7 @@ func NewLines(lines []*bill.Line, cu uint32) []*Line {
 	return Lines
 }
 
-// OrderLine defines the XML structure for KSeF item line (element type ZamowienieWiersz, for ZAL and KOR_ZAL type invoices)
+// OrderLine defines the XML structure for KSeF item line (element type ZamowienieWiersz, for ZAL and KOR_ZAL type invoices) - TODO use in the future
 type OrderLine struct {
 	LineNumber              int    `xml:"NrWierszaZam"`
 	Name                    string `xml:"P_7Z,omitempty"`
@@ -107,7 +107,7 @@ func newOrderLine(line *bill.Line, cu uint32) *OrderLine {
 	return l
 }
 
-// NewOrderLines generates order lines for the KSeF invoice
+// NewOrderLines generates order lines for the KSeF invoice - TODO use in the future
 func NewOrderLines(lines []*bill.Line, cu uint32) []*OrderLine {
 	var orderLines []*OrderLine
 
