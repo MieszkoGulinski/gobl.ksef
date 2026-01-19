@@ -30,7 +30,6 @@ The following fields are not present in the structs to be converted to XML:
 | --------- |  ----- |
 | `Podmiot2>NrKlienta`  | customer number, if the supplier uses such a number in the contract or order document - not required in schema |
 | `Podmiot2>IDNabywcy`  | unique key of the customer, if customer's data changed between base invoice and correction invoice - not required in schema |
-| `Fa>DodatkowyOpis` |  additional description - not required in schema |
 | `Fa>FaWiersz>UU_ID` | unique identifier for the line item - not required in schema |
 | `Fa>WarunkiTransakcji` | transaction conditions, containing contract date and number and/or order date and number - not required in schema |
 | `Stopka` | footer information, including information identifying the parties in various national databases - not required in schema |
@@ -57,7 +56,8 @@ The following fields are not present in the structs to be converted to XML:
 | `Fa>Adnotacje>Zwolnienie>P_19A` | For tax exempt goods (Polish VAT law), text of legal basis |
 | `Fa>Adnotacje>Zwolnienie>P_19B` | For tax exempt goods (directive 2006/112/EC), text of legal basis |
 | `Fa>Adnotacje>Zwolnienie>P_19C` | For tax exempt goods (other legal basis), text of legal basis |
-| `Fa>Zamowienie` | Information about the order (for advance invoices), contains total order value (`WartoscZamowienia`) and order line items (`ZamowienieWiersz`) |
+| `Fa>Zamowienie` | Information about the order (for advance invoices), contains total order value (`WartoscZamowienia`) and order line items (`ZamowienieWiersz`), required for `ZAL` (advance payment) type invoices |
+| `Fa>P_15ZK` | For KOR_ZAL, amount to pay before correction, for other cases, remaining amount to pay before correction |
 
 `WarunkiTransakcji` (transaction conditions) may contain (taken from example 4):
 - `Umowy` - contract(s) date and number
@@ -65,10 +65,6 @@ The following fields are not present in the structs to be converted to XML:
 - `NrPartiiTowaru` - product batch number
 - `WarunkiDostawy` - conditions of delivery
 - `Transport` - how the goods will be transported (contains many nested fields specifying e.g. transport company, destination address, etc.)
-
-`DodatkowyOpis` (additional description), if added, contains:
-- `Klucz` - key (free form text)
-- `Wartość` - value (free form text)
 
 ## Unset fields
 
@@ -112,6 +108,7 @@ Note that this particular check:
 8. Sale of used goods - uses margin scheme, contains partial payment, contains `P_PMarzy_3_1` field, contains `P_11A` field
 9. Invoice to a local government unit, contains both tax exempt items (`P_13_7`) and standard tax items (`P_13_1`)
 10. Advance invoice, already paid in full, with two customers, each having 50% share
+11. Corrects invoice from example 10 because of incorrect used tax rate, type `KOR_ZAL`, contains negative numbers for the incorrect tax rate in fields `P_13_1` and `P_14_1`, contains `P_13_2` and `P_14_2` fields for the correct tax rate
 
 ## References
 
@@ -128,3 +125,6 @@ When should `P_23` be used:
 - https://isp-modzelewski.pl/serwis/wewnatrzwspolnotowe-transakcje-trojstronne/#:~:text=ramach%20procedury%20uproszczonej.-,Zgodnie%20z%20art.,dodanej%20ostatniego%20w%20kolejno%C5%9Bci%20podatnika.
 - https://www.krgroup.pl/procedura-uproszczona-rozliczenia-vat-w-wewnatrzwspolnotowej-transakcji-trojstronnej/#:~:text=Warunki%20zastosowania%20procedury,realizowanej%20w%20ramach%20procedury%20uproszczonej.
 - https://sip.lex.pl/akty-prawne/dzu-dziennik-ustaw/podatek-od-towarow-i-uslug-17086198/dz-12-roz-8
+
+When should `P_15ZK` be used (art. 106f ust. 3) for remaining amount to pay before correction:
+https://sip.lex.pl/akty-prawne/dzu-dziennik-ustaw/podatek-od-towarow-i-uslug-17086198/art-106-f
