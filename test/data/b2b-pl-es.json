@@ -1,0 +1,111 @@
+{
+    "$schema": "https://gobl.org/draft-0/envelope",
+    "head": {
+        "uuid": "019ba337-2eed-7000-b0e8-c3493376ad5f",
+        "dig": {
+            "alg": "sha256",
+            "val": "7b047a72821f133ca7865f0c36bf6cb9f298964ac31a5ecb405aaa72685776b6"
+        }
+    },
+    "doc": {
+        "$schema": "https://gobl.org/draft-0/bill/invoice",
+        "$regime": "PL",
+        "uuid": "019ba337-2ee7-7000-91b8-0044765f71c6",
+        "type": "standard",
+        "series": "SAMPLE",
+        "code": "001",
+        "issue_date": "2026-01-09",
+        "currency": "PLN",
+        "supplier": {
+            "$regime": "PL",
+            "name": "Example supplier Sp. z o.o.",
+            "tax_id": {
+                "country": "PL",
+                "code": "1234567788"
+            },
+            "addresses": [
+                {
+                    "num": "128",
+                    "street": "Prosta",
+                    "locality": "Warszawa",
+                    "region": "Mazowieckie",
+                    "code": "02000",
+                    "country": "PL"
+                }
+            ],
+            "emails": [
+                {
+                    "addr": "billing@example.com"
+                }
+            ]
+        },
+        "customer": {
+            "name": "Example Customer S.L.",
+            "tax_id": {
+                "country": "ES",
+                "code": "B98602642"
+            },
+            "addresses": [
+                {
+                    "num": "325",
+                    "street": "Calle Pradillo",
+                    "locality": "Madrid",
+                    "region": "Madrid",
+                    "code": "28002",
+                    "country": "ES"
+                }
+            ]
+        },
+        "lines": [
+            {
+                "i": 1,
+                "quantity": "20",
+                "item": {
+                    "name": "Development services",
+                    "price": "50.00",
+                    "alt_prices": [
+                        {
+                            "currency": "EUR",
+                            "value": "10"
+                        }
+                    ],
+                    "unit": "h"
+                },
+                "sum": "1000.00",
+                "taxes": [
+                    {
+                        "cat": "VAT",
+                        "key": "standard",
+                        "rate": "general",
+                        "percent": "23.0%"
+                    }
+                ],
+                "total": "1000.00"
+            }
+        ],
+        "totals": {
+            "sum": "1000.00",
+            "total": "1000.00",
+            "taxes": {
+                "categories": [
+                    {
+                        "code": "VAT",
+                        "rates": [
+                            {
+                                "key": "standard",
+                                "base": "1000.00",
+                                "percent": "23.0%",
+                                "amount": "230.00"
+                            }
+                        ],
+                        "amount": "230.00"
+                    }
+                ],
+                "sum": "230.00"
+            },
+            "tax": "230.00",
+            "total_with_tax": "1230.00",
+            "payable": "1230.00"
+        }
+    }
+}
