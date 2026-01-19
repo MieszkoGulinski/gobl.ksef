@@ -20,7 +20,7 @@ The following list the steps to follow through on in order to accomplish the goa
 
 ## Unsupported fields
 
-Fields `JST` (Jednostka Samorządu Terytorialnego = local government unit) and `GV` (grupa VAT = VAT group) are currently hardcoded as "No" (value 2).
+See [unsupported-fields.md](unsupported-fields.md) for the list of unsupported fields.
 
 ## FA_VAT documentation
 
