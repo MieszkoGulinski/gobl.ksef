@@ -77,7 +77,7 @@ func TestNewDocument(t *testing.T) {
 		data, err := doc.Bytes()
 		require.NoError(t, err)
 
-		test.ValidateAgainstFA3Schema(t, data)
+		validateAgainstFA3Schema(t, data)
 	})
 
 	t.Run("should generate valid simplified B2C invoice", func(t *testing.T) {
@@ -87,7 +87,7 @@ func TestNewDocument(t *testing.T) {
 		data, err := doc.Bytes()
 		require.NoError(t, err)
 
-		test.ValidateAgainstFA3Schema(t, data)
+		validateAgainstFA3Schema(t, data)
 	})
 
 	t.Run("should generate valid self-billed invoice", func(t *testing.T) {
