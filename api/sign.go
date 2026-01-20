@@ -1,7 +1,7 @@
 package api
 
 import (
-	"net/url"
+	"encoding/base64"
 
 	"github.com/invopop/gobl"
 	"github.com/invopop/gobl/head"
@@ -23,10 +23,17 @@ func (c *Client) Sign(env *gobl.Envelope, nip string, uploadedInvoice *UploadedI
 		},
 	)
 	// URL contains invoicing date in DD-MM-YYYY format
+	// Hash must be in Base64URL, not Base64
+	data, err := base64.StdEncoding.DecodeString(uploadedInvoice.InvoiceHash)
+	if err != nil {
+		return err
+	}
+	base64UrlHash := base64.RawURLEncoding.EncodeToString(data)
+
 	env.Head.AddStamp(
 		&head.Stamp{
 			Provider: pl.StampProviderKSeFQR,
-			Value:    c.qrUrl + "/" + nip + "/" + uploadedInvoice.InvoicingDate.Format("02-01-2006") + "/" + url.QueryEscape(uploadedInvoice.InvoiceHash),
+			Value:    c.qrUrl + "/" + nip + "/" + uploadedInvoice.InvoicingDate.Format("02-01-2006") + "/" + base64UrlHash,
 		},
 	)
 
