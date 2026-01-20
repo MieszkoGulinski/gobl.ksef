@@ -69,8 +69,28 @@ func TestNewDocument(t *testing.T) {
 		test.ValidateAgainstFA3Schema(t, data)
 	})
 
+	t.Run("should generate valid B2B invoice from PL to another EU country", func(t *testing.T) {
+		doc, err := test.NewDocumentFrom("b2b-pl-es.json")
+		require.NoError(t, err)
+
+		data, err := doc.Bytes()
+		require.NoError(t, err)
+
+		test.ValidateAgainstFA3Schema(t, data)
+	})
+
 	t.Run("should generate valid B2B invoice from PL to a non-EU country", func(t *testing.T) {
 		doc, err := test.NewDocumentFrom("b2b-pl-us-usd.json")
+		require.NoError(t, err)
+
+		data, err := doc.Bytes()
+		require.NoError(t, err)
+
+		test.ValidateAgainstFA3Schema(t, data)
+	})
+
+	t.Run("should generate valid B2C invoice", func(t *testing.T) {
+		doc, err := test.NewDocumentFrom("b2c-pl-pl.json")
 		require.NoError(t, err)
 
 		data, err := doc.Bytes()

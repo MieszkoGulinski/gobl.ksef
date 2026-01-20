@@ -33,7 +33,7 @@ func TestNewLines(t *testing.T) {
 			},
 		}
 
-		ln := ksef.NewLines(lines)
+		ln := ksef.NewLines(lines, 2)
 
 		assert.Equal(t, "100.00", ln[0].UnitDiscount)
 	})
@@ -59,7 +59,7 @@ func TestNewLines(t *testing.T) {
 			},
 		}
 
-		ln := ksef.NewLines(lines)
+		ln := ksef.NewLines(lines, 2)
 
 		assert.Equal(t, "50.00", ln[0].UnitDiscount)
 	})
@@ -81,7 +81,7 @@ func TestNewLines(t *testing.T) {
 			},
 		}
 
-		ln := ksef.NewLines(lines)
+		ln := ksef.NewLines(lines, 2)
 
 		assert.Equal(t, "", ln[0].UnitDiscount)
 	})
@@ -110,7 +110,7 @@ func TestNewLines(t *testing.T) {
 			},
 		}
 
-		ln := ksef.NewLines(lines)
+		ln := ksef.NewLines(lines, 2)
 
 		assert.Equal(t, "200.00", ln[0].UnitDiscount)
 	})

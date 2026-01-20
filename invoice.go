@@ -47,8 +47,10 @@ type Inv struct {
 	CorrectionReason                   string        `xml:"PrzyczynaKorekty,omitempty"`
 	CorrectionType                     string        `xml:"TypKorekty,omitempty"`
 	CorrectedInv                       *CorrectedInv `xml:"DaneFaKorygowanej,omitempty"`
-	Lines                              []*Line       `xml:"FaWiersz"`
-	Payment                            *Payment      `xml:"Platnosc"`
+	Lines                              []*Line       `xml:"FaWiersz,omitempty"` // empty for ZAL and KOR_ZAL, use Order instead
+	// Order                              *Order                       `xml:"Zamowienie,omitempty"` // TODO implement in the future
+	Payment               *Payment                     `xml:"Platnosc"`
+	AdditionalDescription []*AdditionalDescriptionLine `xml:"DodatkowyOpis,omitempty"`
 }
 
 // Annotations defines the XML structure for KSeF annotations
@@ -61,6 +63,18 @@ type Annotations struct {
 	NoNewTransportIntraCommunitySupply  int `xml:"NoweSrodkiTransportu>P_22N"`
 	SimplifiedProcedureBySecondTaxpayer int `xml:"P_23"`
 	NoMarginProcedures                  int `xml:"PMarzy>P_PMarzyN"`
+}
+
+// AdditionalDescriptionLine defines the XML structure for KSeF additional description line (`DodatkowyOpis`)
+type AdditionalDescriptionLine struct {
+	Key   string `xml:"Klucz"`
+	Value string `xml:"Wartosc"`
+}
+
+// Order defines the XML structure for KSeF "Zamowienie" (order) field, required for ZAL and KOR_ZAL types
+type Order struct {
+	OrderAmount string       `xml:"WartoscZamowienia"`
+	LineItems   []*OrderLine `xml:"WierszZamowienia,omitempty"`
 }
 
 // newAnnotations sets annotations data
@@ -90,8 +104,17 @@ func NewInv(inv *bill.Invoice) *Inv {
 		IssueDate:             inv.IssueDate.String(),
 		SequentialNumber:      invoiceNumber(inv.Series, inv.Code),
 		TotalAmountReceivable: inv.Totals.Payable.Rescale(cu).String(),
-		Lines:                 NewLines(inv.Lines),
+		Lines:                 NewLines(inv.Lines, cu),
 		Payment:               NewPayment(inv.Payment, inv.Totals),
+	}
+
+	if len(inv.Notes) > 0 {
+		for _, note := range inv.Notes {
+			Inv.AdditionalDescription = append(Inv.AdditionalDescription, &AdditionalDescriptionLine{
+				Key:   note.Key.String(),
+				Value: note.Text,
+			})
+		}
 	}
 
 	if inv.HasTags(tax.TagSelfBilled) {
@@ -113,6 +136,7 @@ func NewInv(inv *bill.Invoice) *Inv {
 	if inv.OperationDate != nil {
 		Inv.CompletionDate = inv.OperationDate.String()
 	}
+
 	for _, cat := range inv.Totals.Taxes.Categories {
 		if cat.Code != tax.CategoryVAT {
 			continue
