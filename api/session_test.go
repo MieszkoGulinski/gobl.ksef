@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	ksef "github.com/invopop/gobl.ksef"
 	ksef_api "github.com/invopop/gobl.ksef/api"
 	"github.com/invopop/gobl.ksef/test"
 	"github.com/invopop/gobl/regimes/pl"
@@ -41,8 +42,9 @@ func TestCreateSession(t *testing.T) {
 func TestUploadInvoice(t *testing.T) {
 	t.Run("uploads invoice during session", func(t *testing.T) {
 		fmt.Println(1)
+		ctxIdentifier := &ksef_api.ContextIdentifier{Nip: "8126178616"}
 		client := ksef_api.NewClient(
-			&ksef_api.ContextIdentifier{Nip: "8126178616"},
+			ctxIdentifier,
 			"./test/cert-20260102-131809.pfx",
 			ksef_api.WithDebugClient(),
 		)
@@ -89,8 +91,16 @@ func TestUploadInvoice(t *testing.T) {
 		envelope, err := test.LoadTestEnvelope("invoice-pl-pl.json")
 		require.NoError(t, err)
 
-		// Create QR code for the uploaded invoice and check if it's properly generated
-		err = client.Sign(envelope, "8126178616", &(uploadedInvoices[0]))
+		// Attach required stamps to envelope
+		qrURL, qrErr := ksef.GenerateQrCodeURL(
+			client.GetQrCodeBaseURL(),
+			ctxIdentifier.Nip,
+			uploadedInvoices[0].InvoiceHash,
+			uploadedInvoices[0].InvoicingDate,
+		)
+		require.NoError(t, qrErr)
+
+		err = ksef.Sign(envelope, qrURL, uploadedInvoices[0].KsefNumber, uploadedInvoices[0].InvoiceHash)
 		assert.NoError(t, err)
 
 		require.NotNil(t, envelope.Head.Stamps)
