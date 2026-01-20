@@ -1,10 +1,7 @@
 package ksef
 
 import (
-	"encoding/base64"
 	"fmt"
-	"strings"
-	"time"
 
 	"github.com/invopop/gobl"
 	"github.com/invopop/gobl/head"
@@ -37,28 +34,4 @@ func Sign(env *gobl.Envelope, qrURL, ksefNumber, invoiceHash string) error {
 	)
 
 	return nil
-}
-
-// GenerateQrCodeURL builds the URL used for verifying an invoice in KSeF.
-func GenerateQrCodeURL(baseURL, nip, invoiceHash string, invoicingDate time.Time) (string, error) {
-	if baseURL == "" {
-		return "", fmt.Errorf("base URL is empty")
-	}
-	if nip == "" {
-		return "", fmt.Errorf("nip is empty")
-	}
-
-	hashBytes, err := base64.StdEncoding.DecodeString(invoiceHash)
-	if err != nil {
-		return "", fmt.Errorf("invalid invoice hash: %w", err)
-	}
-	base64URLHash := base64.RawURLEncoding.EncodeToString(hashBytes)
-
-	base := strings.TrimRight(baseURL, "/") // remove trailing slash if present
-	return fmt.Sprintf("%s/%s/%s/%s",
-		base,
-		nip,
-		invoicingDate.Format("02-01-2006"),
-		base64URLHash,
-	), nil
 }

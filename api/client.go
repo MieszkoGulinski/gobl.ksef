@@ -85,14 +85,6 @@ func NewClient(contextIdentifier *ContextIdentifier, certificatePath string, opt
 	}
 }
 
-// GetQrCodeBaseURL exposes the configured QR code verification base URL.
-func (c *Client) GetQrCodeBaseURL() string {
-	if c == nil {
-		return ""
-	}
-	return c.qrUrl
-}
-
 // Authenticate performs the full authorization exchange and stores the resulting tokens on the client.
 func (c *Client) Authenticate(ctx context.Context) error {
 	challenge, err := c.fetchChallenge(ctx)

@@ -92,13 +92,12 @@ func TestUploadInvoice(t *testing.T) {
 		require.NoError(t, err)
 
 		// Attach required stamps to envelope
-		qrURL, qrErr := ksef.GenerateQrCodeURL(
-			client.GetQrCodeBaseURL(),
+		qrURL, err := client.GenerateQrCodeURL(
 			ctxIdentifier.Nip,
 			uploadedInvoices[0].InvoiceHash,
 			uploadedInvoices[0].InvoicingDate,
 		)
-		require.NoError(t, qrErr)
+		require.NoError(t, err)
 
 		err = ksef.Sign(envelope, qrURL, uploadedInvoices[0].KsefNumber, uploadedInvoices[0].InvoiceHash)
 		assert.NoError(t, err)
