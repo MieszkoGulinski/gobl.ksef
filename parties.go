@@ -1,6 +1,8 @@
 package ksef
 
 import (
+	"fmt"
+
 	"github.com/invopop/gobl/l10n"
 	"github.com/invopop/gobl/org"
 )
@@ -22,25 +24,28 @@ type Seller struct {
 
 // ContactDetails defines the XML structure for KSeF contact
 type ContactDetails struct {
-	Phone string `xml:"Telefon,omitempty"`
 	Email string `xml:"Email,omitempty"`
+	Phone string `xml:"Telefon,omitempty"`
 }
 
 // Buyer defines the XML structure for KSeF buyer
 type Buyer struct {
 	NIP string `xml:"DaneIdentyfikacyjne>NIP,omitempty"`
 	// or
-	UECode      string `xml:"DaneIdentyfikacyjne>KodUE,omitempty"` //TODO
-	UEVatNumber string `xml:"DaneIdentyfikacyjne>NrVatUE,omitempty"`
+	UECode      string `xml:"DaneIdentyfikacyjne>KodUE,omitempty"`   // Country code when in European Union
+	UEVatNumber string `xml:"DaneIdentyfikacyjne>NrVatUE,omitempty"` // EU VAT number
 	// or
-	CountryCode string `xml:"DaneIdentyfikacyjne>KodKraju,omitempty"`
-	IDNumber    string `xml:"DaneIdentyfikacyjne>NrId,omitempty"`
+	CountryCode string `xml:"DaneIdentyfikacyjne>KodKraju,omitempty"` // Country code outside European Union
+	IDNumber    string `xml:"DaneIdentyfikacyjne>NrID,omitempty"`     // Tax ID number outside European Union
 	// or
 	NoID int `xml:"DaneIdentyfikacyjne>BrakID,omitempty"`
 
 	Name    string          `xml:"DaneIdentyfikacyjne>Nazwa,omitempty"`
 	Address *Address        `xml:"Adres,omitempty"`
 	Contact *ContactDetails `xml:"DaneKontaktowe,omitempty"`
+
+	JST int `xml:"JST"` // JST (Jednostka Samorządu Terytorialnego = local government unit) 1 = Yes, 2 = No
+	GV  int `xml:"GV"`  // GV (Group VAT) 1 = Yes, 2 = No
 }
 
 // newAddress gets the address data from GOBL address
@@ -89,25 +94,66 @@ func NewSeller(supplier *org.Party) *Seller {
 	return seller
 }
 
+// EU countries
+var euCountriesCodes = []string{
+	"AT", // Austria
+	"BE", // Belgium
+	"BG", // Bulgaria
+	"CY", // Cyprus
+	"CZ", // Czech Republic
+	"DE", // Germany
+	"DK", // Denmark
+	"EE", // Estonia
+	"EL", // Greece
+	"ES", // Spain
+	"FI", // Finland
+	"FR", // France
+	"HR", // Croatia
+	"HU", // Hungary
+	"IE", // Ireland
+	"IT", // Italy
+	"LT", // Lithuania
+	"LU", // Luxembourg
+	"LV", // Latvia
+	"MT", // Malta
+	"NL", // Netherlands
+	"PL", // Poland
+	"PT", // Portugal
+	"RO", // Romania
+	"SE", // Sweden
+	"SI", // Slovenia
+	"SK", // Slovakia
+	"XI", // Northern Ireland (listed in XML schema but not member of EU)
+}
+
 // NewBuyer converts a GOBL Party into a KSeF buyer
 func NewBuyer(customer *org.Party) *Buyer {
 
 	buyer := &Buyer{
 		Name: customer.Name,
-		NIP:  string(customer.TaxID.Code),
+		JST:  2, // hardcoded as "No"
+		GV:   2, // hardcoded as "No"
 	}
 
-	if customer.TaxID.Country == l10n.PL.Tax() {
+	if customer.TaxID == nil {
+		// Buyer is a private individual
+		buyer.NoID = 1
+	} else if customer.TaxID.Country == l10n.PL.Tax() {
+		// Buyer is a Polish business entity
 		buyer.NIP = string(customer.TaxID.Code)
+	} else if isEUCountry(string(customer.TaxID.Country)) {
+		// Buyer is an EU business entity (non-Polish)
+		buyer.UECode = string(customer.TaxID.Country)
+		buyer.UEVatNumber = string(customer.TaxID.Code)
 	} else {
+		// Buyer is a business entity from outside the EU
+		buyer.CountryCode = string(customer.TaxID.Country)
 		if len(customer.TaxID.Code) > 0 {
 			buyer.IDNumber = string(customer.TaxID.Code)
-			buyer.CountryCode = string(customer.TaxID.Country)
-		} else {
-			buyer.NoID = 1
 		}
 	}
-	// TODO NrVatUE and UECode if applicable
+
+	fmt.Println(buyer.Name)
 
 	if len(customer.Addresses) > 0 {
 		buyer.Address = newAddress(customer.Addresses[0])
@@ -156,4 +202,13 @@ func nameMaybe(element string) string {
 		return " " + element
 	}
 	return ""
+}
+
+func isEUCountry(code string) bool {
+	for _, c := range euCountriesCodes {
+		if c == code {
+			return true
+		}
+	}
+	return false
 }

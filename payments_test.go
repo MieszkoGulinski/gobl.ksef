@@ -57,7 +57,7 @@ func TestNewPayment(t *testing.T) {
 			PartiallyPaidMarker:    "",
 			AdvancePayments:        []*ksef.AdvancePayment{},
 			DueDates:               []*ksef.DueDate{},
-			PaymentMean:            "6",
+			PaymentMean:            "6", // mapped from credit-transfer
 			OtherPaymentMeanMarker: "",
 			OtherPaymentMean:       "",
 			BankAccounts:           []*ksef.BankAccount{},
@@ -66,6 +66,43 @@ func TestNewPayment(t *testing.T) {
 		}
 
 		assert.Equal(t, result, pay)
+	})
+
+	t.Run("should populate bank accounts from credit transfer instructions", func(t *testing.T) {
+		payment := &bill.PaymentDetails{
+			Instructions: &pay.Instructions{
+				Key: "credit-transfer",
+				CreditTransfer: []*pay.CreditTransfer{
+					{
+						Number: "12345",
+						BIC:    "BICA",
+						Name:   "Bank Alpha",
+					},
+					{
+						Number: "67890",
+						BIC:    "BICB",
+						Name:   "Bank Beta",
+					},
+				},
+			},
+		}
+		totals := &bill.Totals{}
+		pay := ksef.NewPayment(payment, totals)
+
+		expected := []*ksef.BankAccount{
+			{
+				AccountNumber: "12345",
+				SWIFT:         "BICA",
+				BankName:      "Bank Alpha",
+			},
+			{
+				AccountNumber: "67890",
+				SWIFT:         "BICB",
+				BankName:      "Bank Beta",
+			},
+		}
+
+		assert.Equal(t, expected, pay.BankAccounts)
 	})
 
 	t.Run("should set payment terms", func(t *testing.T) {
@@ -86,7 +123,7 @@ func TestNewPayment(t *testing.T) {
 			PaymentDate:            "",
 			PartiallyPaidMarker:    "",
 			AdvancePayments:        []*ksef.AdvancePayment{},
-			DueDates:               []*ksef.DueDate{{Date: d.String(), Description: num.String()}},
+			DueDates:               []*ksef.DueDate{{Date: d.String()}},
 			PaymentMean:            "",
 			OtherPaymentMeanMarker: "",
 			OtherPaymentMean:       "",
@@ -99,6 +136,7 @@ func TestNewPayment(t *testing.T) {
 	})
 
 	t.Run("advances should set paid marker and date", func(t *testing.T) {
+		// Fully paid in advance
 		x := time.Date(2023, time.July, 28, 0, 0, 0, 0, time.UTC)
 		d := cal.DateOf(x)
 		firstNum, err := num.AmountFromString("245.890")
@@ -132,6 +170,7 @@ func TestNewPayment(t *testing.T) {
 	})
 
 	t.Run("multiple advances sets partially paid marker and advance fields", func(t *testing.T) {
+		// Partially paid in advance
 		x := time.Date(2023, time.July, 28, 0, 0, 0, 0, time.UTC)
 		d := cal.DateOf(x)
 		firstNum, err := num.AmountFromString("245.890")
@@ -151,6 +190,42 @@ func TestNewPayment(t *testing.T) {
 			PaidMarker:             "",
 			PaymentDate:            "",
 			PartiallyPaidMarker:    "1",
+			AdvancePayments:        []*ksef.AdvancePayment{{PaymentAmount: firstNum.String(), PaymentDate: d.String()}, {PaymentAmount: secondNum.String(), PaymentDate: d.String()}},
+			DueDates:               []*ksef.DueDate{},
+			PaymentMean:            "",
+			OtherPaymentMeanMarker: "",
+			OtherPaymentMean:       "",
+			BankAccounts:           []*ksef.BankAccount(nil),
+			FactorBankAccounts:     []*ksef.BankAccount(nil),
+			Discount:               (*ksef.Discount)(nil),
+		}
+
+		assert.Equal(t, result, pay)
+	})
+
+	t.Run("multiple advances already paid sets partially paid marker two", func(t *testing.T) {
+		// Fully settled using multiple advances
+		x := time.Date(2023, time.July, 28, 0, 0, 0, 0, time.UTC)
+		d := cal.DateOf(x)
+		firstNum, err := num.AmountFromString("245.890")
+		require.NoError(t, err)
+		secondNum, err := num.AmountFromString("45.990")
+		require.NoError(t, err)
+		zero, err := num.AmountFromString("0")
+		require.NoError(t, err)
+
+		payment := &bill.PaymentDetails{
+			Advances: []*pay.Advance{{Date: &d, Amount: firstNum}, {Date: &d, Amount: secondNum}},
+		}
+		totals := &bill.Totals{
+			Due:      &zero,
+			Advances: &firstNum,
+		}
+		pay := ksef.NewPayment(payment, totals)
+		result := &ksef.Payment{
+			PaidMarker:             "",
+			PaymentDate:            "",
+			PartiallyPaidMarker:    "2", // marks that invoice was fully settled using advances
 			AdvancePayments:        []*ksef.AdvancePayment{{PaymentAmount: firstNum.String(), PaymentDate: d.String()}, {PaymentAmount: secondNum.String(), PaymentDate: d.String()}},
 			DueDates:               []*ksef.DueDate{},
 			PaymentMean:            "",

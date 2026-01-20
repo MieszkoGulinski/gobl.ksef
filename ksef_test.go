@@ -15,7 +15,7 @@ func TestNewDocument(t *testing.T) {
 		require.NoError(t, err)
 
 		assert.Equal(t, "Faktura", doc.XMLName.Local)
-		assert.Equal(t, "http://crd.gov.pl/wzor/2023/06/29/12648/", doc.XMLNamespace)
+		assert.Equal(t, "http://crd.gov.pl/wzor/2025/06/25/13775/", doc.XMLNamespace)
 		assert.Equal(t, "http://www.w3.org/2001/XMLSchema", doc.XSDNamespace)
 		assert.Equal(t, "http://www.w3.org/2001/XMLSchema-instance", doc.XSINamespace)
 		assert.NotNil(t, doc.Header)
@@ -51,73 +51,95 @@ func TestNewDocument(t *testing.T) {
 	})
 
 	t.Run("should generate valid KSeF document", func(t *testing.T) {
-		err := xsdvalidate.Init()
-		require.NoError(t, err)
-		defer xsdvalidate.Cleanup()
-
-		xsdBuf, err := test.LoadSchemaFile("FA2.xsd")
-		require.NoError(t, err)
-
-		xsdhandler, err := xsdvalidate.NewXsdHandlerMem(xsdBuf, xsdvalidate.ParsErrVerbose)
-		require.NoError(t, err)
-		defer xsdhandler.Free()
-
 		doc, err := test.NewDocumentFrom("invoice-pl-pl.json")
 		require.NoError(t, err)
 
 		data, err := doc.Bytes()
 		require.NoError(t, err)
 
-		validation := xsdhandler.ValidateMem(data, xsdvalidate.ParsErrDefault)
-		assert.Nil(t, validation)
+		validateAgainstFA3Schema(t, data)
 	})
 
 	t.Run("should generate valid credit-note", func(t *testing.T) {
-		err := xsdvalidate.Init()
-		require.NoError(t, err)
-		defer xsdvalidate.Cleanup()
-
-		xsdBuf, err := test.LoadSchemaFile("FA2.xsd")
-		require.NoError(t, err)
-
-		xsdhandler, err := xsdvalidate.NewXsdHandlerMem(xsdBuf, xsdvalidate.ParsErrVerbose)
-		require.NoError(t, err)
-		defer xsdhandler.Free()
-
 		doc, err := test.NewDocumentFrom("credit-note.json")
 		require.NoError(t, err)
 
 		data, err := doc.Bytes()
 		require.NoError(t, err)
 
-		validation := xsdhandler.ValidateMem(data, xsdvalidate.ParsErrDefault)
-		assert.Nil(t, validation)
+		validateAgainstFA3Schema(t, data)
+	})
+
+	t.Run("should generate valid B2B invoice from PL to another EU country", func(t *testing.T) {
+		doc, err := test.NewDocumentFrom("b2b-pl-es.json")
+		require.NoError(t, err)
+
+		data, err := doc.Bytes()
+		require.NoError(t, err)
+
+		validateAgainstFA3Schema(t, data)
+	})
+
+	t.Run("should generate valid B2B invoice from PL to a non-EU country", func(t *testing.T) {
+		doc, err := test.NewDocumentFrom("b2b-pl-us-usd.json")
+		require.NoError(t, err)
+
+		data, err := doc.Bytes()
+		require.NoError(t, err)
+
+		validateAgainstFA3Schema(t, data)
+	})
+
+	t.Run("should generate valid B2C invoice", func(t *testing.T) {
+		doc, err := test.NewDocumentFrom("b2c-pl-pl.json")
+		require.NoError(t, err)
+
+		data, err := doc.Bytes()
+		require.NoError(t, err)
+
+		validateAgainstFA3Schema(t, data)
+	})
+
+	t.Run("should generate valid simplified B2C invoice", func(t *testing.T) {
+		doc, err := test.NewDocumentFrom("b2c-pl-pl-simplified.json")
+		require.NoError(t, err)
+
+		data, err := doc.Bytes()
+		require.NoError(t, err)
+
+		validateAgainstFA3Schema(t, data)
 	})
 
 	t.Run("should generate valid self-billed invoice", func(t *testing.T) {
-		err := xsdvalidate.Init()
-		require.NoError(t, err)
-		defer xsdvalidate.Cleanup()
-
-		xsdBuf, err := test.LoadSchemaFile("FA2.xsd")
-		require.NoError(t, err)
-
-		xsdhandler, err := xsdvalidate.NewXsdHandlerMem(xsdBuf, xsdvalidate.ParsErrVerbose)
-		require.NoError(t, err)
-		defer xsdhandler.Free()
-
 		doc, err := test.NewDocumentFrom("invoice-self-billed.json")
 		require.NoError(t, err)
 
 		data, err := doc.Bytes()
 		require.NoError(t, err)
 
-		validation := xsdhandler.ValidateMem(data, xsdvalidate.ParsErrDefault)
-		assert.Nil(t, validation)
+		validateAgainstFA3Schema(t, data)
 
 		output, err := test.LoadOutputFile("invoice-self-billed.xml")
 		require.NoError(t, err)
 
 		assert.Equal(t, string(output), string(data))
 	})
+}
+
+func validateAgainstFA3Schema(t *testing.T, data []byte) {
+	t.Helper()
+
+	err := xsdvalidate.Init()
+	require.NoError(t, err)
+	t.Cleanup(xsdvalidate.Cleanup)
+
+	xsdBuf, err := test.LoadSchemaFile("FA3.xsd")
+	require.NoError(t, err)
+
+	xsdhandler, err := xsdvalidate.NewXsdHandlerMem(xsdBuf, xsdvalidate.ParsErrVerbose)
+	require.NoError(t, err)
+	t.Cleanup(xsdhandler.Free)
+
+	validation := xsdhandler.ValidateMem(data, xsdvalidate.ParsErrDefault)
+	assert.Nil(t, validation)
 }
