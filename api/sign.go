@@ -24,11 +24,11 @@ func (c *Client) Sign(env *gobl.Envelope, nip string, uploadedInvoice *UploadedI
 	)
 	// URL contains invoicing date in DD-MM-YYYY format
 	// Hash must be in Base64URL, not Base64
-	data, err := base64.StdEncoding.DecodeString(uploadedInvoice.InvoiceHash)
+	hashBytes, err := base64.StdEncoding.DecodeString(uploadedInvoice.InvoiceHash)
 	if err != nil {
 		return err
 	}
-	base64UrlHash := base64.RawURLEncoding.EncodeToString(data)
+	base64UrlHash := base64.RawURLEncoding.EncodeToString(hashBytes)
 
 	env.Head.AddStamp(
 		&head.Stamp{
