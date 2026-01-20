@@ -111,7 +111,9 @@ func TestUploadInvoice(t *testing.T) {
 		// To check if the URL is actually valid, we need to check the returned HTML, and this is very fragile
 		resp, err := http.Get(qrStampValue)
 		require.NoError(t, err)
-		defer resp.Body.Close()
+		defer func() {
+			assert.NoError(t, resp.Body.Close())
+		}()
 		assert.Equal(t, http.StatusOK, resp.StatusCode)
 	})
 }
