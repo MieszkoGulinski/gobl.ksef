@@ -12,45 +12,49 @@ import (
 
 // Inv defines the XML structure for KSeF invoice
 type Inv struct {
-	CurrencyCode                       string        `xml:"KodWaluty"`
-	IssueDate                          string        `xml:"P_1"`
-	IssuePlace                         string        `xml:"P_1M,omitempty"`
-	SequentialNumber                   string        `xml:"P_2"`
-	CompletionDate                     string        `xml:"P_6,omitempty"`
-	StartDate                          string        `xml:"P_6_Od,omitempty"` // TODO should be wrapped in OkresFa
-	EndDate                            string        `xml:"P_6_Do,omitempty"` // TODO should be wrapped in OkresFa
-	StandardRateNetSale                string        `xml:"P_13_1,omitempty"`
-	StandardRateTax                    string        `xml:"P_14_1,omitempty"`
-	StandardRateTaxConvertedToPln      string        `xml:"P_14_1W,omitempty"`
-	ReducedRateNetSale                 string        `xml:"P_13_2,omitempty"`
-	ReducedRateTax                     string        `xml:"P_14_2,omitempty"`
-	ReducedRateTaxConvertedToPln       string        `xml:"P_14_2W,omitempty"`
-	SuperReducedRateNetSale            string        `xml:"P_13_3,omitempty"`
-	SuperReducedRateTax                string        `xml:"P_14_3,omitempty"`
-	SuperReducedRateTaxConvertedToPln  string        `xml:"P_14_3W,omitempty"`
-	TaxiRateNetSale                    string        `xml:"P_13_4,omitempty"`
-	TaxiRateTax                        string        `xml:"P_14_4,omitempty"`
-	TaxiRateTaxConvertedToPln          string        `xml:"P_14_4W,omitempty"`
-	SpecialProcedureNetSale            string        `xml:"P_13_5,omitempty"`
-	SpecialProcedureTax                string        `xml:"P_14_5,omitempty"`
-	ZeroTaxExceptIntraCommunityNetSale string        `xml:"P_13_6_1,omitempty"`
-	IntraCommunityNetSale              string        `xml:"P_13_6_2,omitempty"`
-	ExportNetSale                      string        `xml:"P_13_6_3,omitempty"`
-	TaxExemptNetSale                   string        `xml:"P_13_7,omitempty"`
-	InternationalNetSale               string        `xml:"P_13_8,omitempty"`
-	OtherNetSale                       string        `xml:"P_13_9,omitempty"`
-	EUServiceNetSale                   string        `xml:"P_13_10,omitempty"`
-	MarginNetSale                      string        `xml:"P_13_11,omitempty"`
-	TotalAmountReceivable              string        `xml:"P_15"`
-	Annotations                        *Annotations  `xml:"Adnotacje"`
-	InvoiceType                        string        `xml:"RodzajFaktury"`
-	CorrectionReason                   string        `xml:"PrzyczynaKorekty,omitempty"`
-	CorrectionType                     string        `xml:"TypKorekty,omitempty"`
-	CorrectedInv                       *CorrectedInv `xml:"DaneFaKorygowanej,omitempty"`
-	Lines                              []*Line       `xml:"FaWiersz,omitempty"` // empty for ZAL and KOR_ZAL, use Order instead
+	CurrencyCode                       string                       `xml:"KodWaluty"`
+	IssueDate                          string                       `xml:"P_1"`
+	IssuePlace                         string                       `xml:"P_1M,omitempty"`
+	SequentialNumber                   string                       `xml:"P_2"`
+	CompletionDate                     string                       `xml:"P_6,omitempty"`
+	Period                             *InvoicePeriod               `xml:"OkresFa,omitempty"`
+	StandardRateNetSale                string                       `xml:"P_13_1,omitempty"`
+	StandardRateTax                    string                       `xml:"P_14_1,omitempty"`
+	StandardRateTaxConvertedToPln      string                       `xml:"P_14_1W,omitempty"`
+	ReducedRateNetSale                 string                       `xml:"P_13_2,omitempty"`
+	ReducedRateTax                     string                       `xml:"P_14_2,omitempty"`
+	ReducedRateTaxConvertedToPln       string                       `xml:"P_14_2W,omitempty"`
+	SuperReducedRateNetSale            string                       `xml:"P_13_3,omitempty"`
+	SuperReducedRateTax                string                       `xml:"P_14_3,omitempty"`
+	SuperReducedRateTaxConvertedToPln  string                       `xml:"P_14_3W,omitempty"`
+	TaxiRateNetSale                    string                       `xml:"P_13_4,omitempty"`
+	TaxiRateTax                        string                       `xml:"P_14_4,omitempty"`
+	TaxiRateTaxConvertedToPln          string                       `xml:"P_14_4W,omitempty"`
+	SpecialProcedureNetSale            string                       `xml:"P_13_5,omitempty"`
+	SpecialProcedureTax                string                       `xml:"P_14_5,omitempty"`
+	ZeroTaxExceptIntraCommunityNetSale string                       `xml:"P_13_6_1,omitempty"`
+	IntraCommunityNetSale              string                       `xml:"P_13_6_2,omitempty"`
+	ExportNetSale                      string                       `xml:"P_13_6_3,omitempty"`
+	TaxExemptNetSale                   string                       `xml:"P_13_7,omitempty"`
+	InternationalNetSale               string                       `xml:"P_13_8,omitempty"`
+	OtherNetSale                       string                       `xml:"P_13_9,omitempty"`
+	EUServiceNetSale                   string                       `xml:"P_13_10,omitempty"`
+	MarginNetSale                      string                       `xml:"P_13_11,omitempty"`
+	TotalAmountReceivable              string                       `xml:"P_15"`
+	Annotations                        *Annotations                 `xml:"Adnotacje"`
+	InvoiceType                        string                       `xml:"RodzajFaktury"`
+	CorrectionReason                   string                       `xml:"PrzyczynaKorekty,omitempty"`
+	CorrectionType                     string                       `xml:"TypKorekty,omitempty"`
+	CorrectedInv                       *CorrectedInv                `xml:"DaneFaKorygowanej,omitempty"`
+	Lines                              []*Line                      `xml:"FaWiersz,omitempty"` // empty for ZAL and KOR_ZAL, use Order instead
+	Payment                            *Payment                     `xml:"Platnosc"`
+	AdditionalDescription              []*AdditionalDescriptionLine `xml:"DodatkowyOpis,omitempty"`
 	// Order                              *Order                       `xml:"Zamowienie,omitempty"` // TODO implement in the future
-	Payment               *Payment                     `xml:"Platnosc"`
-	AdditionalDescription []*AdditionalDescriptionLine `xml:"DodatkowyOpis,omitempty"`
+}
+
+type InvoicePeriod struct {
+	StartDate string `xml:"P_6_Od,omitempty"`
+	EndDate   string `xml:"P_6_Do,omitempty"`
 }
 
 // Annotations defines the XML structure for KSeF annotations
