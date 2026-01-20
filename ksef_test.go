@@ -6,7 +6,6 @@ import (
 	"github.com/invopop/gobl.ksef/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	xsdvalidate "github.com/terminalstatic/go-xsd-validate"
 )
 
 func TestNewDocument(t *testing.T) {
@@ -57,7 +56,7 @@ func TestNewDocument(t *testing.T) {
 		data, err := doc.Bytes()
 		require.NoError(t, err)
 
-		validateAgainstFA3Schema(t, data)
+		test.ValidateAgainstFA3Schema(t, data)
 	})
 
 	t.Run("should generate valid credit-note", func(t *testing.T) {
@@ -67,7 +66,7 @@ func TestNewDocument(t *testing.T) {
 		data, err := doc.Bytes()
 		require.NoError(t, err)
 
-		validateAgainstFA3Schema(t, data)
+		test.ValidateAgainstFA3Schema(t, data)
 	})
 
 	t.Run("should generate valid B2B invoice from PL to another EU country", func(t *testing.T) {
@@ -77,7 +76,7 @@ func TestNewDocument(t *testing.T) {
 		data, err := doc.Bytes()
 		require.NoError(t, err)
 
-		validateAgainstFA3Schema(t, data)
+		test.ValidateAgainstFA3Schema(t, data)
 	})
 
 	t.Run("should generate valid B2B invoice from PL to a non-EU country", func(t *testing.T) {
@@ -87,7 +86,7 @@ func TestNewDocument(t *testing.T) {
 		data, err := doc.Bytes()
 		require.NoError(t, err)
 
-		validateAgainstFA3Schema(t, data)
+		test.ValidateAgainstFA3Schema(t, data)
 	})
 
 	t.Run("should generate valid B2C invoice", func(t *testing.T) {
@@ -97,7 +96,7 @@ func TestNewDocument(t *testing.T) {
 		data, err := doc.Bytes()
 		require.NoError(t, err)
 
-		validateAgainstFA3Schema(t, data)
+		test.ValidateAgainstFA3Schema(t, data)
 	})
 
 	t.Run("should generate valid simplified B2C invoice", func(t *testing.T) {
@@ -107,7 +106,7 @@ func TestNewDocument(t *testing.T) {
 		data, err := doc.Bytes()
 		require.NoError(t, err)
 
-		validateAgainstFA3Schema(t, data)
+		test.ValidateAgainstFA3Schema(t, data)
 	})
 
 	t.Run("should generate valid self-billed invoice", func(t *testing.T) {
@@ -117,29 +116,11 @@ func TestNewDocument(t *testing.T) {
 		data, err := doc.Bytes()
 		require.NoError(t, err)
 
-		validateAgainstFA3Schema(t, data)
+		test.ValidateAgainstFA3Schema(t, data)
 
 		output, err := test.LoadOutputFile("invoice-self-billed.xml")
 		require.NoError(t, err)
 
 		assert.Equal(t, string(output), string(data))
 	})
-}
-
-func validateAgainstFA3Schema(t *testing.T, data []byte) {
-	t.Helper()
-
-	err := xsdvalidate.Init()
-	require.NoError(t, err)
-	t.Cleanup(xsdvalidate.Cleanup)
-
-	xsdBuf, err := test.LoadSchemaFile("FA3.xsd")
-	require.NoError(t, err)
-
-	xsdhandler, err := xsdvalidate.NewXsdHandlerMem(xsdBuf, xsdvalidate.ParsErrVerbose)
-	require.NoError(t, err)
-	t.Cleanup(xsdhandler.Free)
-
-	validation := xsdhandler.ValidateMem(data, xsdvalidate.ParsErrDefault)
-	assert.Nil(t, validation)
 }

@@ -51,7 +51,7 @@ The following fields are not present in the structs to be converted to XML:
 | `Fa>FaWiersz>P_11A` | price including tax (as opposite to `P_11` which does not include tax), to be used in cases described in appropriate law (see below) |
 | `Fa>Platnosc>ZaplataCzesciowa>FormaPlatnosci` | Payment means for partial payment |
 | `Fa>Platnosc>TerminPlatnosci>TerminOpis` | Alternative format for payment deadline. In our code there's `TerminPlatnosci>Termin` which contains a date, but this field can contain a textual description of the payment deadline (e.g. "within 30 days from the date of receiving invoice") |
-| `Fa>OkresFa` | Period of the invoice - alternative to `P_6`. Mapped incorrectly in code (elements `P_6_Od` and `P_6_Do` should be wrapped in `OkresFa` tag) |
+| `Fa>OkresFa` | Period of the invoice - alternative to `P_6` |
 | `Fa>Adnotacje>Zwolnienie>P_19` | For tax exempt goods, set `P_19` to 1 |
 | `Fa>Adnotacje>Zwolnienie>P_19A` | For tax exempt goods (Polish VAT law), text of legal basis |
 | `Fa>Adnotacje>Zwolnienie>P_19B` | For tax exempt goods (directive 2006/112/EC), text of legal basis |
@@ -83,8 +83,8 @@ The following fields are present in the struct to be converted to XML, but are n
 | `Fa>FaWiersz>StanPrzed` | `BeforeCorrectionMarker` | in a correction invoice, indicates that the line describes the state before the correction |
 | `Fa>P_13_11` | `MarginNetSale` |
 | `Fa>FaWiersz>GTU` | `SpecialGoodsCode` | Code identifying certain classes of goods and services (01 = alcoholic beverages, 02 = vehicle fuels...), values GTU_01 to GTU_13
-| `Fa>P_6_Od` | Start of the invoice period. Mapped incorrectly in code (elements `P_6_Od` and `P_6_Do` should be wrapped in `OkresFa` tag) |
-| `Fa>P_6_Do` | End of the invoice period. Mapped incorrectly in code (elements `P_6_Od` and `P_6_Do` should be wrapped in `OkresFa` tag) |
+| `Fa>P_6_Od` | Start of the invoice period |
+| `Fa>P_6_Do` | End of the invoice period |
 | `Fa>P_13_6_1` | `ZeroTaxExceptIntraCommunityNetSale` | Tax-exempt sale amount other than intra-EU supply and export |
 | `Fa>P_13_6_2` | `IntraCommunityNetSale` | Intra-EU supply, tax-exempt sale amount |
 | `Fa>P_13_6_3` | `ExportNetSale` | Export tax-exempt sale amount |
