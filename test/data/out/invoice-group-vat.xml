@@ -3,45 +3,45 @@
   <Naglowek>
     <KodFormularza kodSystemowy="FA (3)" wersjaSchemy="1-0E">FA</KodFormularza>
     <WariantFormularza>3</WariantFormularza>
-    <DataWytworzeniaFa>2025-12-20T00:00:00Z</DataWytworzeniaFa>
-    <SystemInfo>GOBL.KSEF</SystemInfo>
+    <DataWytworzeniaFa>2026-01-20T00:00:00Z</DataWytworzeniaFa>
+    <SystemInfo>Invopop</SystemInfo>
   </Naglowek>
   <Podmiot1>
+    <PrefiksPodatnika>PL</PrefiksPodatnika>
     <DaneIdentyfikacyjne>
-      <NIP>8126178616</NIP>
-      <Nazwa>Provide One S.L.</Nazwa>
+      <NIP>9876543210</NIP>
+      <Nazwa>Testowa Firma Sp. z o.o.</Nazwa>
     </DaneIdentyfikacyjne>
     <Adres>
       <KodKraju>PL</KodKraju>
-      <AdresL1>Calle Pradillo, 42</AdresL1>
-      <AdresL2>00-015, Madrid</AdresL2>
+      <AdresL1>ul. Główna 1, 00-001, Warsaw</AdresL1>
     </Adres>
-    <DaneKontaktowe>
-      <Email>billing@example.com</Email>
-    </DaneKontaktowe>
   </Podmiot1>
   <Podmiot2>
     <DaneIdentyfikacyjne>
-      <NIP>1234567788</NIP>
-      <Nazwa>Sample Consumer</Nazwa>
+      <NIP>9876543210</NIP>
+      <Nazwa>VAT Group Member Sp. z o.o.</Nazwa>
     </DaneIdentyfikacyjne>
     <Adres>
       <KodKraju>PL</KodKraju>
-      <AdresL1>Calle Pradillo, 43</AdresL1>
-      <AdresL2>00-015, Madrid</AdresL2>
+      <AdresL1>ul. Grupowa 50, 30-001, Kraków</AdresL1>
     </Adres>
     <JST>2</JST>
-    <GV>2</GV>
+    <GV>1</GV>
   </Podmiot2>
+  <Podmiot3>
+    <DaneIdentyfikacyjne>
+      <NrID>GV-MEMBER-12345</NrID>
+    </DaneIdentyfikacyjne>
+    <Rola>10</Rola>
+  </Podmiot3>
   <Fa>
     <KodWaluty>PLN</KodWaluty>
-    <P_1>2025-12-20</P_1>
-    <P_2>SAMPLE-001</P_2>
-    <P_13_1>1800.00</P_13_1>
-    <P_14_1>414.00</P_14_1>
-    <P_13_2>10.00</P_13_2>
-    <P_14_2>0.80</P_14_2>
-    <P_15>2224.80</P_15>
+    <P_1>2026-01-20</P_1>
+    <P_2>GV-001</P_2>
+    <P_13_1>5000.00</P_13_1>
+    <P_14_1>1150.00</P_14_1>
+    <P_15>6150.00</P_15>
     <Adnotacje>
       <P_16>2</P_16>
       <P_17>2</P_17>
@@ -59,23 +59,18 @@
       </PMarzy>
     </Adnotacje>
     <RodzajFaktury>VAT</RodzajFaktury>
+    <DodatkowyOpis>
+      <Klucz>general</Klucz>
+      <Wartosc>Invoice for services provided to a VAT Group member.</Wartosc>
+    </DodatkowyOpis>
     <FaWiersz>
       <NrWierszaFa>1</NrWierszaFa>
-      <P_7>Development services</P_7>
+      <P_7>Consulting Services for VAT Group Member</P_7>
       <P_8A>HUR</P_8A>
-      <P_8B>20</P_8B>
-      <P_9A>90.00</P_9A>
-      <P_11>1800.00</P_11>
+      <P_8B>10</P_8B>
+      <P_9A>500.00</P_9A>
+      <P_11>5000.00</P_11>
       <P_12>23</P_12>
-    </FaWiersz>
-    <FaWiersz>
-      <NrWierszaFa>2</NrWierszaFa>
-      <P_7>Financial service</P_7>
-      <P_8A>E48</P_8A>
-      <P_8B>1</P_8B>
-      <P_9A>10.00</P_9A>
-      <P_11>10.00</P_11>
-      <P_12>8</P_12>
     </FaWiersz>
   </Fa>
 </Faktura>

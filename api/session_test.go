@@ -10,7 +10,7 @@ import (
 	ksef "github.com/invopop/gobl.ksef"
 	ksef_api "github.com/invopop/gobl.ksef/api"
 	"github.com/invopop/gobl.ksef/test"
-	"github.com/invopop/gobl/regimes/pl"
+	"github.com/invopop/gobl/addons/pl/favat"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -56,7 +56,7 @@ func TestUploadInvoice(t *testing.T) {
 		uploadSession, err := client.CreateSession(ctx)
 		require.NoError(t, err)
 
-		doc, err := test.NewDocumentFrom("invoice-pl-pl.json")
+		doc, err := test.BuildFAVATFrom("invoice-pl-pl.json")
 		require.NoError(t, err)
 
 		// Generate unique identifier for the invoice.
@@ -107,7 +107,7 @@ func TestUploadInvoice(t *testing.T) {
 
 		var qrStampValue string
 		for _, stamp := range envelope.Head.Stamps {
-			if stamp != nil && stamp.Provider == pl.StampProviderKSeFQR {
+			if stamp != nil && stamp.Provider == favat.StampQR {
 				qrStampValue = stamp.Value
 				break
 			}

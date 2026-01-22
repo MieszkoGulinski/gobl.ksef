@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?><xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:etd="http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2022/01/05/eD/DefinicjeTypy/" xmlns:tns="http://crd.gov.pl/wzor/2025/06/25/13775/" targetNamespace="http://crd.gov.pl/wzor/2025/06/25/13775/" elementFormDefault="qualified" attributeFormDefault="unqualified" xml:lang="pl">
-	<xsd:import namespace="http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2022/01/05/eD/DefinicjeTypy/" schemaLocation="imports/StrukturyDanych_v10-0E.xsd"/>
+	<xsd:import namespace="http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2022/01/05/eD/DefinicjeTypy/" schemaLocation="http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2022/01/05/eD/DefinicjeTypy/StrukturyDanych_v10-0E.xsd"/>
 	<xsd:simpleType name="TKodyKrajowUE">
 		<xsd:annotation>
-			<xsd:documentation>Kody krajów członkowskich Unii Europejskiej, w tym kod dla obszaru Irlandii Północnej</xsd:documentation>
+			<xsd:documentation>Codes of European Union member countries, including the code for the Northern Ireland area</xsd:documentation>
 		</xsd:annotation>
 		<xsd:restriction base="xsd:normalizedString">
 			<xsd:enumeration value="AT">
@@ -12,27 +12,27 @@
 			</xsd:enumeration>
 			<xsd:enumeration value="BE">
 				<xsd:annotation>
-					<xsd:documentation>BELGIA</xsd:documentation>
+					<xsd:documentation>BELGIUM</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="BG">
 				<xsd:annotation>
-					<xsd:documentation>BUŁGARIA</xsd:documentation>
+					<xsd:documentation>BULGARIA</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="CY">
 				<xsd:annotation>
-					<xsd:documentation>CYPR</xsd:documentation>
+					<xsd:documentation>CYPRUS</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="CZ">
 				<xsd:annotation>
-					<xsd:documentation>CZECHY</xsd:documentation>
+					<xsd:documentation>CZECH REPUBLIC</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="DK">
 				<xsd:annotation>
-					<xsd:documentation>DANIA</xsd:documentation>
+					<xsd:documentation>DENMARK</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="EE">
@@ -42,57 +42,57 @@
 			</xsd:enumeration>
 			<xsd:enumeration value="FI">
 				<xsd:annotation>
-					<xsd:documentation>FINLANDIA</xsd:documentation>
+					<xsd:documentation>FINLAND</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="FR">
 				<xsd:annotation>
-					<xsd:documentation>FRANCJA</xsd:documentation>
+					<xsd:documentation>FRANCE</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="DE">
 				<xsd:annotation>
-					<xsd:documentation>NIEMCY</xsd:documentation>
+					<xsd:documentation>GERMANY</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="EL">
 				<xsd:annotation>
-					<xsd:documentation>GRECJA</xsd:documentation>
+					<xsd:documentation>GREECE</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="HR">
 				<xsd:annotation>
-					<xsd:documentation>CHORWACJA</xsd:documentation>
+					<xsd:documentation>CROATIA</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="HU">
 				<xsd:annotation>
-					<xsd:documentation>WĘGRY</xsd:documentation>
+					<xsd:documentation>HUNGARY</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="IE">
 				<xsd:annotation>
-					<xsd:documentation>IRLANDIA</xsd:documentation>
+					<xsd:documentation>IRELAND</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="IT">
 				<xsd:annotation>
-					<xsd:documentation>WŁOCHY</xsd:documentation>
+					<xsd:documentation>ITALY</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="LV">
 				<xsd:annotation>
-					<xsd:documentation>ŁOTWA</xsd:documentation>
+					<xsd:documentation>LATVIA</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="LT">
 				<xsd:annotation>
-					<xsd:documentation>LITWA</xsd:documentation>
+					<xsd:documentation>LITHUANIA</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="LU">
 				<xsd:annotation>
-					<xsd:documentation>LUKSEMBURG</xsd:documentation>
+					<xsd:documentation>LUXEMBOURG</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="MT">
@@ -102,64 +102,64 @@
 			</xsd:enumeration>
 			<xsd:enumeration value="NL">
 				<xsd:annotation>
-					<xsd:documentation>HOLANDIA</xsd:documentation>
+					<xsd:documentation>NETHERLANDS</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="PL">
 				<xsd:annotation>
-					<xsd:documentation>POLSKA</xsd:documentation>
+					<xsd:documentation>POLAND</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="PT">
 				<xsd:annotation>
-					<xsd:documentation>PORTUGALIA</xsd:documentation>
+					<xsd:documentation>PORTUGAL</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="RO">
 				<xsd:annotation>
-					<xsd:documentation>RUMUNIA</xsd:documentation>
+					<xsd:documentation>ROMANIA</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="SK">
 				<xsd:annotation>
-					<xsd:documentation>SŁOWACJA</xsd:documentation>
+					<xsd:documentation>SLOVAKIA</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="SI">
 				<xsd:annotation>
-					<xsd:documentation>SŁOWENIA</xsd:documentation>
+					<xsd:documentation>SLOVENIA</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="ES">
 				<xsd:annotation>
-					<xsd:documentation>HISZPANIA</xsd:documentation>
+					<xsd:documentation>SPAIN</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="SE">
 				<xsd:annotation>
-					<xsd:documentation>SZWECJA</xsd:documentation>
+					<xsd:documentation>SWEDEN</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="XI">
 				<xsd:annotation>
-					<xsd:documentation>IRLANDIA PÓŁNOCNA</xsd:documentation>
+					<xsd:documentation>NORTHERN IRELAND</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 		</xsd:restriction>
 	</xsd:simpleType>
 	<xsd:simpleType name="TKodWaluty">
 		<xsd:annotation>
-			<xsd:documentation>Słownik kodów walut</xsd:documentation>
+			<xsd:documentation>Currency code dictionary</xsd:documentation>
 		</xsd:annotation>
 		<xsd:restriction base="xsd:normalizedString">
 			<xsd:enumeration value="AED">
 				<xsd:annotation>
-					<xsd:documentation>DIRHAM ZEA</xsd:documentation>
+					<xsd:documentation>UAE DIRHAM</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="AFN">
 				<xsd:annotation>
-					<xsd:documentation>AFGANI</xsd:documentation>
+					<xsd:documentation>AFGHANI</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="ALL">
@@ -174,7 +174,7 @@
 			</xsd:enumeration>
 			<xsd:enumeration value="ANG">
 				<xsd:annotation>
-					<xsd:documentation>GULDEN ANTYLI HOLENDERSKICH</xsd:documentation>
+					<xsd:documentation>NETHERLANDS ANTILLEAN GUILDER</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="AOA">
@@ -184,32 +184,32 @@
 			</xsd:enumeration>
 			<xsd:enumeration value="ARS">
 				<xsd:annotation>
-					<xsd:documentation>PESO ARGENTYŃSKIE</xsd:documentation>
+					<xsd:documentation>ARGENTINE PESO</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="AUD">
 				<xsd:annotation>
-					<xsd:documentation>DOLAR AUSTRALIJSKI</xsd:documentation>
+					<xsd:documentation>AUSTRALIAN DOLLAR</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="AWG">
 				<xsd:annotation>
-					<xsd:documentation>GULDEN ARUBAŃSKI</xsd:documentation>
+					<xsd:documentation>ARUBAN FLORIN</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="AZN">
 				<xsd:annotation>
-					<xsd:documentation>MANAT AZERBEJDŻAŃSKI</xsd:documentation>
+					<xsd:documentation>AZERBAIJANI MANAT</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="BAM">
 				<xsd:annotation>
-					<xsd:documentation>MARKA ZAMIENNA</xsd:documentation>
+					<xsd:documentation>CONVERTIBLE MARK</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="BBD">
 				<xsd:annotation>
-					<xsd:documentation>DOLAR BARBADOSKI</xsd:documentation>
+					<xsd:documentation>BARBADOS DOLLAR</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="BDT">
@@ -219,47 +219,47 @@
 			</xsd:enumeration>
 			<xsd:enumeration value="BGN">
 				<xsd:annotation>
-					<xsd:documentation>LEW</xsd:documentation>
+					<xsd:documentation>LEV</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="BHD">
 				<xsd:annotation>
-					<xsd:documentation>DINAR BAHRAJSKI</xsd:documentation>
+					<xsd:documentation>BAHRAINI DINAR</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="BIF">
 				<xsd:annotation>
-					<xsd:documentation>FRANK BURUNDYJSKI</xsd:documentation>
+					<xsd:documentation>BURUNDI FRANC</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="BMD">
 				<xsd:annotation>
-					<xsd:documentation>DOLAR BERMUDZKI</xsd:documentation>
+					<xsd:documentation>BERMUDIAN DOLLAR</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="BND">
 				<xsd:annotation>
-					<xsd:documentation>DOLAR BRUNEJSKI</xsd:documentation>
+					<xsd:documentation>BRUNEI DOLLAR</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="BOB">
 				<xsd:annotation>
-					<xsd:documentation>BOLIWIANO</xsd:documentation>
+					<xsd:documentation>BOLIVIANO</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="BOV">
 				<xsd:annotation>
-					<xsd:documentation>BOLIWIANO MVDOL</xsd:documentation>
+					<xsd:documentation>BOLIVIAN MVDOL</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="BRL">
 				<xsd:annotation>
-					<xsd:documentation>REAL</xsd:documentation>
+					<xsd:documentation>BRAZILIAN REAL</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="BSD">
 				<xsd:annotation>
-					<xsd:documentation>DOLAR BAHAMSKI</xsd:documentation>
+					<xsd:documentation>BAHAMIAN DOLLAR</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="BTN">
@@ -274,47 +274,47 @@
 			</xsd:enumeration>
 			<xsd:enumeration value="BYN">
 				<xsd:annotation>
-					<xsd:documentation>RUBEL BIAŁORUSKI</xsd:documentation>
+					<xsd:documentation>BELARUSIAN RUBLE</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="BZD">
 				<xsd:annotation>
-					<xsd:documentation>DOLAR BELIZEŃSKI</xsd:documentation>
+					<xsd:documentation>BELIZE DOLLAR</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="CAD">
 				<xsd:annotation>
-					<xsd:documentation>DOLAR KANADYJSKI</xsd:documentation>
+					<xsd:documentation>CANADIAN DOLLAR</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="CDF">
 				<xsd:annotation>
-					<xsd:documentation>FRANK KONGIJSKI</xsd:documentation>
+					<xsd:documentation>CONGOLESE FRANC</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="CHE">
 				<xsd:annotation>
-					<xsd:documentation>FRANK SZWAJCARSKI VIR EURO</xsd:documentation>
+					<xsd:documentation>WIR EURO</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="CHF">
 				<xsd:annotation>
-					<xsd:documentation>FRANK SZWAJCARSKI</xsd:documentation>
+					<xsd:documentation>SWISS FRANC</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="CHW">
 				<xsd:annotation>
-					<xsd:documentation>FRANK SZWAJCARSKI VIR FRANK</xsd:documentation>
+					<xsd:documentation>WIR FRANC</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="CLF">
 				<xsd:annotation>
-					<xsd:documentation>JEDNOSTKA ROZLICZENIOWA CHILIJSKA</xsd:documentation>
+					<xsd:documentation>CHILEAN UNIT OF ACCOUNT</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="CLP">
 				<xsd:annotation>
-					<xsd:documentation>PESO CHILIJSKIE</xsd:documentation>
+					<xsd:documentation>CHILEAN PESO</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="CNY">
@@ -324,62 +324,62 @@
 			</xsd:enumeration>
 			<xsd:enumeration value="COP">
 				<xsd:annotation>
-					<xsd:documentation>PESO KOLUMBIJSKIE</xsd:documentation>
+					<xsd:documentation>COLOMBIAN PESO</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="COU">
 				<xsd:annotation>
-					<xsd:documentation>UNIDAD DE VALOR REAL KOLUMBILSKIE</xsd:documentation>
+					<xsd:documentation>COLOMBIAN UNIDAD DE VALOR REAL</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="CRC">
 				<xsd:annotation>
-					<xsd:documentation>COLON KOSTARYKAŃSKI</xsd:documentation>
+					<xsd:documentation>COSTA RICAN COLON</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="CUC">
 				<xsd:annotation>
-					<xsd:documentation>PESO WYMIENIALNE</xsd:documentation>
+					<xsd:documentation>CUBAN CONVERTIBLE PESO</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="CUP">
 				<xsd:annotation>
-					<xsd:documentation>PESO KUBAŃSKIE</xsd:documentation>
+					<xsd:documentation>CUBAN PESO</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="CVE">
 				<xsd:annotation>
-					<xsd:documentation>ESCUDO REPUBLIKI ZIELONEGO PRZYLĄDKA</xsd:documentation>
+					<xsd:documentation>CAPE VERDE ESCUDO</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="CZK">
 				<xsd:annotation>
-					<xsd:documentation>KORONA CZESKA</xsd:documentation>
+					<xsd:documentation>CZECH KORUNA</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="DJF">
 				<xsd:annotation>
-					<xsd:documentation>FRANK DŻIBUTI</xsd:documentation>
+					<xsd:documentation>DJIBOUTI FRANC</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="DKK">
 				<xsd:annotation>
-					<xsd:documentation>KORONA DUŃSKA</xsd:documentation>
+					<xsd:documentation>DANISH KRONE</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="DOP">
 				<xsd:annotation>
-					<xsd:documentation>PESO DOMINIKAŃSKIE</xsd:documentation>
+					<xsd:documentation>DOMINICAN PESO</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="DZD">
 				<xsd:annotation>
-					<xsd:documentation>DINAR ALGIERSKI</xsd:documentation>
+					<xsd:documentation>ALGERIAN DINAR</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="EGP">
 				<xsd:annotation>
-					<xsd:documentation>FUNT EGIPSKI</xsd:documentation>
+					<xsd:documentation>EGYPTIAN POUND</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="ERN">
@@ -389,7 +389,7 @@
 			</xsd:enumeration>
 			<xsd:enumeration value="ETB">
 				<xsd:annotation>
-					<xsd:documentation>BIRR</xsd:documentation>
+					<xsd:documentation>ETHIOPIAN BIRR</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="EUR">
@@ -399,17 +399,17 @@
 			</xsd:enumeration>
 			<xsd:enumeration value="FJD">
 				<xsd:annotation>
-					<xsd:documentation>DOLAR FIDŻI</xsd:documentation>
+					<xsd:documentation>FIJI DOLLAR</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="FKP">
 				<xsd:annotation>
-					<xsd:documentation>FUNT FALKLANDZKI</xsd:documentation>
+					<xsd:documentation>FALKLAND ISLANDS POUND</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="GBP">
 				<xsd:annotation>
-					<xsd:documentation>FUNT SZTERLING</xsd:documentation>
+					<xsd:documentation>POUND STERLING</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="GEL">
@@ -419,17 +419,17 @@
 			</xsd:enumeration>
 			<xsd:enumeration value="GGP">
 				<xsd:annotation>
-					<xsd:documentation>FUNT GUERNSEY</xsd:documentation>
+					<xsd:documentation>GUERNSEY POUND</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="GHS">
 				<xsd:annotation>
-					<xsd:documentation>GHANA CEDI</xsd:documentation>
+					<xsd:documentation>GHANAIAN CEDI</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="GIP">
 				<xsd:annotation>
-					<xsd:documentation>FUNT GIBRALTARSKI</xsd:documentation>
+					<xsd:documentation>GIBRALTAR POUND</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="GMD">
@@ -439,7 +439,7 @@
 			</xsd:enumeration>
 			<xsd:enumeration value="GNF">
 				<xsd:annotation>
-					<xsd:documentation>FRANK GWINEJSKI</xsd:documentation>
+					<xsd:documentation>GUINEAN FRANC</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="GTQ">
@@ -449,12 +449,12 @@
 			</xsd:enumeration>
 			<xsd:enumeration value="GYD">
 				<xsd:annotation>
-					<xsd:documentation>DOLAR GUJAŃSKI</xsd:documentation>
+					<xsd:documentation>GUYANA DOLLAR</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="HKD">
 				<xsd:annotation>
-					<xsd:documentation>DOLAR HONGKONGU</xsd:documentation>
+					<xsd:documentation>HONG KONG DOLLAR</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="HNL">
@@ -464,7 +464,7 @@
 			</xsd:enumeration>
 			<xsd:enumeration value="HRK">
 				<xsd:annotation>
-					<xsd:documentation>KUNA</xsd:documentation>
+					<xsd:documentation>CROATIAN KUNA</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="HTG">
@@ -479,37 +479,37 @@
 			</xsd:enumeration>
 			<xsd:enumeration value="IDR">
 				<xsd:annotation>
-					<xsd:documentation>RUPIA INDONEZYJSKA</xsd:documentation>
+					<xsd:documentation>INDONESIAN RUPIAH</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="ILS">
 				<xsd:annotation>
-					<xsd:documentation>SZEKEL</xsd:documentation>
+					<xsd:documentation>NEW ISRAELI SHEQEL</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="IMP">
 				<xsd:annotation>
-					<xsd:documentation>FUNT MANX</xsd:documentation>
+					<xsd:documentation>MANX POUND</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="INR">
 				<xsd:annotation>
-					<xsd:documentation>RUPIA INDYJSKA</xsd:documentation>
+					<xsd:documentation>INDIAN RUPEE</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="IQD">
 				<xsd:annotation>
-					<xsd:documentation>DINAR IRACKI</xsd:documentation>
+					<xsd:documentation>IRAQI DINAR</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="IRR">
 				<xsd:annotation>
-					<xsd:documentation>RIAL IRAŃSKI</xsd:documentation>
+					<xsd:documentation>IRANIAN RIAL</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="ISK">
 				<xsd:annotation>
-					<xsd:documentation>KORONA ISLANDZKA</xsd:documentation>
+					<xsd:documentation>ICELANDIC KRONA</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="JEP">
@@ -519,12 +519,12 @@
 			</xsd:enumeration>
 			<xsd:enumeration value="JMD">
 				<xsd:annotation>
-					<xsd:documentation>DOLAR JAMAJSKI</xsd:documentation>
+					<xsd:documentation>JAMAICAN DOLLAR</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="JOD">
 				<xsd:annotation>
-					<xsd:documentation>DINAR JORDAŃSKI</xsd:documentation>
+					<xsd:documentation>JORDANIAN DINAR</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="JPY">
@@ -534,7 +534,7 @@
 			</xsd:enumeration>
 			<xsd:enumeration value="KES">
 				<xsd:annotation>
-					<xsd:documentation>SZYLING KENIJSKI</xsd:documentation>
+					<xsd:documentation>KENYAN SHILLING</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="KGS">
@@ -564,12 +564,12 @@
 			</xsd:enumeration>
 			<xsd:enumeration value="KWD">
 				<xsd:annotation>
-					<xsd:documentation>DINAR KUWEJCKI</xsd:documentation>
+					<xsd:documentation>KUWAITI DINAR</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="KYD">
 				<xsd:annotation>
-					<xsd:documentation>DOLAR KAJMAŃSKI</xsd:documentation>
+					<xsd:documentation>CAYMAN ISLANDS DOLLAR</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="KZT">
@@ -584,7 +584,7 @@
 			</xsd:enumeration>
 			<xsd:enumeration value="LBP">
 				<xsd:annotation>
-					<xsd:documentation>FUNT LIBAŃSKI</xsd:documentation>
+					<xsd:documentation>LEBANESE POUND</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="LKR">
@@ -594,7 +594,7 @@
 			</xsd:enumeration>
 			<xsd:enumeration value="LRD">
 				<xsd:annotation>
-					<xsd:documentation>DOLAR LIBERYJSKI</xsd:documentation>
+					<xsd:documentation>LIBERIAN DOLLAR</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="LSL">
@@ -604,12 +604,12 @@
 			</xsd:enumeration>
 			<xsd:enumeration value="LYD">
 				<xsd:annotation>
-					<xsd:documentation>DINAR LIBIJSKI</xsd:documentation>
+					<xsd:documentation>LIBYAN DINAR</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="MAD">
 				<xsd:annotation>
-					<xsd:documentation>DIRHAM MAROKAŃSKI</xsd:documentation>
+					<xsd:documentation>MOROCCAN DIRHAM</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="MDL">
@@ -619,7 +619,7 @@
 			</xsd:enumeration>
 			<xsd:enumeration value="MGA">
 				<xsd:annotation>
-					<xsd:documentation>ARIARY</xsd:documentation>
+					<xsd:documentation>MALAGASY ARIARY</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="MKD">
@@ -654,17 +654,17 @@
 			</xsd:enumeration>
 			<xsd:enumeration value="MVR">
 				<xsd:annotation>
-					<xsd:documentation>RUPIA MALEDIWSKA</xsd:documentation>
+					<xsd:documentation>MALDIVIAN RUFIYAA</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="MWK">
 				<xsd:annotation>
-					<xsd:documentation>KWACHA MALAWIJSKA</xsd:documentation>
+					<xsd:documentation>MALAWIAN KWACHA</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="MXN">
 				<xsd:annotation>
-					<xsd:documentation>PESO MEKSYKAŃSKIE</xsd:documentation>
+					<xsd:documentation>MEXICAN PESO</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="MXV">
@@ -674,17 +674,17 @@
 			</xsd:enumeration>
 			<xsd:enumeration value="MYR">
 				<xsd:annotation>
-					<xsd:documentation>RINGGIT</xsd:documentation>
+					<xsd:documentation>MALAYSIAN RINGGIT</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="MZN">
 				<xsd:annotation>
-					<xsd:documentation>METICAL</xsd:documentation>
+					<xsd:documentation>MOZAMBIQUE METICAL</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="NAD">
 				<xsd:annotation>
-					<xsd:documentation>DOLAR NAMIBIJSKI</xsd:documentation>
+					<xsd:documentation>NAMIBIA DOLLAR</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="NGN">
@@ -699,22 +699,22 @@
 			</xsd:enumeration>
 			<xsd:enumeration value="NOK">
 				<xsd:annotation>
-					<xsd:documentation>KORONA NORWESKA</xsd:documentation>
+					<xsd:documentation>NORWEGIAN KRONE</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="NPR">
 				<xsd:annotation>
-					<xsd:documentation>RUPIA NEPALSKA</xsd:documentation>
+					<xsd:documentation>NEPALESE RUPEE</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="NZD">
 				<xsd:annotation>
-					<xsd:documentation>DOLAR NOWOZELANDZKI</xsd:documentation>
+					<xsd:documentation>NEW ZEALAND DOLLAR</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="OMR">
 				<xsd:annotation>
-					<xsd:documentation>RIAL OMAŃSKI</xsd:documentation>
+					<xsd:documentation>RIAL OMANI</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="PAB">
@@ -734,17 +734,17 @@
 			</xsd:enumeration>
 			<xsd:enumeration value="PHP">
 				<xsd:annotation>
-					<xsd:documentation>PESO FILIPIŃSKIE</xsd:documentation>
+					<xsd:documentation>PHILIPPINE PESO</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="PKR">
 				<xsd:annotation>
-					<xsd:documentation>RUPIA PAKISTAŃSKA</xsd:documentation>
+					<xsd:documentation>PAKISTAN RUPEE</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="PLN">
 				<xsd:annotation>
-					<xsd:documentation>ZŁOTY</xsd:documentation>
+					<xsd:documentation>ZLOTY</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="PYG">
@@ -754,7 +754,7 @@
 			</xsd:enumeration>
 			<xsd:enumeration value="QAR">
 				<xsd:annotation>
-					<xsd:documentation>RIAL KATARSKI</xsd:documentation>
+					<xsd:documentation>QATARI RIAL</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="RON">
@@ -764,47 +764,47 @@
 			</xsd:enumeration>
 			<xsd:enumeration value="RSD">
 				<xsd:annotation>
-					<xsd:documentation>DINAR SERBSKI</xsd:documentation>
+					<xsd:documentation>SERBIAN DINAR</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="RUB">
 				<xsd:annotation>
-					<xsd:documentation>RUBEL ROSYJSKI</xsd:documentation>
+					<xsd:documentation>RUSSIAN RUBLE</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="RWF">
 				<xsd:annotation>
-					<xsd:documentation>FRANK RWANDYJSKI</xsd:documentation>
+					<xsd:documentation>RWANDA FRANC</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="SAR">
 				<xsd:annotation>
-					<xsd:documentation>RIAL SAUDYJSKI</xsd:documentation>
+					<xsd:documentation>SAUDI RIYAL</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="SBD">
 				<xsd:annotation>
-					<xsd:documentation>DOLAR WYSP SALOMONA</xsd:documentation>
+					<xsd:documentation>SOLOMON ISLANDS DOLLAR</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="SCR">
 				<xsd:annotation>
-					<xsd:documentation>RUPIA SESZELSKA</xsd:documentation>
+					<xsd:documentation>SEYCHELLES RUPEE</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="SDG">
 				<xsd:annotation>
-					<xsd:documentation>FUNT SUDAŃSKI</xsd:documentation>
+					<xsd:documentation>SUDANESE POUND</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="SEK">
 				<xsd:annotation>
-					<xsd:documentation>KORONA SZWEDZKA</xsd:documentation>
+					<xsd:documentation>SWEDISH KRONA</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="SGD">
 				<xsd:annotation>
-					<xsd:documentation>DOLAR SINGAPURSKI</xsd:documentation>
+					<xsd:documentation>SINGAPORE DOLLAR</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="SHP">
@@ -819,17 +819,17 @@
 			</xsd:enumeration>
 			<xsd:enumeration value="SOS">
 				<xsd:annotation>
-					<xsd:documentation>SZYLING SOMALIJSKI</xsd:documentation>
+					<xsd:documentation>SOMALI SHILLING</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="SRD">
 				<xsd:annotation>
-					<xsd:documentation>DOLAR SURINAMSKI</xsd:documentation>
+					<xsd:documentation>SURINAM DOLLAR</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="SSP">
 				<xsd:annotation>
-					<xsd:documentation>FUNT POŁUDNIOWOSUDAŃSKI</xsd:documentation>
+					<xsd:documentation>SOUTH SUDANESE POUND</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="STN">
@@ -844,7 +844,7 @@
 			</xsd:enumeration>
 			<xsd:enumeration value="SYP">
 				<xsd:annotation>
-					<xsd:documentation>FUNT SYRYJSKI</xsd:documentation>
+					<xsd:documentation>SYRIAN POUND</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="SZL">
@@ -864,12 +864,12 @@
 			</xsd:enumeration>
 			<xsd:enumeration value="TMT">
 				<xsd:annotation>
-					<xsd:documentation>MANAT TURKMEŃSKI</xsd:documentation>
+					<xsd:documentation>TURKMENISTAN NEW MANAT</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="TND">
 				<xsd:annotation>
-					<xsd:documentation>DINAR TUNEZYJSKI</xsd:documentation>
+					<xsd:documentation>TUNISIAN DINAR</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="TOP">
@@ -879,12 +879,12 @@
 			</xsd:enumeration>
 			<xsd:enumeration value="TRY">
 				<xsd:annotation>
-					<xsd:documentation>LIRA TURECKA</xsd:documentation>
+					<xsd:documentation>TURKISH LIRA</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="TTD">
 				<xsd:annotation>
-					<xsd:documentation>DOLAR TRYNIDADU I TOBAGO</xsd:documentation>
+					<xsd:documentation>TRINIDAD AND TOBAGO DOLLAR</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="TWD">
@@ -894,22 +894,22 @@
 			</xsd:enumeration>
 			<xsd:enumeration value="TZS">
 				<xsd:annotation>
-					<xsd:documentation>SZYLING TANZAŃSKI</xsd:documentation>
+					<xsd:documentation>TANZANIAN SHILLING</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="UAH">
 				<xsd:annotation>
-					<xsd:documentation>HRYWNA</xsd:documentation>
+					<xsd:documentation>HRYVNIA</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="UGX">
 				<xsd:annotation>
-					<xsd:documentation>SZYLING UGANDYJSKI</xsd:documentation>
+					<xsd:documentation>UGANDA SHILLING</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="USD">
 				<xsd:annotation>
-					<xsd:documentation>DOLAR AMERYKAŃSKI</xsd:documentation>
+					<xsd:documentation>US DOLLAR</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="USN">
@@ -924,7 +924,7 @@
 			</xsd:enumeration>
 			<xsd:enumeration value="UYU">
 				<xsd:annotation>
-					<xsd:documentation>PESO URUGWAJSKIE</xsd:documentation>
+					<xsd:documentation>PESO URUGUAYO</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="UYW">
@@ -934,7 +934,7 @@
 			</xsd:enumeration>
 			<xsd:enumeration value="UZS">
 				<xsd:annotation>
-					<xsd:documentation>SUM</xsd:documentation>
+					<xsd:documentation>UZBEKISTAN SUM</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="VES">
@@ -1039,12 +1039,12 @@
 			</xsd:enumeration>
 			<xsd:enumeration value="XXX">
 				<xsd:annotation>
-					<xsd:documentation>BRAK WALUTY</xsd:documentation>
+					<xsd:documentation>NO CURRENCY</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="YER">
 				<xsd:annotation>
-					<xsd:documentation>RIAL JEMEŃSKI</xsd:documentation>
+					<xsd:documentation>YEMENI RIAL</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="ZAR">
@@ -1054,12 +1054,12 @@
 			</xsd:enumeration>
 			<xsd:enumeration value="ZMW">
 				<xsd:annotation>
-					<xsd:documentation>KWACHA ZAMBIJSKA</xsd:documentation>
+					<xsd:documentation>ZAMBIAN KWACHA</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="ZWL">
 				<xsd:annotation>
-					<xsd:documentation>DOLAR ZIMBABWE</xsd:documentation>
+					<xsd:documentation>ZIMBABWE DOLLAR</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 		</xsd:restriction>
@@ -1096,7 +1096,7 @@
 			</xsd:element>
 			<xsd:element name="DataWytworzeniaFa">
 				<xsd:annotation>
-					<xsd:documentation>Data i czas wytworzenia faktury</xsd:documentation>
+					<xsd:documentation>Invoice generation date and time</xsd:documentation>
 				</xsd:annotation>
 				<xsd:simpleType>
 					<xsd:restriction base="etd:TDataCzas">
@@ -1124,12 +1124,12 @@
 			</xsd:element>
 			<xsd:element name="AdresL1" type="tns:TZnakowy512">
 				<xsd:annotation>
-					<xsd:documentation>Adres [Address]</xsd:documentation>
+					<xsd:documentation>Address</xsd:documentation>
 				</xsd:annotation>
 			</xsd:element>
 			<xsd:element name="AdresL2" type="tns:TZnakowy512" minOccurs="0">
 				<xsd:annotation>
-					<xsd:documentation>Adres [Address]</xsd:documentation>
+					<xsd:documentation>Address</xsd:documentation>
 				</xsd:annotation>
 			</xsd:element>
 			<xsd:element name="GLN" type="tns:TGLN" minOccurs="0">
@@ -1254,7 +1254,7 @@
 	</xsd:simpleType>
 	<xsd:simpleType name="TData">
 		<xsd:annotation>
-			<xsd:documentation>Data zdarzenia w okresie od 2016-07-01 do 2050-01-01</xsd:documentation>
+			<xsd:documentation>Event date in the period from 2016-07-01 to 2050-01-01</xsd:documentation>
 		</xsd:annotation>
 		<xsd:restriction base="etd:TData">
 			<xsd:minInclusive value="2016-07-01"/>
@@ -1263,7 +1263,7 @@
 	</xsd:simpleType>
 	<xsd:simpleType name="TDataT">
 		<xsd:annotation>
-			<xsd:documentation>Data zdarzenia w okresie od 2006-01-01 do 2050-01-01</xsd:documentation>
+			<xsd:documentation>Event date in the period from 2006-01-01 to 2050-01-01</xsd:documentation>
 		</xsd:annotation>
 		<xsd:restriction base="etd:TData">
 			<xsd:minInclusive value="2006-01-01"/>
@@ -1272,7 +1272,7 @@
 	</xsd:simpleType>
 	<xsd:simpleType name="TDataU">
 		<xsd:annotation>
-			<xsd:documentation>Data zdarzenia w okresie od 1990-01-01 do 2050-01-01</xsd:documentation>
+			<xsd:documentation>Event date in the period from 1990-01-01 to 2050-01-01</xsd:documentation>
 		</xsd:annotation>
 		<xsd:restriction base="etd:TData">
 			<xsd:minInclusive value="1990-01-01"/>
@@ -1281,7 +1281,7 @@
 	</xsd:simpleType>
 	<xsd:simpleType name="TDataCzas">
 		<xsd:annotation>
-			<xsd:documentation>Data i czas zdarzenia w okresie od 01.10.2021T00:00:00Z do 01.01.2050T23:59:59Z</xsd:documentation>
+			<xsd:documentation>Event date and time in the period from 01.10.2021T00:00:00Z to 01.01.2050T23:59:59Z</xsd:documentation>
 		</xsd:annotation>
 		<xsd:restriction base="etd:TDataCzas">
 			<xsd:minInclusive value="2021-10-01T00:00:00Z"/>
@@ -1338,12 +1338,12 @@
 			</xsd:enumeration>
 			<xsd:enumeration value="3">
 				<xsd:annotation>
-					<xsd:documentation>Bon</xsd:documentation>
+					<xsd:documentation>Voucher</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="4">
 				<xsd:annotation>
-					<xsd:documentation>Czek</xsd:documentation>
+					<xsd:documentation>Cheque</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="5">
@@ -1370,17 +1370,17 @@
 		<xsd:restriction base="xsd:integer">
 			<xsd:enumeration value="1">
 				<xsd:annotation>
-					<xsd:documentation>Bańka</xsd:documentation>
+					<xsd:documentation>Demijohn</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="2">
 				<xsd:annotation>
-					<xsd:documentation>Beczka</xsd:documentation>
+					<xsd:documentation>Barrel</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="3">
 				<xsd:annotation>
-					<xsd:documentation>Butla</xsd:documentation>
+					<xsd:documentation>Cylinder</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="4">
@@ -1604,7 +1604,7 @@
 			</xsd:choice>
 			<xsd:sequence minOccurs="0">
 				<xsd:annotation>
-					<xsd:documentation>Dane opcjonalne dla przypadków, o których mowa w art. 106e ust. 5 pkt 3 ustawy</xsd:documentation>
+					<xsd:documentation>Optional data for cases referred to in Article 106e section 5 point 3 of the Act</xsd:documentation>
 				</xsd:annotation>
 				<xsd:element name="Nazwa" type="tns:TZnakowy512">
 					<xsd:annotation>
@@ -1668,7 +1668,7 @@
 			</xsd:choice>
 			<xsd:sequence minOccurs="0">
 				<xsd:annotation>
-					<xsd:documentation>Dane opcjonalne dla przypadków, o których mowa w art. 106e ust. 5 pkt 3 ustawy</xsd:documentation>
+					<xsd:documentation>Optional data for cases referred to in Article 106e section 5 point 3 of the Act</xsd:documentation>
 				</xsd:annotation>
 				<xsd:element name="Nazwa" type="tns:TZnakowy512">
 					<xsd:annotation>
@@ -1774,12 +1774,12 @@
 			</xsd:enumeration>
 			<xsd:enumeration value="9">
 				<xsd:annotation>
-					<xsd:documentation>Członek grupy VAT - wystawca</xsd:documentation>
+					<xsd:documentation>VAT group member - issuer</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="10">
 				<xsd:annotation>
-					<xsd:documentation>Członek grupy VAT - odbiorca</xsd:documentation>
+					<xsd:documentation>VAT group member - recipient</xsd:documentation>
 				</xsd:annotation>
 			</xsd:enumeration>
 			<xsd:enumeration value="11">
@@ -2130,7 +2130,7 @@
 				</xsd:element>
 				<xsd:element name="Podmiot1">
 					<xsd:annotation>
-						<xsd:documentation>Dane podatnika. Imię i nazwisko lub nazwa sprzedawcy towarów lub usług</xsd:documentation>
+						<xsd:documentation>Taxpayer's data. First and last name or name of the seller of goods or services</xsd:documentation>
 					</xsd:annotation>
 					<xsd:complexType>
 						<xsd:sequence>
@@ -2146,17 +2146,17 @@
 							</xsd:element>
 							<xsd:element name="DaneIdentyfikacyjne" type="tns:TPodmiot1">
 								<xsd:annotation>
-									<xsd:documentation>Dane identyfikujące podatnika</xsd:documentation>
+									<xsd:documentation>Data identifying the taxpayer</xsd:documentation>
 								</xsd:annotation>
 							</xsd:element>
 							<xsd:element name="Adres" type="tns:TAdres">
 								<xsd:annotation>
-									<xsd:documentation>Adres podatnika</xsd:documentation>
+									<xsd:documentation>Taxpayer's address</xsd:documentation>
 								</xsd:annotation>
 							</xsd:element>
 							<xsd:element name="AdresKoresp" minOccurs="0">
 								<xsd:annotation>
-									<xsd:documentation>Adres korespondencyjny podatnika</xsd:documentation>
+									<xsd:documentation>Taxpayer's correspondence address</xsd:documentation>
 								</xsd:annotation>
 								<xsd:complexType>
 									<xsd:complexContent>
@@ -2166,13 +2166,13 @@
 							</xsd:element>
 							<xsd:element name="DaneKontaktowe" minOccurs="0" maxOccurs="3">
 								<xsd:annotation>
-									<xsd:documentation>Dane kontaktowe podatnika</xsd:documentation>
+									<xsd:documentation>Taxpayer's contact data</xsd:documentation>
 								</xsd:annotation>
 								<xsd:complexType>
 									<xsd:sequence minOccurs="0">
 										<xsd:element name="Email" type="etd:TAdresEmail" minOccurs="0">
 											<xsd:annotation>
-												<xsd:documentation>Adres e-mail podatnika</xsd:documentation>
+												<xsd:documentation>Taxpayer's email address</xsd:documentation>
 											</xsd:annotation>
 										</xsd:element>
 										<xsd:element name="Telefon" type="tns:TNumerTelefonu" minOccurs="0">
@@ -2193,7 +2193,7 @@
 				</xsd:element>
 				<xsd:element name="Podmiot2">
 					<xsd:annotation>
-						<xsd:documentation>Dane nabywcy</xsd:documentation>
+						<xsd:documentation>Buyer's data</xsd:documentation>
 					</xsd:annotation>
 					<xsd:complexType>
 						<xsd:sequence>
@@ -2204,28 +2204,28 @@
 							</xsd:element>
 							<xsd:element name="DaneIdentyfikacyjne" type="tns:TPodmiot2">
 								<xsd:annotation>
-									<xsd:documentation>Dane identyfikujące nabywcę</xsd:documentation>
+									<xsd:documentation>Data identifying the buyer</xsd:documentation>
 								</xsd:annotation>
 							</xsd:element>
 							<xsd:element name="Adres" type="tns:TAdres" minOccurs="0">
 								<xsd:annotation>
-									<xsd:documentation>Adres nabywcy. Pola opcjonalne dla przypadków określonych w art. 106e ust. 5 pkt 3 ustawy</xsd:documentation>
+									<xsd:documentation>Buyer's address. Optional fields for cases specified in Article 106e section 5 point 3 of the Act</xsd:documentation>
 								</xsd:annotation>
 							</xsd:element>
 							<xsd:element name="AdresKoresp" type="tns:TAdres" minOccurs="0">
 								<xsd:annotation>
-									<xsd:documentation>Adres korespondencyjny nabywcy</xsd:documentation>
+									<xsd:documentation>Buyer's correspondence address</xsd:documentation>
 								</xsd:annotation>
 							</xsd:element>
 							<xsd:element name="DaneKontaktowe" minOccurs="0" maxOccurs="3">
 								<xsd:annotation>
-									<xsd:documentation>Dane kontaktowe nabywcy</xsd:documentation>
+									<xsd:documentation>Buyer's contact data</xsd:documentation>
 								</xsd:annotation>
 								<xsd:complexType>
 									<xsd:sequence minOccurs="0">
 										<xsd:element name="Email" type="etd:TAdresEmail" minOccurs="0">
 											<xsd:annotation>
-												<xsd:documentation>Adres e-mail nabywcy</xsd:documentation>
+												<xsd:documentation>Buyer's email address</xsd:documentation>
 											</xsd:annotation>
 										</xsd:element>
 										<xsd:element name="Telefon" type="tns:TNumerTelefonu" minOccurs="0">
@@ -2298,7 +2298,7 @@ Wartość "2" oznacza, że faktura nie dotyczy jednostki podrzędnej JST</xsd:do
 				</xsd:element>
 				<xsd:element name="Podmiot3" minOccurs="0" maxOccurs="100">
 					<xsd:annotation>
-						<xsd:documentation>Dane podmiotu/-ów trzeciego/-ich (innego/-ych niż sprzedawca i nabywca wymieniony w części Podmiot2), związanego/-ych z fakturą</xsd:documentation>
+						<xsd:documentation>Data of third party/parties (other than seller and buyer mentioned in Podmiot2 section), related to the invoice</xsd:documentation>
 					</xsd:annotation>
 					<xsd:complexType>
 						<xsd:sequence>
@@ -2319,28 +2319,28 @@ Wartość "2" oznacza, że faktura nie dotyczy jednostki podrzędnej JST</xsd:do
 							</xsd:element>
 							<xsd:element name="DaneIdentyfikacyjne" type="tns:TPodmiot3">
 								<xsd:annotation>
-									<xsd:documentation>Dane identyfikujące podmiot trzeci</xsd:documentation>
+									<xsd:documentation>Data identifying the third party</xsd:documentation>
 								</xsd:annotation>
 							</xsd:element>
 							<xsd:element name="Adres" type="tns:TAdres" minOccurs="0">
 								<xsd:annotation>
-									<xsd:documentation>Adres podmiotu trzeciego</xsd:documentation>
+									<xsd:documentation>Third party's address</xsd:documentation>
 								</xsd:annotation>
 							</xsd:element>
 							<xsd:element name="AdresKoresp" type="tns:TAdres" minOccurs="0">
 								<xsd:annotation>
-									<xsd:documentation>Adres korespondencyjny podmiotu trzeciego</xsd:documentation>
+									<xsd:documentation>Third party's correspondence address</xsd:documentation>
 								</xsd:annotation>
 							</xsd:element>
 							<xsd:element name="DaneKontaktowe" minOccurs="0" maxOccurs="3">
 								<xsd:annotation>
-									<xsd:documentation>Dane kontaktowe podmiotu trzeciego</xsd:documentation>
+									<xsd:documentation>Third party's contact data</xsd:documentation>
 								</xsd:annotation>
 								<xsd:complexType>
 									<xsd:sequence>
 										<xsd:element name="Email" type="etd:TAdresEmail" minOccurs="0">
 											<xsd:annotation>
-												<xsd:documentation>Adres e-mail podmiotu trzeciego</xsd:documentation>
+												<xsd:documentation>Third party's email address</xsd:documentation>
 											</xsd:annotation>
 										</xsd:element>
 										<xsd:element name="Telefon" type="tns:TNumerTelefonu" minOccurs="0">
@@ -2385,7 +2385,7 @@ Wartość "2" oznacza, że faktura nie dotyczy jednostki podrzędnej JST</xsd:do
 				</xsd:element>
 				<xsd:element name="PodmiotUpowazniony" minOccurs="0">
 					<xsd:annotation>
-						<xsd:documentation>Dane podmiotu upoważnionego, związanego z fakturą</xsd:documentation>
+						<xsd:documentation>Data of authorized entity related to the invoice</xsd:documentation>
 					</xsd:annotation>
 					<xsd:complexType>
 						<xsd:sequence>
@@ -2396,28 +2396,28 @@ Wartość "2" oznacza, że faktura nie dotyczy jednostki podrzędnej JST</xsd:do
 							</xsd:element>
 							<xsd:element name="DaneIdentyfikacyjne" type="tns:TPodmiot1">
 								<xsd:annotation>
-									<xsd:documentation>Dane identyfikujące podmiotu upoważnionego</xsd:documentation>
+									<xsd:documentation>Data identifying the authorized entity</xsd:documentation>
 								</xsd:annotation>
 							</xsd:element>
 							<xsd:element name="Adres" type="tns:TAdres">
 								<xsd:annotation>
-									<xsd:documentation>Adres podmiotu upoważnionego</xsd:documentation>
+									<xsd:documentation>Authorized entity's address</xsd:documentation>
 								</xsd:annotation>
 							</xsd:element>
 							<xsd:element name="AdresKoresp" type="tns:TAdres" minOccurs="0">
 								<xsd:annotation>
-									<xsd:documentation>Adres korespondencyjny podmiotu upoważnionego</xsd:documentation>
+									<xsd:documentation>Authorized entity's correspondence address</xsd:documentation>
 								</xsd:annotation>
 							</xsd:element>
 							<xsd:element name="DaneKontaktowe" minOccurs="0" maxOccurs="3">
 								<xsd:annotation>
-									<xsd:documentation>Dane kontaktowe podmiotu upoważnionego</xsd:documentation>
+									<xsd:documentation>Authorized entity's contact data</xsd:documentation>
 								</xsd:annotation>
 								<xsd:complexType>
 									<xsd:sequence>
 										<xsd:element name="EmailPU" type="etd:TAdresEmail" minOccurs="0">
 											<xsd:annotation>
-												<xsd:documentation>Adres e-mail podmiotu upoważnionego</xsd:documentation>
+												<xsd:documentation>Authorized entity's email address</xsd:documentation>
 											</xsd:annotation>
 										</xsd:element>
 										<xsd:element name="TelefonPU" type="tns:TNumerTelefonu" minOccurs="0">
@@ -2449,7 +2449,7 @@ Wartość "2" oznacza, że faktura nie dotyczy jednostki podrzędnej JST</xsd:do
 							</xsd:element>
 							<xsd:element name="P_1" type="tns:TDataT">
 								<xsd:annotation>
-									<xsd:documentation>Data wystawienia, z zastrzeżeniem art. 106na ust. 1 ustawy</xsd:documentation>
+									<xsd:documentation>Issue date, subject to Article 106na section 1 of the Act</xsd:documentation>
 								</xsd:annotation>
 							</xsd:element>
 							<xsd:element name="P_1M" type="tns:TZnakowy" minOccurs="0">
@@ -2470,7 +2470,7 @@ Wartość "2" oznacza, że faktura nie dotyczy jednostki podrzędnej JST</xsd:do
 							<xsd:choice minOccurs="0">
 								<xsd:element name="P_6" type="tns:TDataT">
 									<xsd:annotation>
-										<xsd:documentation>Data dokonania lub zakończenia dostawy towarów lub wykonania usługi lub data otrzymania zapłaty, o której mowa w art. 106b ust. 1 pkt 4 ustawy, o ile taka data jest określona i różni się od daty wystawienia faktury. Pole wypełnia się w przypadku, gdy dla wszystkich pozycji faktury data jest wspólna</xsd:documentation>
+										<xsd:documentation>Date of completion or end of delivery of goods or performance of service or date of receipt of payment referred to in Article 106b section 1 point 4 of the Act, if such date is specified and differs from the invoice issue date. Field is filled in when the date is common for all invoice items</xsd:documentation>
 									</xsd:annotation>
 								</xsd:element>
 								<xsd:element name="OkresFa">
@@ -2486,7 +2486,7 @@ Wartość "2" oznacza, że faktura nie dotyczy jednostki podrzędnej JST</xsd:do
 											</xsd:element>
 											<xsd:element name="P_6_Do" type="tns:TDataT">
 												<xsd:annotation>
-													<xsd:documentation>Data końcowa okresu, którego dotyczy faktura - data dokonania lub zakończenia dostawy towarów lub wykonania usługi</xsd:documentation>
+													<xsd:documentation>End date of the period covered by the invoice - date of completion or end of delivery of goods or performance of service</xsd:documentation>
 												</xsd:annotation>
 											</xsd:element>
 										</xsd:sequence>
@@ -2719,7 +2719,7 @@ dokonaną na rzecz podatnika dostawę towarów lub świadczenie usług, o który
 																<xsd:sequence>
 																	<xsd:element name="P_22A" type="tns:TDataT">
 																		<xsd:annotation>
-																			<xsd:documentation>Data dopuszczenia nowego środka transportu do użytku</xsd:documentation>
+																			<xsd:documentation>Date of admission of new means of transport to use</xsd:documentation>
 																		</xsd:annotation>
 																	</xsd:element>
 																	<xsd:element name="P_NrWierszaNST" type="tns:TNaturalny">
@@ -2879,7 +2879,7 @@ dokonaną na rzecz podatnika dostawę towarów lub świadczenie usług, o który
 							</xsd:element>
 							<xsd:sequence minOccurs="0">
 								<xsd:annotation>
-									<xsd:documentation>Dane dla przypadków, gdy pole RodzajFaktury przyjmuje wartości KOR, KOR_ZAL lub KOR_ROZ</xsd:documentation>
+									<xsd:documentation>Data for cases when the RodzajFaktury field takes values KOR, KOR_ZAL or KOR_ROZ</xsd:documentation>
 								</xsd:annotation>
 								<xsd:element name="PrzyczynaKorekty" type="tns:TZnakowy" minOccurs="0">
 									<xsd:annotation>
@@ -2893,13 +2893,13 @@ dokonaną na rzecz podatnika dostawę towarów lub świadczenie usług, o który
 								</xsd:element>
 								<xsd:element name="DaneFaKorygowanej" maxOccurs="50000">
 									<xsd:annotation>
-										<xsd:documentation>Dane faktury korygowanej</xsd:documentation>
+										<xsd:documentation>Corrected invoice data</xsd:documentation>
 									</xsd:annotation>
 									<xsd:complexType>
 										<xsd:sequence>
 											<xsd:element name="DataWystFaKorygowanej" type="tns:TDataT">
 												<xsd:annotation>
-													<xsd:documentation>Data wystawienia faktury korygowanej</xsd:documentation>
+													<xsd:documentation>Corrected invoice issue date</xsd:documentation>
 												</xsd:annotation>
 											</xsd:element>
 											<xsd:element name="NrFaKorygowanej" type="tns:TZnakowy">
@@ -2952,12 +2952,12 @@ dokonaną na rzecz podatnika dostawę towarów lub świadczenie usług, o który
 											</xsd:element>
 											<xsd:element name="DaneIdentyfikacyjne" type="tns:TPodmiot1">
 												<xsd:annotation>
-													<xsd:documentation>Dane identyfikujące podatnika</xsd:documentation>
+													<xsd:documentation>Data identifying the taxpayer</xsd:documentation>
 												</xsd:annotation>
 											</xsd:element>
 											<xsd:element name="Adres" type="tns:TAdres">
 												<xsd:annotation>
-													<xsd:documentation>Adres podatnika</xsd:documentation>
+													<xsd:documentation>Taxpayer's address</xsd:documentation>
 												</xsd:annotation>
 											</xsd:element>
 										</xsd:sequence>
@@ -2971,12 +2971,12 @@ dokonaną na rzecz podatnika dostawę towarów lub świadczenie usług, o który
 										<xsd:sequence>
 											<xsd:element name="DaneIdentyfikacyjne" type="tns:TPodmiot2">
 												<xsd:annotation>
-													<xsd:documentation>Dane identyfikujące nabywcę</xsd:documentation>
+													<xsd:documentation>Data identifying the buyer</xsd:documentation>
 												</xsd:annotation>
 											</xsd:element>
 											<xsd:element name="Adres" type="tns:TAdres" minOccurs="0">
 												<xsd:annotation>
-													<xsd:documentation>Adres nabywcy. Pola opcjonalne dla przypadków określonych w art. 106e ust. 5 pkt 3 ustawy</xsd:documentation>
+													<xsd:documentation>Buyer's address. Optional fields for cases specified in Article 106e section 5 point 3 of the Act</xsd:documentation>
 												</xsd:annotation>
 											</xsd:element>
 											<xsd:element name="IDNabywcy" minOccurs="0">
@@ -3007,13 +3007,13 @@ dokonaną na rzecz podatnika dostawę towarów lub świadczenie usług, o który
 							</xsd:sequence>
 							<xsd:element name="ZaliczkaCzesciowa" minOccurs="0" maxOccurs="31">
 								<xsd:annotation>
-									<xsd:documentation>Dane dla przypadków faktur dokumentujących otrzymanie więcej niż jednej płatności, o której mowa w art. 106b ust. 1 pkt 4 ustawy. W przypadku, gdy faktura, o której mowa w art. 106f ust. 3 ustawy dokumentuje jednocześnie otrzymanie części zapłaty przed dokonaniem czynności, różnica kwoty w polu P_15 i sumy poszczególnych pól P_15Z stanowi kwotę pozostałą ponad płatności otrzymane przed wykonaniem czynności udokumentowanej fakturą</xsd:documentation>
+									<xsd:documentation>Data for cases of invoices documenting receipt of more than one payment referred to in Article 106b section 1 point 4 of the Act. In case when an invoice referred to in Article 106f section 3 of the Act simultaneously documents receipt of part of payment before performing the activity, the difference between the amount in field P_15 and the sum of individual P_15Z fields constitutes the amount remaining over payments received before performing the activity documented by the invoice</xsd:documentation>
 								</xsd:annotation>
 								<xsd:complexType>
 									<xsd:sequence>
 										<xsd:element name="P_6Z" type="tns:TDataT">
 											<xsd:annotation>
-												<xsd:documentation>Data otrzymania płatności, o której mowa w art. 106b ust. 1 pkt 4 ustawy</xsd:documentation>
+												<xsd:documentation>Date of receipt of payment referred to in Article 106b section 1 point 4 of the Act</xsd:documentation>
 											</xsd:annotation>
 										</xsd:element>
 										<xsd:element name="P_15Z" type="tns:TKwotowy">
@@ -3093,7 +3093,7 @@ dokonaną na rzecz podatnika dostawę towarów lub świadczenie usług, o który
 										</xsd:element>
 										<xsd:element name="P_6A" type="tns:TDataT" minOccurs="0">
 											<xsd:annotation>
-												<xsd:documentation>Data dokonania lub zakończenia dostawy towarów lub wykonania usługi lub data otrzymania zapłaty, o której mowa w art. 106b ust. 1 pkt 4 ustawy, o ile taka data jest określona i różni się od daty wystawienia faktury. Pole wypełnia się w przypadku gdy dla poszczególnych pozycji faktury występują różne daty</xsd:documentation>
+												<xsd:documentation>Date of completion or end of delivery of goods or performance of service or date of receipt of payment referred to in Article 106b section 1 point 4 of the Act, if such date is specified and differs from the invoice issue date. Field is filled in when different dates occur for individual invoice items</xsd:documentation>
 											</xsd:annotation>
 										</xsd:element>
 										<xsd:element name="P_7" type="tns:TZnakowy512" minOccurs="0">
@@ -3138,12 +3138,12 @@ dokonaną na rzecz podatnika dostawę towarów lub świadczenie usług, o który
 										</xsd:element>
 										<xsd:element name="P_9A" type="tns:TKwotowy2" minOccurs="0">
 											<xsd:annotation>
-												<xsd:documentation>Cena jednostkowa towaru lub usługi bez kwoty podatku (cena jednostkowa netto). Pole opcjonalne dla przypadków określonych w art. 106e ust. 2 i 3 oraz ust. 5 pkt 3 ustawy</xsd:documentation>
+												<xsd:documentation>Unit price of goods or services excluding tax (net unit price). Optional field for cases specified in Article 106e sections 2 and 3 and section 5 point 3 of the Act</xsd:documentation>
 											</xsd:annotation>
 										</xsd:element>
 										<xsd:element name="P_9B" type="tns:TKwotowy2" minOccurs="0">
 											<xsd:annotation>
-												<xsd:documentation>Cena wraz z kwotą podatku (cena jednostkowa brutto), w przypadku zastosowania art. 106e ust. 7 i 8 ustawy</xsd:documentation>
+												<xsd:documentation>Price including tax (gross unit price), in case of application of Article 106e sections 7 and 8 of the Act</xsd:documentation>
 											</xsd:annotation>
 										</xsd:element>
 										<xsd:element name="P_10" type="tns:TKwotowy2" minOccurs="0">
@@ -3293,7 +3293,7 @@ dokonaną na rzecz podatnika dostawę towarów lub świadczenie usług, o który
 												</xsd:element>
 												<xsd:element name="DataZaplaty" type="tns:TData">
 													<xsd:annotation>
-														<xsd:documentation>Data zapłaty, jeśli do wystawienia faktury płatność została dokonana</xsd:documentation>
+														<xsd:documentation>Payment date, if payment was made before invoice issuance</xsd:documentation>
 													</xsd:annotation>
 												</xsd:element>
 											</xsd:sequence>
@@ -3305,7 +3305,7 @@ dokonaną na rzecz podatnika dostawę towarów lub świadczenie usług, o który
 												</xsd:element>
 												<xsd:element name="ZaplataCzesciowa" maxOccurs="100">
 													<xsd:annotation>
-														<xsd:documentation>Dane zapłat częściowych</xsd:documentation>
+														<xsd:documentation>Partial payment data</xsd:documentation>
 													</xsd:annotation>
 													<xsd:complexType>
 														<xsd:sequence>
@@ -3316,7 +3316,7 @@ dokonaną na rzecz podatnika dostawę towarów lub świadczenie usług, o który
 															</xsd:element>
 															<xsd:element name="DataZaplatyCzesciowej" type="tns:TData">
 																<xsd:annotation>
-																	<xsd:documentation>Data zapłaty częściowej, jeśli do wystawienia faktury płatność częściowa została dokonana</xsd:documentation>
+																	<xsd:documentation>Partial payment date, if partial payment was made before invoice issuance</xsd:documentation>
 																</xsd:annotation>
 															</xsd:element>
 															<xsd:choice minOccurs="0">
@@ -3449,7 +3449,7 @@ dokonaną na rzecz podatnika dostawę towarów lub świadczenie usług, o który
 												<xsd:sequence minOccurs="0">
 													<xsd:element name="DataUmowy" type="tns:TDataU" minOccurs="0">
 														<xsd:annotation>
-															<xsd:documentation>Data umowy</xsd:documentation>
+															<xsd:documentation>Contract date</xsd:documentation>
 														</xsd:annotation>
 													</xsd:element>
 													<xsd:element name="NrUmowy" type="tns:TZnakowy" minOccurs="0">
@@ -3465,7 +3465,7 @@ dokonaną na rzecz podatnika dostawę towarów lub świadczenie usług, o który
 												<xsd:sequence minOccurs="0">
 													<xsd:element name="DataZamowienia" type="tns:TDataU" minOccurs="0">
 														<xsd:annotation>
-															<xsd:documentation>Data zamówienia</xsd:documentation>
+															<xsd:documentation>Order date</xsd:documentation>
 														</xsd:annotation>
 													</xsd:element>
 													<xsd:element name="NrZamowienia" type="tns:TZnakowy" minOccurs="0">
@@ -3525,12 +3525,12 @@ dokonaną na rzecz podatnika dostawę towarów lub świadczenie usług, o który
 															<xsd:sequence>
 																<xsd:element name="DaneIdentyfikacyjne" type="tns:TPodmiot2">
 																	<xsd:annotation>
-																		<xsd:documentation>Dane identyfikacyjne przewoźnika</xsd:documentation>
+																		<xsd:documentation>Carrier identification data</xsd:documentation>
 																	</xsd:annotation>
 																</xsd:element>
 																<xsd:element name="AdresPrzewoznika" type="tns:TAdres">
 																	<xsd:annotation>
-																		<xsd:documentation>Adres przewoźnika</xsd:documentation>
+																		<xsd:documentation>Carrier's address</xsd:documentation>
 																	</xsd:annotation>
 																</xsd:element>
 															</xsd:sequence>
@@ -3570,27 +3570,27 @@ dokonaną na rzecz podatnika dostawę towarów lub świadczenie usług, o który
 													<xsd:sequence minOccurs="0">
 														<xsd:element name="DataGodzRozpTransportu" type="tns:TDataCzas" minOccurs="0">
 															<xsd:annotation>
-																<xsd:documentation>Data i godzina rozpoczęcia transportu</xsd:documentation>
+																<xsd:documentation>Transport start date and time</xsd:documentation>
 															</xsd:annotation>
 														</xsd:element>
 														<xsd:element name="DataGodzZakTransportu" type="tns:TDataCzas" minOccurs="0">
 															<xsd:annotation>
-																<xsd:documentation>Data i godzina zakończenia transportu</xsd:documentation>
+																<xsd:documentation>Transport end date and time</xsd:documentation>
 															</xsd:annotation>
 														</xsd:element>
 														<xsd:element name="WysylkaZ" type="tns:TAdres" minOccurs="0">
 															<xsd:annotation>
-																<xsd:documentation>Adres miejsca wysyłki</xsd:documentation>
+																<xsd:documentation>Shipping location address</xsd:documentation>
 															</xsd:annotation>
 														</xsd:element>
 														<xsd:element name="WysylkaPrzez" type="tns:TAdres" minOccurs="0" maxOccurs="20">
 															<xsd:annotation>
-																<xsd:documentation>Adres pośredni wysyłki</xsd:documentation>
+																<xsd:documentation>Intermediate shipping address</xsd:documentation>
 															</xsd:annotation>
 														</xsd:element>
 														<xsd:element name="WysylkaDo" type="tns:TAdres" minOccurs="0">
 															<xsd:annotation>
-																<xsd:documentation>Adres miejsca docelowego, do którego został zlecony transport</xsd:documentation>
+																<xsd:documentation>Address of the destination to which transport was commissioned</xsd:documentation>
 															</xsd:annotation>
 														</xsd:element>
 													</xsd:sequence>
@@ -3674,7 +3674,7 @@ dokonaną na rzecz podatnika dostawę towarów lub świadczenie usług, o który
 													</xsd:element>
 													<xsd:element name="P_9AZ" type="tns:TKwotowy2" minOccurs="0">
 														<xsd:annotation>
-															<xsd:documentation>Cena jednostkowa netto</xsd:documentation>
+															<xsd:documentation>Net unit price</xsd:documentation>
 														</xsd:annotation>
 													</xsd:element>
 													<xsd:element name="P_11NettoZ" type="tns:TKwotowy" minOccurs="0">
@@ -3807,7 +3807,7 @@ dokonaną na rzecz podatnika dostawę towarów lub świadczenie usług, o który
 										</xsd:element>
 										<xsd:element name="MetaDane" maxOccurs="1000">
 											<xsd:annotation>
-												<xsd:documentation>Dane opisowe</xsd:documentation>
+												<xsd:documentation>Descriptive data</xsd:documentation>
 											</xsd:annotation>
 											<xsd:complexType>
 												<xsd:sequence>
@@ -3826,7 +3826,7 @@ dokonaną na rzecz podatnika dostawę towarów lub świadczenie usług, o który
 										</xsd:element>
 										<xsd:element name="Tekst" minOccurs="0">
 											<xsd:annotation>
-												<xsd:documentation>Część tekstowa bloku danych</xsd:documentation>
+												<xsd:documentation>Text part of data block</xsd:documentation>
 											</xsd:annotation>
 											<xsd:complexType>
 												<xsd:sequence>
@@ -3847,7 +3847,7 @@ dokonaną na rzecz podatnika dostawę towarów lub świadczenie usług, o który
 													<xsd:sequence>
 														<xsd:element name="TMetaDane" minOccurs="0" maxOccurs="1000">
 															<xsd:annotation>
-																<xsd:documentation>Dane opisowe dotyczące tabeli</xsd:documentation>
+																<xsd:documentation>Descriptive data regarding the table</xsd:documentation>
 															</xsd:annotation>
 															<xsd:complexType>
 																<xsd:sequence>

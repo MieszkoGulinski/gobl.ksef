@@ -4,7 +4,7 @@
 		"uuid": "8a51fd30-2a27-11ee-be56-0242ac120002",
 		"dig": {
 			"alg": "sha256",
-			"val": "b02534f2fc07d95236cacb9e1bcb3257b5503461426361d159c87c9747ed62cf"
+			"val": "828c81c0cadc28182366bf3d0a08198cef4eb64b3b2c43621412cd4252745229"
 		}
 	},
 	"doc": {
@@ -14,36 +14,21 @@
 			"pl-favat-v3"
 		],
 		"$tags": [
-			"self-billed"
+			"reverse-charge"
 		],
-		"uuid": "01927639-c1a0-7f3a-88d9-5b1f2a5e3cbe",
+		"uuid": "01927639-c1a0-7f3a-88d9-5b1f2a5e3ccf",
 		"type": "standard",
-		"series": "SELF",
+		"series": "RC",
 		"code": "001",
 		"issue_date": "2026-01-20",
 		"currency": "PLN",
 		"tax": {
 			"ext": {
 				"pl-favat-invoice-type": "VAT",
-				"pl-favat-self-billing": "1"
+				"pl-favat-reverse-charge": "1"
 			}
 		},
 		"supplier": {
-			"name": "External Supplier Ltd",
-			"tax_id": {
-				"country": "PL",
-				"code": "1111111111"
-			},
-			"addresses": [
-				{
-					"street": "ul. Dostawcy 20",
-					"locality": "Poznań",
-					"code": "60-001",
-					"country": "PL"
-				}
-			]
-		},
-		"customer": {
 			"name": "Testowa Firma Sp. z o.o.",
 			"tax_id": {
 				"country": "PL",
@@ -58,24 +43,36 @@
 				}
 			]
 		},
+		"customer": {
+			"name": "EU Business GmbH",
+			"tax_id": {
+				"country": "DE",
+				"code": "111111125"
+			},
+			"addresses": [
+				{
+					"street": "Hauptstraße 100",
+					"locality": "Berlin",
+					"code": "10115",
+					"country": "DE"
+				}
+			]
+		},
 		"lines": [
 			{
 				"i": 1,
-				"quantity": "100",
+				"quantity": "1",
 				"item": {
-					"name": "Agricultural Products",
-					"price": "50.00",
-					"unit": "kg"
+					"name": "IT Services - EU Reverse Charge",
+					"price": "5000.00"
 				},
 				"sum": "5000.00",
 				"taxes": [
 					{
 						"cat": "VAT",
-						"key": "standard",
-						"rate": "reduced",
-						"percent": "8.0%",
+						"key": "reverse-charge",
 						"ext": {
-							"pl-favat-tax-category": "2"
+							"pl-favat-tax-category": "9"
 						}
 					}
 				],
@@ -91,28 +88,27 @@
 						"code": "VAT",
 						"rates": [
 							{
-								"key": "standard",
+								"key": "reverse-charge",
 								"ext": {
-									"pl-favat-tax-category": "2"
+									"pl-favat-tax-category": "9"
 								},
 								"base": "5000.00",
-								"percent": "8.0%",
-								"amount": "400.00"
+								"amount": "0.00"
 							}
 						],
-						"amount": "400.00"
+						"amount": "0.00"
 					}
 				],
-				"sum": "400.00"
+				"sum": "0.00"
 			},
-			"tax": "400.00",
-			"total_with_tax": "5400.00",
-			"payable": "5400.00"
+			"tax": "0.00",
+			"total_with_tax": "5000.00",
+			"payable": "5000.00"
 		},
 		"notes": [
 			{
 				"key": "legal",
-				"text": "Self-billing invoice issued by the buyer on behalf of the supplier with their agreement."
+				"text": "Reverse charge mechanism applies - VAT to be accounted for by the customer."
 			}
 		]
 	}

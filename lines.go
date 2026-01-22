@@ -1,6 +1,7 @@
 package ksef
 
 import (
+	"github.com/invopop/gobl/addons/pl/favat"
 	"github.com/invopop/gobl/bill"
 	"github.com/invopop/gobl/num"
 	"github.com/invopop/gobl/tax"
@@ -9,22 +10,44 @@ import (
 // Line defines the XML structure for KSeF item line (element type FaWiersz, for VAT and KOR type invoices)
 type Line struct {
 	LineNumber              int    `xml:"NrWierszaFa"`
+	UniqueID                string `xml:"UU_ID,omitempty"`
+	CompletionDate          string `xml:"P_6A,omitempty"`
 	Name                    string `xml:"P_7,omitempty"`
+	InternalCode            string `xml:"Indeks,omitempty"`
+	GTIN                    string `xml:"GTIN,omitempty"`
+	PKWiU                   string `xml:"PKWiU,omitempty"`
+	CN                      string `xml:"CN,omitempty"`
+	PKOB                    string `xml:"PKOB,omitempty"`
 	Measure                 string `xml:"P_8A,omitempty"`
 	Quantity                string `xml:"P_8B,omitempty"`
 	NetUnitPrice            string `xml:"P_9A,omitempty"`
+	GrossUnitPrice          string `xml:"P_9B,omitempty"`
 	UnitDiscount            string `xml:"P_10,omitempty"`
 	NetPriceTotal           string `xml:"P_11,omitempty"`
+	GrossPriceTotal         string `xml:"P_11A,omitempty"`
+	VATAmount               string `xml:"P_11Vat,omitempty"`
 	VATRate                 string `xml:"P_12,omitempty"`
-	ExciseDuty              string `xml:"KwotaAkcyzy,omitempty"`
-	SpecialGoodsCode        string `xml:"GTU,omitempty"`      // values GTU_01 to GTU_13
 	OSSTaxRate              string `xml:"P_12_XII,omitempty"` // one stop shop
-	Attachment15GoodsMarker string `xml:"P_12_Zal_15,omitempty"`
+	Attachment15GoodsMarker int    `xml:"P_12_Zal_15,omitempty"`
+	ExciseDuty              string `xml:"KwotaAkcyzy,omitempty"`
+	SpecialGoodsCode        string `xml:"GTU,omitempty"` // values GTU_01 to GTU_13
 	Procedure               string `xml:"Procedura,omitempty"`
-	BeforeCorrectionMarker  string `xml:"StanPrzed,omitempty"`
+	CurrencyRate            string `xml:"KursWaluty,omitempty"`
+	BeforeCorrectionMarker  int    `xml:"StanPrzed,omitempty"`
 }
 
-func newLine(line *bill.Line, cu uint32) *Line {
+// NewLines generates lines for the KSeF invoice
+func NewLines(lines []*bill.Line) []*Line {
+	var Lines []*Line
+
+	for _, line := range lines {
+		Lines = append(Lines, newLine(line))
+	}
+
+	return Lines
+}
+
+func newLine(line *bill.Line) *Line {
 	l := &Line{
 		LineNumber:    line.Index,
 		Name:          line.Item.Name,
@@ -35,12 +58,46 @@ func newLine(line *bill.Line, cu uint32) *Line {
 		NetPriceTotal: line.Total.String(),
 	}
 	if tc := line.Taxes.Get(tax.CategoryVAT); tc != nil {
-		if tc.Percent != nil {
-			l.VATRate = tc.Percent.Rescale(cu).StringWithoutSymbol()
+		if tc.Ext.Get(favat.ExtKeyTaxCategory) == "5" {
+			if tc.Percent != nil {
+				l.OSSTaxRate = tc.Percent.Amount().MinimalString()
+			}
+		} else {
+			l.VATRate = vatRate(tc)
 		}
 	}
 
 	return l
+}
+
+// vatRate returns the VAT rate string and OSS tax rate string for a tax combo
+// based on the tax category extension
+func vatRate(tc *tax.Combo) string {
+
+	// For non-zero percentages, use the percentage value
+	if tc.Percent != nil && !tc.Percent.IsZero() {
+		return tc.Percent.Amount().MinimalString()
+	}
+
+	// For zero/nil percentage, determine from tax category extension
+	switch tc.Ext.Get(favat.ExtKeyTaxCategory) {
+	case "6.1":
+		return "0 KR"
+	case "6.2":
+		return "0 WDT"
+	case "6.3":
+		return "0 EX"
+	case "7":
+		return "zw"
+	case "8":
+		return "np I"
+	case "9":
+		return "np II"
+	case "10":
+		return "oo"
+	default:
+		return ""
+	}
 }
 
 func unitDiscount(line *bill.Line) string {
@@ -59,21 +116,16 @@ func unitDiscount(line *bill.Line) string {
 	return discount.String()
 }
 
-// NewLines generates lines for the KSeF invoice
-func NewLines(lines []*bill.Line, cu uint32) []*Line {
-	var Lines []*Line
-
-	for _, line := range lines {
-		Lines = append(Lines, newLine(line, cu))
-	}
-
-	return Lines
-}
-
-// OrderLine defines the XML structure for KSeF item line (element type ZamowienieWiersz, for ZAL and KOR_ZAL type invoices) - TODO use in the future
+// OrderLine defines the XML structure for KSeF item line (element type ZamowienieWiersz, for ZAL and KOR_ZAL type invoices)
 type OrderLine struct {
 	LineNumber              int    `xml:"NrWierszaZam"`
+	UniqueID                string `xml:"UU_IDZ,omitempty"`
 	Name                    string `xml:"P_7Z,omitempty"`
+	InternalCode            string `xml:"IndeksZ,omitempty"`
+	GTIN                    string `xml:"GTINZ,omitempty"`
+	PKWiU                   string `xml:"PKWiUZ,omitempty"`
+	CN                      string `xml:"CNZ,omitempty"`
+	PKOB                    string `xml:"PKOBZ,omitempty"`
 	Measure                 string `xml:"P_8AZ,omitempty"`
 	Quantity                string `xml:"P_8BZ,omitempty"`
 	NetUnitPrice            string `xml:"P_9AZ,omitempty"`
@@ -81,11 +133,11 @@ type OrderLine struct {
 	TaxValue                string `xml:"P_11VatZ,omitempty"`
 	VATRate                 string `xml:"P_12Z,omitempty"`
 	OSSTaxRate              string `xml:"P_12Z_XII,omitempty"` // one stop shop
-	Attachment15GoodsMarker string `xml:"P_12Z_Zal_15,omitempty"`
-	SpecialGoodsCode        string `xml:"GTUZ,omitempty"` // values GTU_1 to GTU_13
+	Attachment15GoodsMarker int    `xml:"P_12Z_Zal_15,omitempty"`
+	SpecialGoodsCode        string `xml:"GTUZ,omitempty"` // values GTU_01 to GTU_13
 	Procedure               string `xml:"ProceduraZ,omitempty"`
 	ExciseDuty              string `xml:"KwotaAkcyzyZ,omitempty"`
-	BeforeCorrectionMarker  string `xml:"StanPrzedZ,omitempty"`
+	BeforeCorrectionMarker  int    `xml:"StanPrzedZ,omitempty"`
 }
 
 func newOrderLine(line *bill.Line, cu uint32) *OrderLine {

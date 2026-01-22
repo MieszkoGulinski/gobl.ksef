@@ -13,7 +13,7 @@ const (
 	formCode      = "FA"
 	schemaVersion = "1-0E"
 	formVariant   = 3
-	systemInfo    = "GOBL.KSEF"
+	systemInfo    = "Invopop"
 )
 
 // Header defines the XML structure for KSeF header
@@ -31,8 +31,8 @@ type FormCode struct {
 	FormCode      string `xml:",chardata"`
 }
 
-// NewHeader gets header data from GOBL invoice
-func NewHeader(inv *bill.Invoice) *Header {
+// NewFavatHeader gets header data from GOBL invoice
+func NewFavatHeader(inv *bill.Invoice) *Header {
 	date := formatIssueDate(inv.IssueDate)
 
 	header := &Header{

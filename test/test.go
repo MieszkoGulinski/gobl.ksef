@@ -4,27 +4,38 @@ package test
 import (
 	"bytes"
 	"encoding/json"
+	"flag"
 	"os"
 	"path/filepath"
 	"strings"
-	"testing"
 
 	"github.com/invopop/gobl"
 	ksef "github.com/invopop/gobl.ksef"
 	"github.com/invopop/gobl/bill"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-	xsdvalidate "github.com/terminalstatic/go-xsd-validate"
 )
 
-// NewDocumentFrom creates a KSeF Document from a GOBL file in the `test/data` folder
-func NewDocumentFrom(name string) (*ksef.Invoice, error) {
+// UpdateOut is a flag that when set to true will regenerate all XML output files
+var UpdateOut bool
+
+func init() {
+	flag.BoolVar(&UpdateOut, "update", false, "update the XML output files in test/data/out")
+}
+
+// BuildFAVATFrom creates a KSeF FA_VAT document from a GOBL file in the `test/data` folder.
+func BuildFAVATFrom(name string) (*ksef.Invoice, error) {
 	env, err := LoadTestEnvelope(name)
 	if err != nil {
 		return nil, err
 	}
 
-	return ksef.NewDocument(env)
+	return ksef.BuildFavat(env)
+}
+
+// NewDocumentFrom creates a KSeF Document from a GOBL file in the `test/data` folder.
+//
+// Deprecated: use BuildFAVATFrom.
+func NewDocumentFrom(name string) (*ksef.Invoice, error) {
+	return BuildFAVATFrom(name)
 }
 
 // LoadTestInvoice returns a GOBL Invoice from a file in the `test/data` folder
@@ -37,31 +48,27 @@ func LoadTestInvoice(name string) (*bill.Invoice, error) {
 	return env.Extract().(*bill.Invoice), nil
 }
 
-// LoadTestEnvelope returns a GOBL Envelope from a file in the `test/data` folder
+// LoadTestEnvelope returns a GOBL Envelope from a file in the `test/data` folder.
+// It handles both envelope and direct invoice formats.
 func LoadTestEnvelope(name string) (*gobl.Envelope, error) {
-	src, _ := os.Open(filepath.Join(GetDataPath(), name))
-
-	buf := new(bytes.Buffer)
-	if _, err := buf.ReadFrom(src); err != nil {
-		return nil, err
-	}
-
-	env := new(gobl.Envelope)
-	if err := json.Unmarshal(buf.Bytes(), env); err != nil {
-		return nil, err
-	}
-
-	return env, nil
+	return loadAndEnvelope(name)
 }
 
-// GenerateKSeFFrom returns a KSeF Document from a GOBL Invoice
-func GenerateKSeFFrom(inv *bill.Invoice) (*ksef.Invoice, error) {
+// BuildFAVATFromInvoice returns a KSeF FA_VAT document from a GOBL invoice.
+func BuildFAVATFromInvoice(inv *bill.Invoice) (*ksef.Invoice, error) {
 	env, err := gobl.Envelop(inv)
 	if err != nil {
 		return nil, err
 	}
 
-	return ksef.NewDocument(env)
+	return ksef.BuildFavat(env)
+}
+
+// GenerateKSeFFrom returns a KSeF Document from a GOBL Invoice.
+//
+// Deprecated: use BuildFAVATFromInvoice.
+func GenerateKSeFFrom(inv *bill.Invoice) (*ksef.Invoice, error) {
+	return BuildFAVATFromInvoice(inv)
 }
 
 // LoadOutputFile returns byte data from a file in the `test/data/out` folder
@@ -86,6 +93,46 @@ func LoadSchemaFile(name string) ([]byte, error) {
 	}
 
 	return buf.Bytes(), nil
+}
+
+// loadAndEnvelope loads a JSON file and returns it as an envelope.
+// It handles both envelope and direct invoice formats.
+func loadAndEnvelope(name string) (*gobl.Envelope, error) {
+	src, err := os.Open(filepath.Join(GetDataPath(), name))
+	if err != nil {
+		return nil, err
+	}
+	defer src.Close()
+
+	buf := new(bytes.Buffer)
+	if _, err := buf.ReadFrom(src); err != nil {
+		return nil, err
+	}
+
+	data := buf.Bytes()
+
+	// Try to parse as envelope first
+	env := new(gobl.Envelope)
+	if err := json.Unmarshal(data, env); err == nil && env.Document != nil {
+		if err := env.Calculate(); err != nil {
+			return nil, err
+		}
+		return env, nil
+	}
+
+	// Try to parse as invoice
+	inv := new(bill.Invoice)
+	if err := json.Unmarshal(data, inv); err != nil {
+		return nil, err
+	}
+
+	// Wrap in envelope
+	env, err = gobl.Envelop(inv)
+	if err != nil {
+		return nil, err
+	}
+
+	return env, nil
 }
 
 // GetSchemaPath returns the path to the `test/data/schema` folder
@@ -136,19 +183,6 @@ func removeLastEntry(dir string) string {
 	return dir[:i]
 }
 
-// ValidateAgainstFA3Schema validates the given data against the FA3 schema
-func ValidateAgainstFA3Schema(t *testing.T, data []byte) {
-	err := xsdvalidate.Init()
-	require.NoError(t, err)
-	t.Cleanup(xsdvalidate.Cleanup)
-
-	xsdBuf, err := LoadSchemaFile("FA3.xsd")
-	require.NoError(t, err)
-
-	xsdhandler, err := xsdvalidate.NewXsdHandlerMem(xsdBuf, xsdvalidate.ParsErrVerbose)
-	require.NoError(t, err)
-	t.Cleanup(xsdhandler.Free)
-
-	validation := xsdhandler.ValidateMem(data, xsdvalidate.ParsErrDefault)
-	assert.Nil(t, validation)
-}
+// ValidateAgainstFA3Schema is implemented in build-tagged files:
+// - with `-tags xsdvalidate`: runs schema validation via libxml2
+// - without it: skips schema validation

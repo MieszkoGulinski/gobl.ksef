@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/invopop/gobl"
+	"github.com/invopop/gobl/addons/pl/favat"
 	"github.com/invopop/gobl/head"
-	"github.com/invopop/gobl/regimes/pl"
 )
 
 // Sign attaches KSeF identification stamps (KSeF number, hash and QR URL) to the envelope.
@@ -16,19 +16,19 @@ func Sign(env *gobl.Envelope, qrURL, ksefNumber, invoiceHash string) error {
 
 	env.Head.AddStamp(
 		&head.Stamp{
-			Provider: pl.StampProviderKSeFID,
+			Provider: favat.StampKSEFNumber,
 			Value:    ksefNumber,
 		},
 	)
 	env.Head.AddStamp(
 		&head.Stamp{
-			Provider: pl.StampProviderKSeFHash,
+			Provider: favat.StampHash,
 			Value:    invoiceHash,
 		},
 	)
 	env.Head.AddStamp(
 		&head.Stamp{
-			Provider: pl.StampProviderKSeFQR,
+			Provider: favat.StampQR,
 			Value:    qrURL,
 		},
 	)

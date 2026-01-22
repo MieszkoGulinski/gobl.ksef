@@ -90,7 +90,7 @@ func SendInvoice(c *ksef_api.Client, data []byte) (*gobl.Envelope, error) {
 		return nil, fmt.Errorf("parsing input as GOBL Envelope: %w", err)
 	}
 
-	doc, err := ksef.NewDocument(env)
+	doc, err := ksef.BuildFavat(env)
 	if err != nil {
 		return nil, fmt.Errorf("building FA_VAT document: %w", err)
 	}
