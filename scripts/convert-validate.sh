@@ -21,3 +21,4 @@ else
     go test -tags xsdvalidate ./test -run TestConvertAndValidateAll -v
 fi
 
+

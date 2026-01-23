@@ -81,19 +81,19 @@ func vatRate(tc *tax.Combo) string {
 
 	// For zero/nil percentage, determine from tax category extension
 	switch tc.Ext.Get(favat.ExtKeyTaxCategory) {
-	case "6.1":
+	case "6.1": // zero-rated goods and services in the country
 		return "0 KR"
-	case "6.2":
+	case "6.2": // intra-community supply
 		return "0 WDT"
-	case "6.3":
+	case "6.3": // export supply
 		return "0 EX"
-	case "7":
+	case "7": // tax exempt supply
 		return "zw"
-	case "8":
+	case "8": // outside scope supply
 		return "np I"
-	case "9":
+	case "9": // reverse charge supply
 		return "np II"
-	case "10":
+	case "10": // domestic reverse charge supply
 		return "oo"
 	default:
 		return ""
