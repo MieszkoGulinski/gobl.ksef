@@ -9,7 +9,7 @@
   <Podmiot1>
     <PrefiksPodatnika>PL</PrefiksPodatnika>
     <DaneIdentyfikacyjne>
-      <NIP>9876543210</NIP>
+      <NIP>8126178616</NIP>
       <Nazwa>Testowa Firma Sp. z o.o.</Nazwa>
     </DaneIdentyfikacyjne>
     <Adres>
@@ -35,7 +35,7 @@
   <Fa>
     <KodWaluty>PLN</KodWaluty>
     <P_1>2026-01-20</P_1>
-    <P_2>INVOICE-001</P_2>
+    <P_2>INVOICE-002</P_2>
     <P_13_1>1000.00</P_13_1>
     <P_14_1>230.00</P_14_1>
     <P_13_2>750.00</P_13_2>

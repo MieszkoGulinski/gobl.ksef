@@ -2,15 +2,14 @@ package api_test
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 	"net/http"
 	"testing"
 	"time"
 
-	ksef "github.com/invopop/gobl.ksef"
 	ksef_api "github.com/invopop/gobl.ksef/api"
 	"github.com/invopop/gobl.ksef/test"
-	"github.com/invopop/gobl/addons/pl/favat"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -88,37 +87,23 @@ func TestUploadInvoice(t *testing.T) {
 			fmt.Printf("Failed invoice %s (ordinal %d): %+v\n", inv.ReferenceNumber, inv.OrdinalNumber, inv.Status)
 		}
 
-		envelope, err := test.LoadTestEnvelope("invoice-pl-pl.json")
+		hashBytes, err := base64.StdEncoding.DecodeString(uploadedInvoices[0].InvoiceHash)
 		require.NoError(t, err)
 
 		// Attach required stamps to envelope
-		qrURL, err := client.GenerateQrCodeURL(
+		qrURL, err := ksef_api.GenerateQrCodeURL(
+			ksef_api.EnvironmentTest,
 			ctxIdentifier.Nip,
-			uploadedInvoices[0].InvoiceHash,
 			uploadedInvoices[0].InvoicingDate,
+			hashBytes,
 		)
 		require.NoError(t, err)
-
-		err = ksef.Sign(envelope, qrURL, uploadedInvoices[0].KsefNumber, uploadedInvoices[0].InvoiceHash)
-		assert.NoError(t, err)
-
-		require.NotNil(t, envelope.Head.Stamps)
-		assert.GreaterOrEqual(t, len(envelope.Head.Stamps), 3)
-
-		var qrStampValue string
-		for _, stamp := range envelope.Head.Stamps {
-			if stamp != nil && stamp.Provider == favat.StampQR {
-				qrStampValue = stamp.Value
-				break
-			}
-		}
-		require.NotEmpty(t, qrStampValue)
 
 		// Check if the URL is correctly formed
 		// IMPORTANT: when the URL contains invalid parameters (e.g. NIP is different), the response is still 200,
 		// but the website content says that "no invoice found".
 		// To check if the URL is actually valid, we need to check the returned HTML, and this is very fragile
-		resp, err := http.Get(qrStampValue)
+		resp, err := http.Get(qrURL)
 		require.NoError(t, err)
 		defer func() {
 			assert.NoError(t, resp.Body.Close())

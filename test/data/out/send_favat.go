@@ -12,7 +12,7 @@ import (
 func main() {
 	// ===== CONFIGURATION - EDIT THIS SECTION =====
 	// XML file to send (in the same folder as this script)
-	xmlFile := "invoice-reverse-charge.xml"
+	xmlFile := "invoice-standard.xml"
 
 	// KSeF authentication details
 	nip := "8126178616"

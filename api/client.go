@@ -11,6 +11,14 @@ import (
 // ClientOptFunc defines function for customizing the KSeF client
 type ClientOptFunc func(*clientOpts)
 
+type Environment string
+
+const (
+	EnvironmentProduction Environment = "prod"
+	EnvironmentDemo       Environment = "demo"
+	EnvironmentTest       Environment = "test"
+)
+
 // clientOpts defines the client parameters
 type clientOpts struct {
 	client              *resty.Client      // Resty client used for making the requests
@@ -27,7 +35,7 @@ func defaultClientOpts(contextIdentifier *ContextIdentifier, certificatePath str
 	return clientOpts{
 		client:              resty.New(),
 		url:                 "https://api-test.ksef.mf.gov.pl/v2",
-		qrUrl:               "https://qr-test.ksef.mf.gov.pl/invoice",
+		qrUrl:               EnvironmentTestQrUrl,
 		contextIdentifier:   contextIdentifier,
 		certificatePath:     certificatePath,
 		certificatePassword: "",
@@ -65,13 +73,13 @@ func WithCertificatePassword(password string) ClientOptFunc {
 // WithProductionURL sets the client url to KSeF production
 func WithProductionURL(o *clientOpts) {
 	o.url = "https://api.mf.gov.pl/v2"
-	o.qrUrl = "https://qr.ksef.mf.gov.pl/invoice"
+	o.qrUrl = EnvironmentProductionQrUrl
 }
 
 // WithDemoURL sets the client url to KSeF demo
 func WithDemoURL(o *clientOpts) {
 	o.url = "https://api-demo.ksef.mf.gov.pl/v2"
-	o.qrUrl = "https://qr-demo.ksef.mf.gov.pl/invoice"
+	o.qrUrl = EnvironmentDemoQrUrl
 }
 
 // NewClient returns a KSeF API client

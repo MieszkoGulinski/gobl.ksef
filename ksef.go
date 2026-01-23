@@ -57,7 +57,7 @@ func BuildFavat(env *gobl.Envelope) (*Invoice, error) {
 		XSDNamespace: XSDNamespace,
 		XMLNamespace: XMLNamespace,
 
-		Header:       NewFavatHeader(inv),
+		Header:       NewFavatHeader(),
 		Seller:       NewFavatSeller(inv.Supplier),
 		Buyer:        NewFavatBuyer(inv.Customer),
 		ThirdParties: NewThirdParties(inv),
