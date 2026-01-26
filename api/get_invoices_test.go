@@ -2,6 +2,7 @@ package api_test
 
 import (
 	"context"
+	"fmt"
 	"testing"
 	"time"
 
@@ -30,5 +31,24 @@ func TestListInvoices(t *testing.T) {
 
 		_, err := client.ListInvoices(ctx, params)
 		require.NoError(t, err)
+	})
+}
+
+func TestGetInvoice(t *testing.T) {
+	t.Run("fetches invoice by ksef number", func(t *testing.T) {
+		client := ksef_api.NewClient(
+			&ksef_api.ContextIdentifier{Nip: "8126178616"},
+			"./test/cert-20260102-131809.pfx",
+			ksef_api.WithDebugClient(),
+		)
+
+		ctx := context.Background()
+		require.NoError(t, client.Authenticate(ctx))
+
+		ksefNumber := "8126178616-20260117-010020CE337D-CD"
+		xmlData, err := client.GetInvoice(ctx, ksefNumber)
+		require.NoError(t, err)
+
+		fmt.Printf("Invoice XML for %s:\n%s\n", ksefNumber, string(xmlData))
 	})
 }

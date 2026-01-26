@@ -53,8 +53,10 @@ type listInvoicesDateRange struct {
 }
 
 type listInvoicesRequest struct {
-	SubjectType string                `json:"subjectType"`
-	DateRange   listInvoicesDateRange `json:"dateRange"`
+	SubjectType  string                `json:"subjectType"`
+	DateRange    listInvoicesDateRange `json:"dateRange"`
+	FormType     string                `json:"formType,omitempty"`
+	InvoiceTypes []string              `json:"invoiceTypes,omitempty"`
 }
 
 // InvoiceMetadata holds the subset of fields we care about from the metadata endpoint.
