@@ -16,14 +16,17 @@ import (
 
 func TestCreateSession(t *testing.T) {
 	t.Run("creates session", func(t *testing.T) {
+		certData, err := ksef_api.LoadCertificate("./test/cert-20260102-131809.pfx")
+		require.NoError(t, err)
+
 		client := ksef_api.NewClient(
 			&ksef_api.ContextIdentifier{Nip: "8126178616"},
-			"./test/cert-20260102-131809.pfx",
+			certData,
 			ksef_api.WithDebugClient(),
 		)
 
 		ctx := context.Background()
-		err := client.Authenticate(ctx)
+		err = client.Authenticate(ctx)
 		require.NoError(t, err)
 
 		uploadSession, err := client.CreateSession(ctx)
@@ -42,14 +45,17 @@ func TestUploadInvoice(t *testing.T) {
 	t.Run("uploads invoice during session", func(t *testing.T) {
 		fmt.Println(1)
 		ctxIdentifier := &ksef_api.ContextIdentifier{Nip: "8126178616"}
+		certData, err := ksef_api.LoadCertificate("./test/cert-20260102-131809.pfx")
+		require.NoError(t, err)
+
 		client := ksef_api.NewClient(
 			ctxIdentifier,
-			"./test/cert-20260102-131809.pfx",
+			certData,
 			ksef_api.WithDebugClient(),
 		)
 
 		ctx := context.Background()
-		err := client.Authenticate(ctx)
+		err = client.Authenticate(ctx)
 		require.NoError(t, err)
 
 		uploadSession, err := client.CreateSession(ctx)

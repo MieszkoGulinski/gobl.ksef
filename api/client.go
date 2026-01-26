@@ -4,6 +4,7 @@ package api
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"github.com/go-resty/resty/v2"
 )
@@ -25,19 +26,19 @@ type clientOpts struct {
 	url                 string             // Base API URL for the requests
 	qrUrl               string             // Base API URL for QR code verification
 	contextIdentifier   *ContextIdentifier // Identifies the business entity the requests are made for
-	certificatePath     string             // Path to the .p12 / .pfx certificate for KSeF API authorization
+	certificateData     []byte             // P12/PFX certificate data for KSeF API authorization
 	certificatePassword string             // Password to certificate above
 	accessToken         *apiToken          // Access token used for making most of the requests
 	refeshToken         *apiToken          // Refresh token used for refreshing the access token
 }
 
-func defaultClientOpts(contextIdentifier *ContextIdentifier, certificatePath string) clientOpts {
+func defaultClientOpts(contextIdentifier *ContextIdentifier, certificateData []byte) clientOpts {
 	return clientOpts{
 		client:              resty.New(),
 		url:                 "https://api-test.ksef.mf.gov.pl/v2",
 		qrUrl:               EnvironmentTestQrUrl,
 		contextIdentifier:   contextIdentifier,
-		certificatePath:     certificatePath,
+		certificateData:     certificateData,
 		certificatePassword: "",
 	}
 }
@@ -83,14 +84,20 @@ func WithDemoURL(o *clientOpts) {
 }
 
 // NewClient returns a KSeF API client
-func NewClient(contextIdentifier *ContextIdentifier, certificatePath string, opts ...ClientOptFunc) *Client {
-	o := defaultClientOpts(contextIdentifier, certificatePath)
+func NewClient(contextIdentifier *ContextIdentifier, certificateData []byte, opts ...ClientOptFunc) *Client {
+	o := defaultClientOpts(contextIdentifier, certificateData)
 	for _, fn := range opts {
 		fn(&o)
 	}
 	return &Client{
 		clientOpts: o,
 	}
+}
+
+// LoadCertificate is a convenience function to load a P12/PFX certificate from a file path.
+// Returns the certificate data that can be passed to NewClient.
+func LoadCertificate(certificatePath string) ([]byte, error) {
+	return os.ReadFile(certificatePath)
 }
 
 // Authenticate performs the full authorization exchange and stores the resulting tokens on the client.

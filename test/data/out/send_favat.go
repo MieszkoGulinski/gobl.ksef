@@ -35,9 +35,14 @@ func main() {
 
 	// Create API client
 	fmt.Println("Step 2: Authenticating with KSeF...")
+	certData, err := ksef_api.LoadCertificate(certPath)
+	if err != nil {
+		log.Fatalf("Failed to load certificate: %v", err)
+	}
+
 	client := ksef_api.NewClient(
 		&ksef_api.ContextIdentifier{Nip: nip},
-		certPath,
+		certData,
 	)
 
 	ctx := context.Background()

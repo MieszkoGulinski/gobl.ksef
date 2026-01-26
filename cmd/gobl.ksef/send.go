@@ -55,9 +55,14 @@ func (c *sendOpts) runE(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("reading input: %w", err)
 	}
 
+	certData, err := ksef_api.LoadCertificate(keyPath)
+	if err != nil {
+		return fmt.Errorf("loading certificate: %w", err)
+	}
+
 	client := ksef_api.NewClient(
 		&ksef_api.ContextIdentifier{Nip: nip},
-		keyPath,
+		certData,
 	)
 
 	env, err := SendInvoice(client, data)
