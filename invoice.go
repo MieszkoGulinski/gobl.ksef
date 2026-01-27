@@ -4,9 +4,10 @@ package ksef
 import (
 	"fmt"
 
+	"github.com/invopop/gobl/addons/pl/favat"
 	"github.com/invopop/gobl/bill"
 	"github.com/invopop/gobl/cbc"
-	"github.com/invopop/gobl/regimes/pl"
+	"github.com/invopop/gobl/org"
 	"github.com/invopop/gobl/tax"
 )
 
@@ -16,8 +17,10 @@ type Inv struct {
 	IssueDate                          string                       `xml:"P_1"`
 	IssuePlace                         string                       `xml:"P_1M,omitempty"`
 	SequentialNumber                   string                       `xml:"P_2"`
+	WarehouseDocuments                 []string                     `xml:"WZ,omitempty"`
 	CompletionDate                     string                       `xml:"P_6,omitempty"`
 	Period                             *InvoicePeriod               `xml:"OkresFa,omitempty"`
+	ExchangeRate                       string                       `xml:"KursWalutyZ,omitempty"`
 	StandardRateNetSale                string                       `xml:"P_13_1,omitempty"`
 	StandardRateTax                    string                       `xml:"P_14_1,omitempty"`
 	StandardRateTaxConvertedToPln      string                       `xml:"P_14_1W,omitempty"`
@@ -30,26 +33,34 @@ type Inv struct {
 	TaxiRateNetSale                    string                       `xml:"P_13_4,omitempty"`
 	TaxiRateTax                        string                       `xml:"P_14_4,omitempty"`
 	TaxiRateTaxConvertedToPln          string                       `xml:"P_14_4W,omitempty"`
-	SpecialProcedureNetSale            string                       `xml:"P_13_5,omitempty"`
-	SpecialProcedureTax                string                       `xml:"P_14_5,omitempty"`
+	OSSNetSale                         string                       `xml:"P_13_5,omitempty"`
+	OSSTax                             string                       `xml:"P_14_5,omitempty"`
 	ZeroTaxExceptIntraCommunityNetSale string                       `xml:"P_13_6_1,omitempty"`
 	IntraCommunityNetSale              string                       `xml:"P_13_6_2,omitempty"`
 	ExportNetSale                      string                       `xml:"P_13_6_3,omitempty"`
 	TaxExemptNetSale                   string                       `xml:"P_13_7,omitempty"`
-	InternationalNetSale               string                       `xml:"P_13_8,omitempty"`
-	OtherNetSale                       string                       `xml:"P_13_9,omitempty"`
-	EUServiceNetSale                   string                       `xml:"P_13_10,omitempty"`
+	OutsideScopeNetSale                string                       `xml:"P_13_8,omitempty"`
+	ReverseChargeNetSale               string                       `xml:"P_13_9,omitempty"`
+	DomesticReverseChargeNetSale       string                       `xml:"P_13_10,omitempty"`
 	MarginNetSale                      string                       `xml:"P_13_11,omitempty"`
-	TotalAmountReceivable              string                       `xml:"P_15"`
+	TotalAmountDue                     string                       `xml:"P_15"`
+	AmountBeforeCorrection             string                       `xml:"P_15ZK,omitempty"`
 	Annotations                        *Annotations                 `xml:"Adnotacje"`
 	InvoiceType                        string                       `xml:"RodzajFaktury"`
 	CorrectionReason                   string                       `xml:"PrzyczynaKorekty,omitempty"`
 	CorrectionType                     string                       `xml:"TypKorekty,omitempty"`
-	CorrectedInv                       *CorrectedInv                `xml:"DaneFaKorygowanej,omitempty"`
-	Lines                              []*Line                      `xml:"FaWiersz,omitempty"` // empty for ZAL and KOR_ZAL, use Order instead
-	Payment                            *Payment                     `xml:"Platnosc"`
+	CorrectedInv                       []*CorrectedInv              `xml:"DaneFaKorygowanej,omitempty"`
+	AdvanceInvoices                    []*AdvanceInvoiceRef         `xml:"FakturaZaliczkowa,omitempty"`
+	PartialAdvancePayments             []*PartialAdvancePayment     `xml:"ZaliczkaCzesciowa,omitempty"`
+	FP                                 int                          `xml:"FP,omitempty"`
+	TP                                 int                          `xml:"TP,omitempty"`
+	ExciseTaxRefund                    int                          `xml:"ZwrotAkcyzy,omitempty"`
 	AdditionalDescription              []*AdditionalDescriptionLine `xml:"DodatkowyOpis,omitempty"`
-	// Order                              *Order                       `xml:"Zamowienie,omitempty"` // TODO implement in the future
+	Lines                              []*Line                      `xml:"FaWiersz,omitempty"` // empty for ZAL and KOR_ZAL, use Order instead
+	Settlement                         *Settlement                  `xml:"Rozliczenie,omitempty"`
+	TransactionConditions              *TransactionConditions       `xml:"WarunkiTransakcji,omitempty"`
+	Payment                            *Payment                     `xml:"Platnosc,omitempty"`
+	Order                              *Order                       `xml:"Zamowienie,omitempty"` // for ZAL and KOR_ZAL types
 }
 
 type InvoicePeriod struct {
@@ -59,111 +70,205 @@ type InvoicePeriod struct {
 
 // Annotations defines the XML structure for KSeF annotations
 type Annotations struct {
-	CashAccounting                      int `xml:"P_16"`
-	SelfBilling                         int `xml:"P_17"`
-	ReverseCharge                       int `xml:"P_18"`
-	SplitPaymentMechanism               int `xml:"P_18A"`
-	NoTaxExemptGoods                    int `xml:"Zwolnienie>P_19N"`
-	NoNewTransportIntraCommunitySupply  int `xml:"NoweSrodkiTransportu>P_22N"`
-	SimplifiedProcedureBySecondTaxpayer int `xml:"P_23"`
-	NoMarginProcedures                  int `xml:"PMarzy>P_PMarzyN"`
+	CashAccounting                      string             `xml:"P_16"`
+	SelfBilling                         string             `xml:"P_17"`
+	ReverseCharge                       string             `xml:"P_18"`
+	SplitPaymentMechanism               string             `xml:"P_18A"`
+	TaxExemption                        *TaxExemption      `xml:"Zwolnienie,omitempty"`
+	NewTransportMeans                   *NewTransportMeans `xml:"NoweSrodkiTransportu,omitempty"`
+	SimplifiedProcedureBySecondTaxpayer string             `xml:"P_23"`
+	MarginScheme                        *MarginScheme      `xml:"PMarzy,omitempty"`
+}
+
+// TaxExemption defines the XML structure for tax exemption details
+type TaxExemption struct {
+	Marker           string `xml:"P_19,omitempty"`
+	PolishLawBasis   string `xml:"P_19A,omitempty"`
+	EUDirectiveBasis string `xml:"P_19B,omitempty"`
+	OtherLegalBasis  string `xml:"P_19C,omitempty"`
+	NoExemption      string `xml:"P_19N,omitempty"`
+}
+
+// NewTransportMeans defines the XML structure for new means of transport
+type NewTransportMeans struct {
+	Marker                 int                      `xml:"P_22,omitempty"`
+	Art42Obligation        string                   `xml:"P_42_5,omitempty"`
+	NewTransportMeansItems []*NewTransportMeansItem `xml:"NowySrodekTransportu,omitempty"`
+	NoNewTransportMeans    string                   `xml:"P_22N,omitempty"`
+}
+
+// NewTransportMeansItem defines details for a single new transport means item
+type NewTransportMeansItem struct {
+	FirstUseDate       string `xml:"P_22A"`
+	LineNumber         int    `xml:"P_NrWierszaNST"`
+	Brand              string `xml:"P_22BMK,omitempty"`
+	Model              string `xml:"P_22BMD,omitempty"`
+	Color              string `xml:"P_22BK,omitempty"`
+	RegistrationNumber string `xml:"P_22BNR,omitempty"`
+	ProductionYear     string `xml:"P_22BRP,omitempty"`
+	// For land vehicles
+	Mileage       string `xml:"P_22B,omitempty"`
+	VIN           string `xml:"P_22B1,omitempty"`
+	BodyNumber    string `xml:"P_22B2,omitempty"`
+	ChassisNumber string `xml:"P_22B3,omitempty"`
+	FrameNumber   string `xml:"P_22B4,omitempty"`
+	VehicleType   string `xml:"P_22BT,omitempty"`
+	// For watercraft
+	OperatingHoursWater string `xml:"P_22C,omitempty"`
+	HullNumber          string `xml:"P_22C1,omitempty"`
+	// For aircraft
+	OperatingHoursAir string `xml:"P_22D,omitempty"`
+	FactoryNumber     string `xml:"P_22D1,omitempty"`
+}
+
+// MarginScheme defines the XML structure for margin scheme
+type MarginScheme struct {
+	Marker                        string `xml:"P_PMarzy,omitempty"`
+	TravelAgencyMargin            string `xml:"P_PMarzy_2,omitempty"`
+	UsedGoodsMargin               string `xml:"P_PMarzy_3_1,omitempty"`
+	ArtWorksMargin                string `xml:"P_PMarzy_3_2,omitempty"`
+	CollectiblesAndAntiquesMargin string `xml:"P_PMarzy_3_3,omitempty"`
+	NoMarginScheme                string `xml:"P_PMarzyN,omitempty"`
 }
 
 // AdditionalDescriptionLine defines the XML structure for KSeF additional description line (`DodatkowyOpis`)
 type AdditionalDescriptionLine struct {
-	Key   string `xml:"Klucz"`
-	Value string `xml:"Wartosc"`
+	LineNumber string `xml:"NrWiersza,omitempty"`
+	Key        string `xml:"Klucz"`
+	Value      string `xml:"Wartosc"`
 }
 
 // Order defines the XML structure for KSeF "Zamowienie" (order) field, required for ZAL and KOR_ZAL types
 type Order struct {
 	OrderAmount string       `xml:"WartoscZamowienia"`
-	LineItems   []*OrderLine `xml:"WierszZamowienia,omitempty"`
+	LineItems   []*OrderLine `xml:"ZamowienieWiersz,omitempty"`
 }
 
-// newAnnotations sets annotations data
-func newAnnotations() *Annotations {
-	// default values for the most common case,
-	// For fields P_16 to P_18 and field P_23 2 means "no", 1 means "yes".
-	// for others 1 means "yes", no value means "no"
-	Annotations := &Annotations{
-		CashAccounting:                      2,
-		SelfBilling:                         2,
-		ReverseCharge:                       2,
-		SplitPaymentMechanism:               2,
-		NoTaxExemptGoods:                    1,
-		NoNewTransportIntraCommunitySupply:  1,
-		SimplifiedProcedureBySecondTaxpayer: 2,
-		NoMarginProcedures:                  1,
-	}
-	return Annotations
+// AdvanceInvoiceRef defines the XML structure for advance invoice reference
+type AdvanceInvoiceRef struct {
+	KSeFMarker           int    `xml:"NrKSeFZN,omitempty"`
+	AdvanceInvoiceNo     string `xml:"NrFaZaliczkowej,omitempty"`
+	KSeFAdvanceInvoiceNo string `xml:"NrKSeFFaZaliczkowej,omitempty"`
 }
 
-// NewInv gets invoice data from GOBL invoice
-func NewInv(inv *bill.Invoice) *Inv {
-	cu := inv.Currency.Def().Subunits
-	Inv := &Inv{
-		Annotations:           newAnnotations(),
-		CurrencyCode:          string(inv.Currency),
-		IssueDate:             inv.IssueDate.String(),
-		SequentialNumber:      invoiceNumber(inv.Series, inv.Code),
-		TotalAmountReceivable: inv.Totals.Payable.Rescale(cu).String(),
-		Lines:                 NewLines(inv.Lines, cu),
-		Payment:               NewPayment(inv.Payment, inv.Totals),
+// PartialAdvancePayment defines the XML structure for partial advance payment (ZaliczkaCzesciowa)
+type PartialAdvancePayment struct {
+	PaymentDate          string `xml:"P_6Z"`
+	PaymentAmount        string `xml:"P_15Z"`
+	CurrencyExchangeRate string `xml:"KursWalutyZW,omitempty"`
+}
+
+// Settlement defines the XML structure for additional charges and deductions
+type Settlement struct {
+	Charges         []*ChargeOrDeduction `xml:"Obciazenia>Obciazenie,omitempty"`
+	TotalCharges    string               `xml:"Obciazenia>SumaObciazen,omitempty"`
+	Deductions      []*ChargeOrDeduction `xml:"Odliczenia>Odliczenie,omitempty"`
+	TotalDeductions string               `xml:"Odliczenia>SumaOdliczen,omitempty"`
+	AmountToPay     string               `xml:"DoZaplaty,omitempty"`
+	AmountToSettle  string               `xml:"DoRozliczenia,omitempty"`
+}
+
+// ChargeOrDeduction defines the XML structure for a single charge or deduction
+type ChargeOrDeduction struct {
+	Amount string `xml:"Kwota"`
+	Reason string `xml:"Powod"`
+}
+
+// TransactionConditions defines the XML structure for transaction conditions
+type TransactionConditions struct {
+	Contracts         []*Contract  `xml:"Umowy>Umowa,omitempty"`
+	Orders            []*OrderRef  `xml:"Zamowienia>Zamowienie,omitempty"`
+	BatchNumbers      []string     `xml:"NrPartiiTowaru,omitempty"`
+	DeliveryTerms     string       `xml:"WarunkiDostawy,omitempty"`
+	ContractRate      string       `xml:"KursUmowny,omitempty"`
+	ContractCurrency  string       `xml:"WalutaUmowna,omitempty"`
+	Transport         []*Transport `xml:"Transport,omitempty"`
+	IntermediaryParty int          `xml:"PodmiotPosredniczacy,omitempty"`
+}
+
+// Contract defines the XML structure for contract reference
+type Contract struct {
+	Date   string `xml:"DataUmowy"`
+	Number string `xml:"NrUmowy"`
+}
+
+// OrderRef defines the XML structure for order reference
+type OrderRef struct {
+	Date   string `xml:"DataZamowienia"`
+	Number string `xml:"NrZamowienia"`
+}
+
+// Transport defines the XML structure for transport information
+type Transport struct {
+	TransportType        string     `xml:"RodzajTransportu,omitempty"`
+	OtherTransportType   int        `xml:"TransportInny,omitempty"`
+	OtherTransportDesc   string     `xml:"OpisInnegoTransportu,omitempty"`
+	Carrier              *Carrier   `xml:"Przewoznik,omitempty"`
+	TransportOrderNumber string     `xml:"NrZleceniaTransportu,omitempty"`
+	CargoType            string     `xml:"OpisLadunku,omitempty"`
+	OtherCargoType       int        `xml:"LadunekInny,omitempty"`
+	OtherCargoDesc       string     `xml:"OpisInnegoLadunku,omitempty"`
+	PackagingUnit        string     `xml:"JednostkaOpakowania,omitempty"`
+	TransportStartTime   string     `xml:"DataGodzRozpTransportu,omitempty"`
+	TransportEndTime     string     `xml:"DataGodzZakTransportu,omitempty"`
+	ShipFrom             *Address   `xml:"WysylkaZ,omitempty"`
+	ShipVia              []*Address `xml:"WysylkaPrzez,omitempty"`
+	ShipTo               *Address   `xml:"WysylkaDo,omitempty"`
+}
+
+// Carrier defines the XML structure for carrier information
+type Carrier struct {
+	IdentificationData *Buyer   `xml:"DaneIdentyfikacyjne"`
+	Address            *Address `xml:"AdresPrzewoznika"`
+}
+
+// NewFavatInv gets invoice data from GOBL invoice
+func NewFavatInv(invoice *bill.Invoice) *Inv {
+
+	inv := &Inv{
+		CurrencyCode:     invoice.Currency.String(),
+		IssueDate:        invoice.IssueDate.String(),
+		Period:           newInvoicePeriod(invoice.Ordering),
+		SequentialNumber: invoiceNumber(invoice.Series, invoice.Code),
+		Annotations:      newAnnotations(invoice),
+		Lines:            NewLines(invoice.Lines),
+		Payment:          NewPayment(invoice.Payment, invoice.Totals),
 	}
 
-	if len(inv.Notes) > 0 {
-		for _, note := range inv.Notes {
-			Inv.AdditionalDescription = append(Inv.AdditionalDescription, &AdditionalDescriptionLine{
+	if invoice.Totals.Due != nil {
+		inv.TotalAmountDue = invoice.Totals.Due.String()
+	} else {
+		inv.TotalAmountDue = invoice.Totals.Payable.String()
+	}
+
+	if invoice.Tax != nil && invoice.Tax.Ext != nil {
+		inv.InvoiceType = invoice.Tax.Ext.Get(favat.ExtKeyInvoiceType).String()
+	}
+
+	inv.setTaxRates(invoice.Totals.Taxes)
+
+	if len(invoice.Notes) > 0 {
+		for _, note := range invoice.Notes {
+			inv.AdditionalDescription = append(inv.AdditionalDescription, &AdditionalDescriptionLine{
 				Key:   note.Key.String(),
 				Value: note.Text,
 			})
 		}
 	}
 
-	if inv.HasTags(tax.TagSelfBilled) {
-		Inv.Annotations.SelfBilling = 1
-	}
-
-	if len(inv.Preceding) > 0 {
-		for _, prc := range inv.Preceding {
-			Inv.CorrectedInv = NewCorrectedInv(prc)
-			Inv.CorrectionReason = prc.Reason
-			if prc.Ext.Has(pl.ExtKeyKSeFEffectiveDate) {
-				Inv.CorrectionType = prc.Ext[pl.ExtKeyKSeFEffectiveDate].String()
-			}
+	if len(invoice.Preceding) > 0 {
+		if invoice.Preceding[0].Reason != "" {
+			inv.CorrectionReason = invoice.Preceding[0].Reason
+		}
+		if invoice.Preceding[0].Ext.Has(favat.ExtKeyEffectiveDate) {
+			inv.CorrectionType = invoice.Preceding[0].Ext.Get(favat.ExtKeyEffectiveDate).String()
+		}
+		for _, prc := range invoice.Preceding {
+			inv.CorrectedInv = append(inv.CorrectedInv, NewCorrectedInv(prc))
 		}
 	}
 
-	ss := inv.ScenarioSummary() //nolint:staticcheck
-	Inv.InvoiceType = ss.Codes[pl.KeyFAVATInvoiceType].String()
-	if inv.OperationDate != nil {
-		Inv.CompletionDate = inv.OperationDate.String()
-	}
-
-	for _, cat := range inv.Totals.Taxes.Categories {
-		if cat.Code != tax.CategoryVAT {
-			continue
-		}
-
-		for _, rate := range cat.Rates {
-			if rate.Percent != nil {
-				switch rate.Key {
-				case tax.RateStandard:
-					Inv.StandardRateNetSale = rate.Base.Rescale(cu).String()
-					Inv.StandardRateTax = rate.Amount.Rescale(cu).String()
-				case tax.RateReduced:
-					Inv.ReducedRateNetSale = rate.Base.Rescale(cu).String()
-					Inv.ReducedRateTax = rate.Amount.Rescale(cu).String()
-				case tax.RateSuperReduced:
-					Inv.SuperReducedRateNetSale = rate.Base.Rescale(cu).String()
-					Inv.SuperReducedRateTax = rate.Amount.Rescale(cu).String()
-				}
-			}
-		}
-	}
-
-	return Inv
+	return inv
 }
 
 func invoiceNumber(series cbc.Code, code cbc.Code) string {
@@ -171,4 +276,140 @@ func invoiceNumber(series cbc.Code, code cbc.Code) string {
 		return code.String()
 	}
 	return fmt.Sprintf("%s-%s", series, code)
+}
+
+func newInvoicePeriod(ordering *bill.Ordering) *InvoicePeriod {
+	if ordering == nil || ordering.Period == nil {
+		return nil
+	}
+
+	return &InvoicePeriod{
+		StartDate: ordering.Period.Start.String(),
+		EndDate:   ordering.Period.End.String(),
+	}
+}
+
+func (inv *Inv) setTaxRates(taxes *tax.Total) {
+	for _, cat := range taxes.Categories {
+		if cat.Code != tax.CategoryVAT {
+			continue
+		}
+
+		for _, rate := range cat.Rates {
+			switch rate.Ext.Get(favat.ExtKeyTaxCategory) {
+			case "1": // standard rate
+				inv.StandardRateNetSale = rate.Base.String()
+				inv.StandardRateTax = rate.Amount.String()
+			case "2": // reduced rate
+				inv.ReducedRateNetSale = rate.Base.String()
+				inv.ReducedRateTax = rate.Amount.String()
+			case "3": // super reduced rate
+				inv.SuperReducedRateNetSale = rate.Base.String()
+				inv.SuperReducedRateTax = rate.Amount.String()
+			case "4": // taxi rate
+				inv.TaxiRateNetSale = rate.Base.String()
+				inv.TaxiRateTax = rate.Amount.String()
+			case "5": // OSS rate
+				inv.OSSNetSale = rate.Base.String()
+				inv.OSSTax = rate.Amount.String()
+			case "6.1": // zero tax except intra-community supply
+				inv.ZeroTaxExceptIntraCommunityNetSale = rate.Base.String()
+			case "6.2": // intra-community supply
+				inv.IntraCommunityNetSale = rate.Base.String()
+			case "6.3": // export supply
+				inv.ExportNetSale = rate.Base.String()
+			case "7": // tax exempt supply
+				inv.TaxExemptNetSale = rate.Base.String()
+			case "8": // outside scope supply
+				inv.OutsideScopeNetSale = rate.Base.String()
+			case "9": // reverse charge supply
+				inv.ReverseChargeNetSale = rate.Base.String()
+			case "10": // domestic reverse charge supply
+				inv.DomesticReverseChargeNetSale = rate.Base.String()
+			case "11": // margin supply
+				inv.MarginNetSale = rate.Base.String()
+			}
+		}
+	}
+}
+
+// newAnnotations sets annotations data
+func newAnnotations(invoice *bill.Invoice) *Annotations {
+	// default values for the most common case,
+	// For fields P_16 to P_18 and field P_23 2 means "no", 1 means "yes".
+	// for others 1 means "yes", no value means "no"
+	Annotations := &Annotations{
+		CashAccounting:        "2",
+		SelfBilling:           "2",
+		ReverseCharge:         "2",
+		SplitPaymentMechanism: "2",
+		TaxExemption: &TaxExemption{
+			NoExemption: "1",
+		},
+		NewTransportMeans: &NewTransportMeans{
+			NoNewTransportMeans: "1",
+		},
+		SimplifiedProcedureBySecondTaxpayer: "2",
+		MarginScheme: &MarginScheme{
+			NoMarginScheme: "1",
+		},
+	}
+
+	if invoice.Tax == nil {
+		return Annotations
+	}
+
+	if invoice.Tax.Ext.Get(favat.ExtKeyCashAccounting) == "1" {
+		Annotations.CashAccounting = "1"
+	}
+
+	if invoice.Tax.Ext.Get(favat.ExtKeySelfBilling) == "1" {
+		Annotations.SelfBilling = "1"
+	}
+
+	if invoice.Tax.Ext.Get(favat.ExtKeyReverseCharge) == "1" {
+		Annotations.ReverseCharge = "1"
+	}
+
+	if invoice.Tax.Ext.Get(favat.ExtKeySplitPayment) == "1" {
+		Annotations.SplitPaymentMechanism = "1"
+	}
+
+	if invoice.Tax.Ext.Get(favat.ExtKeyExemption) != "" {
+		// Find the note in notes with key legal
+		Annotations.TaxExemption = &TaxExemption{
+			Marker: "1",
+		}
+		for _, note := range invoice.Notes {
+			if note.Key == org.NoteKeyLegal && note.Src == favat.ExtKeyExemption {
+				switch invoice.Tax.Ext.Get(favat.ExtKeyExemption) {
+				case "A": // polish law basis
+					Annotations.TaxExemption.PolishLawBasis = note.Text
+				case "B": // EU directive basis
+					Annotations.TaxExemption.EUDirectiveBasis = note.Text
+				case "C": // other legal basis
+					Annotations.TaxExemption.OtherLegalBasis = note.Text
+				}
+				break
+			}
+		}
+	}
+
+	if invoice.Tax.Ext.Get(favat.ExtKeyMarginScheme) != "" {
+		Annotations.MarginScheme = &MarginScheme{
+			Marker: "1",
+		}
+		switch invoice.Tax.Ext.Get(favat.ExtKeyMarginScheme) {
+		case "2": // travel agency margin scheme
+			Annotations.MarginScheme.TravelAgencyMargin = "1"
+		case "3.1": // used goods margin scheme
+			Annotations.MarginScheme.UsedGoodsMargin = "1"
+		case "3.2": // art works margin scheme
+			Annotations.MarginScheme.ArtWorksMargin = "1"
+		case "3.3": // collectibles and antiques margin scheme
+			Annotations.MarginScheme.CollectiblesAndAntiquesMargin = "1"
+		}
+	}
+
+	return Annotations
 }

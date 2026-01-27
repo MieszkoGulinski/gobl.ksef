@@ -2,9 +2,7 @@
 package ksef
 
 import (
-	"cloud.google.com/go/civil"
-	"github.com/invopop/gobl/bill"
-	"github.com/invopop/gobl/cal"
+	"time"
 )
 
 // KSEF schema constants
@@ -13,7 +11,7 @@ const (
 	formCode      = "FA"
 	schemaVersion = "1-0E"
 	formVariant   = 3
-	systemInfo    = "GOBL.KSEF"
+	systemInfo    = "Invopop"
 )
 
 // Header defines the XML structure for KSeF header
@@ -31,10 +29,8 @@ type FormCode struct {
 	FormCode      string `xml:",chardata"`
 }
 
-// NewHeader gets header data from GOBL invoice
-func NewHeader(inv *bill.Invoice) *Header {
-	date := formatIssueDate(inv.IssueDate)
-
+// NewFavatHeader gets header data from GOBL invoice
+func NewFavatHeader() *Header {
 	header := &Header{
 		FormCode: &FormCode{
 			SystemCode:    systemCode,
@@ -42,14 +38,13 @@ func NewHeader(inv *bill.Invoice) *Header {
 			FormCode:      formCode,
 		},
 		FormVariant:  formVariant,
-		CreationDate: date,
+		CreationDate: formatGenerationDate(time.Now()),
 		SystemInfo:   systemInfo,
 	}
 
 	return header
 }
 
-func formatIssueDate(date cal.Date) string {
-	dateTime := civil.DateTime{Date: date.Date, Time: civil.Time{}}
-	return dateTime.String() + "Z"
+func formatGenerationDate(t time.Time) string {
+	return t.UTC().Format("2006-01-02T15:04:05Z")
 }

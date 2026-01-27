@@ -1,6 +1,6 @@
 module github.com/invopop/gobl.ksef
 
-go 1.24
+go 1.24.0
 
 toolchain go1.24.3
 
@@ -8,7 +8,7 @@ require (
 	github.com/MieszkoGulinski/goxades v1.0.6-ksef
 	github.com/beevik/etree v1.5.1
 	github.com/go-resty/resty/v2 v2.16.5
-	github.com/invopop/gobl v0.218.0
+	github.com/invopop/gobl v0.307.0
 	github.com/joho/godotenv v1.5.1
 	github.com/russellhaering/goxmldsig v1.5.0
 	github.com/spf13/cobra v1.9.1
@@ -30,13 +30,13 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/spf13/pflag v1.0.6 // indirect
 	github.com/wk8/go-ordered-map/v2 v2.1.8 // indirect
-	golang.org/x/crypto v0.39.0 // indirect
-	golang.org/x/net v0.41.0 // indirect
+	golang.org/x/crypto v0.47.0 // indirect
+	golang.org/x/net v0.48.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
 require (
-	cloud.google.com/go v0.121.3
+	cloud.google.com/go v0.121.3 // indirect
 	github.com/Masterminds/semver/v3 v3.3.1 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
 	github.com/google/uuid v1.6.0 // indirect

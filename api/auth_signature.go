@@ -4,7 +4,6 @@ import (
 	"crypto"
 	"crypto/rsa"
 	"errors"
-	"os"
 
 	xades "github.com/MieszkoGulinski/goxades"
 	"github.com/beevik/etree"
@@ -49,14 +48,9 @@ func (c *Client) buildSignedAuthorizationRequest(challenge *authorizationChallen
 	}
 	root.CreateElement("SubjectIdentifierType").SetText(subjectIdentifierType)
 
-	// 2. Read the certificate from file (.p12 / .pfx) and extract private key and certificate
-	p12Bytes, err := os.ReadFile(c.certificatePath)
-	if err != nil {
-		return nil, err
-	}
-
+	// 2. Extract private key and certificate from the P12/PFX certificate data
 	privateKey, cert, _, err :=
-		pkcs12.DecodeChain(p12Bytes, c.certificatePassword)
+		pkcs12.DecodeChain(c.certificateData, c.certificatePassword)
 	if err != nil {
 		return nil, err
 	}

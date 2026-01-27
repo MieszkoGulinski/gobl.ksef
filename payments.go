@@ -1,38 +1,9 @@
 package ksef
 
 import (
-	"fmt"
-
+	"github.com/invopop/gobl/addons/pl/favat"
 	"github.com/invopop/gobl/bill"
-	"github.com/invopop/gobl/cbc"
-	"github.com/invopop/gobl/regimes/pl"
 )
-
-// AdvancePayment defines the XML structure for KSeF advance payments
-type AdvancePayment struct {
-	PaymentAmount string `xml:"KwotaZaplatyCzesciowej,omitempty"`
-	PaymentDate   string `xml:"DataZaplatyCzesciowej,omitempty"`
-}
-
-// DueDate defines the XML structure for KSeF due date
-type DueDate struct {
-	Date string `xml:"Termin,omitempty"`
-}
-
-// BankAccount defines the XML structure for KSeF bank accounts
-type BankAccount struct {
-	AccountNumber         string `xml:"NrRB"`
-	SWIFT                 string `xml:"SWIFT,omitempty"`
-	BankSelfAccountMarker int    `xml:"RachunekWlasnyBanku,omitempty"` // enum - 1,2,3, not sure what exactly they mean
-	BankName              string `xml:"NazwaBanku,omitempty"`
-	AccountDescription    string `xml:"OpisRachunku,omitempty"`
-}
-
-// Discount defines the XML structure for KSeF discount
-type Discount struct { // TODO
-	Conditions string `xml:"WarunkiSkonta,omitempty"`
-	Amount     string `xml:"WysokoscSkonta,omitempty"`
-}
 
 // Payment defines the XML structure for KSeF payment
 type Payment struct {
@@ -45,8 +16,47 @@ type Payment struct {
 	OtherPaymentMeanMarker string            `xml:"PlatnoscInna,omitempty"`
 	OtherPaymentMean       string            `xml:"OpisPlatnosci,omitempty"`
 	BankAccounts           []*BankAccount    `xml:"RachunekBankowy,omitempty"`
-	FactorBankAccounts     []*BankAccount    `xml:"RachunekBankowyFaktora,omitempty"` // not sure if supported by gobl
-	Discount               *Discount         `xml:"Skonto,omitempty"`                 // it's some special discount for early payments
+	FactorBankAccounts     []*BankAccount    `xml:"RachunekBankowyFaktora,omitempty"`
+	Discount               *Discount         `xml:"Skonto,omitempty"`
+	PaymentLink            string            `xml:"LinkDoPlatnosci,omitempty"`
+	KSeFPaymentID          string            `xml:"IPKSeF,omitempty"`
+}
+
+// AdvancePayment defines the XML structure for KSeF advance payments
+type AdvancePayment struct {
+	PaymentAmount          string `xml:"KwotaZaplatyCzesciowej,omitempty"`
+	PaymentDate            string `xml:"DataZaplatyCzesciowej,omitempty"`
+	PaymentMean            string `xml:"FormaPlatnosci,omitempty"`
+	OtherPaymentMeanMarker int    `xml:"PlatnoscInna,omitempty"`
+	OtherPaymentMean       string `xml:"OpisPlatnosci,omitempty"`
+}
+
+// DueDate defines the XML structure for KSeF due date
+type DueDate struct {
+	Date            string           `xml:"Termin,omitempty"`
+	TermDescription *TermDescription `xml:"TerminOpis,omitempty"`
+}
+
+// TermDescription defines alternative payment term description
+type TermDescription struct {
+	Quantity      int    `xml:"Ilosc"`
+	Unit          string `xml:"Jednostka"`
+	StartingEvent string `xml:"ZdarzeniePoczatkowe"`
+}
+
+// BankAccount defines the XML structure for KSeF bank accounts
+type BankAccount struct {
+	AccountNumber         string `xml:"NrRB"`
+	SWIFT                 string `xml:"SWIFT,omitempty"`
+	BankSelfAccountMarker int    `xml:"RachunekWlasnyBanku,omitempty"` // enum - 1,2,3, not sure what exactly they mean
+	BankName              string `xml:"NazwaBanku,omitempty"`
+	AccountDescription    string `xml:"OpisRachunku,omitempty"`
+}
+
+// Discount defines the XML structure for KSeF early payment discount
+type Discount struct {
+	Conditions string `xml:"WarunkiSkonta,omitempty"`
+	Amount     string `xml:"WysokoscSkonta,omitempty"`
 }
 
 // NewPayment gets payment data from GOBL invoice
@@ -61,21 +71,25 @@ func NewPayment(pay *bill.PaymentDetails, totals *bill.Totals) *Payment {
 	}
 
 	if instructions := pay.Instructions; instructions != nil {
-		PaymentMeansCode, err := findPaymentMeansCode(instructions.Key)
+		paymentMeansCode := instructions.Ext.Get(favat.ExtKeyPaymentMeans).String()
 
-		if err != nil {
+		if paymentMeansCode == "" && instructions.Key != "" {
 			payment.OtherPaymentMeanMarker = "1"
 			payment.OtherPaymentMean = instructions.Key.String()
-		} else {
-			payment.PaymentMean = PaymentMeansCode
+		} else if paymentMeansCode != "" {
+			payment.PaymentMean = paymentMeansCode
 		}
 
 		payment.BankAccounts = []*BankAccount{}
 		payment.FactorBankAccounts = []*BankAccount{}
 
 		for _, account := range instructions.CreditTransfer {
+			accountNumber := account.IBAN
+			if accountNumber == "" {
+				accountNumber = account.Number
+			}
 			payment.BankAccounts = append(payment.BankAccounts, &BankAccount{
-				AccountNumber: account.Number,
+				AccountNumber: accountNumber,
 				SWIFT:         account.BIC,
 				BankName:      account.Name,
 			})
@@ -101,7 +115,9 @@ func NewPayment(pay *bill.PaymentDetails, totals *bill.Totals) *Payment {
 		if len(advances) == 1 && totals.Due.IsZero() {
 			// Invoice already paid in full in one payment
 			payment.PaidMarker = "1"
-			payment.PaymentDate = advances[len(advances)-1].Date.String()
+			if advances[0].Date != nil {
+				payment.PaymentDate = advances[0].Date.String()
+			}
 		} else {
 			if totals.Due.IsZero() {
 				// Invoice already paid in full in multiple payments
@@ -114,40 +130,18 @@ func NewPayment(pay *bill.PaymentDetails, totals *bill.Totals) *Payment {
 			// Otherwise, not paid at all - no markers needed
 
 			for _, advance := range advances {
-				payment.AdvancePayments = append(payment.AdvancePayments, &AdvancePayment{
+				advancePayment := &AdvancePayment{
 					PaymentAmount: advance.Amount.String(),
 					PaymentDate:   advance.Date.String(),
-				})
+				}
+
+				if paymentMeansCode := advance.Ext.Get(favat.ExtKeyPaymentMeans).String(); paymentMeansCode != "" {
+					advancePayment.PaymentMean = paymentMeansCode
+				}
+				payment.AdvancePayments = append(payment.AdvancePayments, advancePayment)
 			}
 		}
 	}
 
 	return payment
-}
-
-func findPaymentMeansCode(key cbc.Key) (string, error) {
-	keyDef := findPaymentKeyDefinition(key)
-
-	if keyDef == nil {
-		return "", fmt.Errorf("FormaPlatnosci Code not found for payment method key '%s'", key)
-	}
-
-	code := keyDef.Map[pl.KeyFAVATPaymentType]
-	if code == "" {
-		return "", fmt.Errorf("FormaPlatnosci Code not found for payment method key '%s'", key)
-	}
-
-	return code.String(), nil
-}
-
-func findPaymentKeyDefinition(key cbc.Key) *cbc.Definition {
-	// TODO in the newest gobl library version it's moved from regime to addon
-	// The addon will be at github.com/invopop/gobl/addons/pl/favat
-
-	for _, keyDef := range regime.PaymentMeansKeys {
-		if key == keyDef.Key {
-			return keyDef
-		}
-	}
-	return nil
 }

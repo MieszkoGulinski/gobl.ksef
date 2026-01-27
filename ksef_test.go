@@ -8,9 +8,9 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestNewDocument(t *testing.T) {
+func TestBuildFAVAT(t *testing.T) {
 	t.Run("should return a Document with KSeF data", func(t *testing.T) {
-		doc, err := test.NewDocumentFrom("invoice-pl-pl.json")
+		doc, err := test.BuildFAVATFrom("invoice-standard.json")
 		require.NoError(t, err)
 
 		assert.Equal(t, "Faktura", doc.XMLName.Local)
@@ -24,33 +24,35 @@ func TestNewDocument(t *testing.T) {
 	})
 
 	t.Run("should return bytes of the KSeF document", func(t *testing.T) {
-		doc, err := test.NewDocumentFrom("invoice-pl-pl.json")
+		doc, err := test.BuildFAVATFrom("invoice-standard.json")
 		require.NoError(t, err)
 
 		data, err := doc.Bytes()
 		require.NoError(t, err)
 
-		output, err := test.LoadOutputFile("invoice-pl-pl.xml")
+		output, err := test.LoadOutputFile("invoice-standard.xml")
 		require.NoError(t, err)
 
-		assert.Equal(t, string(output), string(data))
+		// Normalize dynamic timestamps before comparison
+		assert.Equal(t, test.NormalizeXMLDate(string(output)), test.NormalizeXMLDate(string(data)))
 	})
 
 	t.Run("should return bytes of the credit-note invoice", func(t *testing.T) {
-		doc, err := test.NewDocumentFrom("credit-note.json")
+		doc, err := test.BuildFAVATFrom("credit-note-standard.json")
 		require.NoError(t, err)
 
 		data, err := doc.Bytes()
 		require.NoError(t, err)
 
-		output, err := test.LoadOutputFile("credit-note.xml")
+		output, err := test.LoadOutputFile("credit-note-standard.xml")
 		require.NoError(t, err)
 
-		assert.Equal(t, string(output), string(data))
+		// Normalize dynamic timestamps before comparison
+		assert.Equal(t, test.NormalizeXMLDate(string(output)), test.NormalizeXMLDate(string(data)))
 	})
 
 	t.Run("should generate valid KSeF document", func(t *testing.T) {
-		doc, err := test.NewDocumentFrom("invoice-pl-pl.json")
+		doc, err := test.BuildFAVATFrom("invoice-standard.json")
 		require.NoError(t, err)
 
 		data, err := doc.Bytes()
@@ -60,7 +62,7 @@ func TestNewDocument(t *testing.T) {
 	})
 
 	t.Run("should generate valid credit-note", func(t *testing.T) {
-		doc, err := test.NewDocumentFrom("credit-note.json")
+		doc, err := test.BuildFAVATFrom("credit-note-standard.json")
 		require.NoError(t, err)
 
 		data, err := doc.Bytes()
@@ -69,38 +71,8 @@ func TestNewDocument(t *testing.T) {
 		test.ValidateAgainstFA3Schema(t, data)
 	})
 
-	t.Run("should generate valid B2B invoice from PL to another EU country", func(t *testing.T) {
-		doc, err := test.NewDocumentFrom("b2b-pl-es.json")
-		require.NoError(t, err)
-
-		data, err := doc.Bytes()
-		require.NoError(t, err)
-
-		test.ValidateAgainstFA3Schema(t, data)
-	})
-
-	t.Run("should generate valid B2B invoice from PL to a non-EU country", func(t *testing.T) {
-		doc, err := test.NewDocumentFrom("b2b-pl-us-usd.json")
-		require.NoError(t, err)
-
-		data, err := doc.Bytes()
-		require.NoError(t, err)
-
-		test.ValidateAgainstFA3Schema(t, data)
-	})
-
-	t.Run("should generate valid B2C invoice", func(t *testing.T) {
-		doc, err := test.NewDocumentFrom("b2c-pl-pl.json")
-		require.NoError(t, err)
-
-		data, err := doc.Bytes()
-		require.NoError(t, err)
-
-		test.ValidateAgainstFA3Schema(t, data)
-	})
-
-	t.Run("should generate valid simplified B2C invoice", func(t *testing.T) {
-		doc, err := test.NewDocumentFrom("b2c-pl-pl-simplified.json")
+	t.Run("should generate valid simplified invoice", func(t *testing.T) {
+		doc, err := test.BuildFAVATFrom("invoice-simplified.json")
 		require.NoError(t, err)
 
 		data, err := doc.Bytes()
@@ -110,7 +82,7 @@ func TestNewDocument(t *testing.T) {
 	})
 
 	t.Run("should generate valid self-billed invoice", func(t *testing.T) {
-		doc, err := test.NewDocumentFrom("invoice-self-billed.json")
+		doc, err := test.BuildFAVATFrom("invoice-self-billed.json")
 		require.NoError(t, err)
 
 		data, err := doc.Bytes()
@@ -121,6 +93,47 @@ func TestNewDocument(t *testing.T) {
 		output, err := test.LoadOutputFile("invoice-self-billed.xml")
 		require.NoError(t, err)
 
-		assert.Equal(t, string(output), string(data))
+		// Normalize dynamic timestamps before comparison
+		assert.Equal(t, test.NormalizeXMLDate(string(output)), test.NormalizeXMLDate(string(data)))
+	})
+
+	t.Run("should generate valid exempt invoice", func(t *testing.T) {
+		doc, err := test.BuildFAVATFrom("invoice-exempt.json")
+		require.NoError(t, err)
+
+		data, err := doc.Bytes()
+		require.NoError(t, err)
+
+		test.ValidateAgainstFA3Schema(t, data)
+	})
+
+	t.Run("should generate valid reverse-charge invoice", func(t *testing.T) {
+		doc, err := test.BuildFAVATFrom("invoice-reverse-charge.json")
+		require.NoError(t, err)
+
+		data, err := doc.Bytes()
+		require.NoError(t, err)
+
+		test.ValidateAgainstFA3Schema(t, data)
+	})
+
+	t.Run("should generate valid prepayment invoice", func(t *testing.T) {
+		doc, err := test.BuildFAVATFrom("invoice-prepayment.json")
+		require.NoError(t, err)
+
+		data, err := doc.Bytes()
+		require.NoError(t, err)
+
+		test.ValidateAgainstFA3Schema(t, data)
+	})
+
+	t.Run("should generate valid settlement invoice", func(t *testing.T) {
+		doc, err := test.BuildFAVATFrom("invoice-settlement.json")
+		require.NoError(t, err)
+
+		data, err := doc.Bytes()
+		require.NoError(t, err)
+
+		test.ValidateAgainstFA3Schema(t, data)
 	})
 }

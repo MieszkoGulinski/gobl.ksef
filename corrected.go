@@ -1,17 +1,23 @@
 package ksef
 
 import (
+	"github.com/invopop/gobl/addons/pl/favat"
+	"github.com/invopop/gobl/cbc"
 	"github.com/invopop/gobl/head"
 	"github.com/invopop/gobl/org"
 )
 
 // CorrectedInv defines the XML structure for KSeF correction invoice
 type CorrectedInv struct {
-	IssueDate           string `xml:"DataWystFaKorygowanej,omitempty"`
-	SequentialNumber    string `xml:"NrFaKorygowanej,omitempty"`
-	KsefNumberPresent   int    `xml:"NrKSeF,omitempty"`
-	NoKsefNumberPresent int    `xml:"NrKSeFN,omitempty"`
-	KsefNumber          string `xml:"NrKSeFFaKorygowanej,omitempty"`
+	IssueDate           string   `xml:"DataWystFaKorygowanej,omitempty"`
+	SequentialNumber    string   `xml:"NrFaKorygowanej,omitempty"`
+	CorrectionPeriod    string   `xml:"OkresFaKorygowanej,omitempty"`
+	CorrectedInvoiceNo  string   `xml:"NrFaKorygowany,omitempty"`
+	KsefNumberPresent   int      `xml:"NrKSeF,omitempty"`
+	NoKsefNumberPresent int      `xml:"NrKSeFN,omitempty"`
+	KsefNumber          string   `xml:"NrKSeFFaKorygowanej,omitempty"`
+	CorrectedSeller     *Seller  `xml:"Podmiot1K,omitempty"`
+	CorrectedBuyer      []*Buyer `xml:"Podmiot2K,omitempty"`
 }
 
 // NewCorrectedInv gets credit note data from GOBL invoice
@@ -24,7 +30,7 @@ func NewCorrectedInv(prc *org.DocumentRef) *CorrectedInv {
 		inv.IssueDate = prc.IssueDate.String()
 	}
 
-	if id := findStamp(prc.Stamps, "ksef-id"); id != -1 {
+	if id := findStamp(prc.Stamps, favat.StampKSEFNumber); id != -1 {
 		inv.KsefNumberPresent = 1
 		inv.KsefNumber = prc.Stamps[id].Value
 	} else {
@@ -34,9 +40,9 @@ func NewCorrectedInv(prc *org.DocumentRef) *CorrectedInv {
 	return inv
 }
 
-func findStamp(a []*head.Stamp, x string) int {
+func findStamp(a []*head.Stamp, x cbc.Key) int {
 	for i, n := range a {
-		if x == string(n.Provider) {
+		if x == n.Provider {
 			return i
 		}
 	}

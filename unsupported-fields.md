@@ -24,43 +24,168 @@ Here are features not supported by the converter.
 
 ## Not mapped
 
-The following fields are not present in the structs to be converted to XML:
+The following fields are now present in the structs but are not currently being mapped from GOBL data:
 
-| XML field |  Notes |
-| --------- |  ----- |
-| `Podmiot2>NrKlienta`  | customer number, if the supplier uses such a number in the contract or order document - not required in schema |
-| `Podmiot2>IDNabywcy`  | unique key of the customer, if customer's data changed between base invoice and correction invoice - not required in schema |
-| `Fa>FaWiersz>UU_ID` | unique identifier for the line item - not required in schema |
-| `Fa>WarunkiTransakcji` | transaction conditions, containing contract date and number and/or order date and number - not required in schema |
-| `Stopka` | footer information, including information identifying the parties in various national databases - not required in schema |
-| `Podmiot3>Rola` | role of the third party - required if a third party is present, enum with values from 1 to 11 |
-| `Podmiot3>RolaInna` | role of the third party - required if a third party is present, set to "1" for "other" role, not included in options above  |
-| `Podmiot3>OpisRoli` | role of the third party - required if a third party is present, fill with description of the role if "RolaInna" is set to "1" |
-| `Podmiot3>Udzial` | percentage share of the third party (when there are two buyers) |
-| `Podmiot3>NrKlienta` | similar to `Podmiot2>NrKlienta` but for the third party |
-| `Fa>WZ` | warehouse document(s) number - not required in schema |
-| `Fa>FaWiersz>CN` | Combined Nomenclature product type code - not required in schema |
-| `Fa>Rozliczenie` | additional discounts and charges - not required in schema |
-| `Fa>Podmiot2K` | in case of correction invoice where customer's data changed, contains the customer data from the old invoice - not required in schema |
-| `Fa>OkresFaKorygowanej` | when the correction invoice indicates a discount, period of the discount - not required in schema |
-| `Fa>Adnotacje>PMarzy>P_PMarzy` | set to "1" when using margin scheme, otherwise set `P_PMarzyN` to "1" - scheme requires either one to be set |
-| `Fa>Adnotacje>PMarzy>P_PMarzy_2` | margin scheme for travel agencies |
-| `Fa>Adnotacje>PMarzy>P_PMarzy_3_1` | margin scheme for used goods |
-| `Fa>Adnotacje>PMarzy>P_PMarzy_3_2` | margin scheme for works of art |
-| `Fa>Adnotacje>PMarzy>P_PMarzy_3_3` | margin scheme for antiques and collectibles |
-| `Fa>FaWiersz>P_11A` | price including tax (as opposite to `P_11` which does not include tax), to be used in cases described in appropriate law (see below) |
-| `Fa>Platnosc>ZaplataCzesciowa>FormaPlatnosci` | Payment means for partial payment |
-| `Fa>Platnosc>TerminPlatnosci>TerminOpis` | Alternative format for payment deadline. In our code there's `TerminPlatnosci>Termin` which contains a date, but this field can contain a textual description of the payment deadline (e.g. "within 30 days from the date of receiving invoice") |
-| `Fa>OkresFa` | Period of the invoice - alternative to `P_6` |
-| `Fa>Adnotacje>Zwolnienie>P_19` | For tax exempt goods, set `P_19` to 1 |
-| `Fa>Adnotacje>Zwolnienie>P_19A` | For tax exempt goods (Polish VAT law), text of legal basis |
-| `Fa>Adnotacje>Zwolnienie>P_19B` | For tax exempt goods (directive 2006/112/EC), text of legal basis |
-| `Fa>Adnotacje>Zwolnienie>P_19C` | For tax exempt goods (other legal basis), text of legal basis |
-| `Fa>Zamowienie` | Information about the order (for advance invoices), contains total order value (`WartoscZamowienia`) and order line items (`ZamowienieWiersz`), required for `ZAL` (advance payment) type invoices |
-| `Fa>P_15ZK` | For `KOR_ZAL`, amount to pay before correction (obligatory), for other correction cases, remaining amount to pay before correction (optional) |
-| `Fa>FakturaZaliczkowa` | For `ROZ` (settlement invoice), contains identifiers of the preceding advance payment invoice(s) |
-| `Fa>FaWiersz>KursWaluty` | Currency exchange rate |
-| `Zalacznik` | Attachment - allows adding custom data to the invoice (as key-value pairs or tables) |
+### Seller (Podmiot1)
+| XML field | Struct field | Notes |
+| --------- | ------------ | ----- |
+| `Podmiot1>NrEORI` | `EORI` | EORI number of the seller. The EORI number is the number in the EU Economic Operators Registration and Identification Number |
+| `Podmiot1>AdresKoresp` | `CorrespondenceAddress` | Correspondence address if different from main address |
+| `Podmiot1>StatusInfoPodatnika` | `TaxpayerStatus` | Taxpayer status: 1=liquidation, 2=restructuring, 3=bankruptcy, 4=inheritance |
+| `Adres>GLN` | `GLN` | Global Location Number. GLN is a number that enables, among other things, the identification of physical or functional units within a company. |
+
+### Buyer (Podmiot2)
+| XML field | Struct field | Notes |
+| --------- | ------------ | ----- |
+| `Podmiot2>IDNabywcy` | `BuyerID` | Unique key linking buyer data in correction invoices |
+| `Podmiot2>NrEORI` | `EORI` | EORI number of the buyer |
+| `Podmiot2>AdresKoresp` | `CorrespondenceAddress` | Correspondence address if different from main address |
+| `Podmiot2>NrKlienta` | `CustomerNumber` | Customer number used in contracts/orders |
+
+### Third Party (Podmiot3)
+| XML field | Struct field | Notes |
+| --------- | ------------ | ----- |
+| `Podmiot3>IDNabywcy` | `BuyerID` | Unique buyer link key |
+| `Podmiot3>NrEORI` | `EORI` | EORI number |
+| `Podmiot3>Rola>RolaInna` | `OtherRole` | Marker for custom role |
+| `Podmiot3>Rola>OpisRoli` | `OtherRoleDescription` | Custom role description |
+| `Podmiot3>Udzial` | `Share` | Percentage share (e.g., for multiple buyers) |
+| `Podmiot3>NrKlienta` | `CustomerNumber` | Customer number |
+
+### Authorized Entity (PodmiotUpowazniony) - COMPLETE STRUCTURE NOT MAPPED
+| XML field | Struct field | Notes |
+| --------- | ------------ | ----- |
+| `PodmiotUpowazniony` | `AuthorizedEntity` | For enforcement authorities, bailiffs, tax representatives |
+| `PodmiotUpowazniony>NrEORI` | `EORI` | EORI number |
+| `PodmiotUpowazniony>DaneIdentyfikacyjne` | | Identification data (NIP, Name) |
+| `PodmiotUpowazniony>Adres` | `Address` | Address |
+| `PodmiotUpowazniony>AdresKoresp` | `CorrespondenceAddress` | Correspondence address |
+| `PodmiotUpowazniony>DaneKontaktowe>EmailPU` | `Email` | Email |
+| `PodmiotUpowazniony>DaneKontaktowe>TelefonPU` | `Phone` | Phone |
+| `PodmiotUpowazniony>RolaPU` | `Role` | Role: 1=enforcement authority, 2=bailiff, 3=tax representative |
+
+### Invoice (Fa)
+| XML field | Struct field | Notes |
+| --------- | ------------ | ----- |
+| `Fa>P1_M` | `Issue Place` | | 
+| `Fa>P_6` | `Completion date` | The date of delivery or completion of the delivery of goods or services or the date of receipt of payment, referred to in Art. 106b sec. 1(4) of the Act, if such date is specified and differs from the date of issue of the invoice.|
+| `Fa>WZ` | `WarehouseDocuments` | Warehouse document numbers (0-1000) |
+| `Fa>KursWalutyZ` | `CurrencyRateForTax` | Exchange rate for tax calculation |
+| `Fa>P_15ZK` | `AmountBeforeCorrection` | Amount before correction (for KOR_ZAL and other corrections) |
+| `Fa>ZaliczkaCzesciowa` | `PartialAdvancePayments` | Partial advance payments data (array, 0-31) for invoices documenting receipt of multiple payments |
+| `Fa>ZaliczkaCzesciowa>P_6Z` | `PaymentDate` | Date of receiving payment |
+| `Fa>ZaliczkaCzesciowa>P_15Z` | `PaymentAmount` | Payment amount |
+| `Fa>ZaliczkaCzesciowa>KursWalutyZW` | `CurrencyExchangeRate` | Currency exchange rate for tax calculation |
+| `Fa>FakturaZaliczkowa` | `AdvanceInvoices` | References to preceding advance invoices (for ROZ type) |
+| `Fa>TP` | `TP` | Existing relationships between buyer and supplier of goods or services |
+| `Fa>ZwrotAkcyzy` | `ExciseTaxRefund` | Excise tax refund marker for farmers |
+
+### Correction Invoice Fields
+| XML field | Struct field | Notes |
+| --------- | ------------ | ----- |
+| `DaneFaKorygowanej>OkresFaKorygowanej` | `CorrectionPeriod` | Period for discount/reduction corrections |
+| `DaneFaKorygowanej>NrFaKorygowany` | `CorrectedInvoiceNo` | Correct invoice number (when fixing wrong number) |
+| `DaneFaKorygowanej>Podmiot1K` | `CorrectedSeller` | Seller data from corrected invoice (if changed) |
+| `DaneFaKorygowanej>Podmiot2K` | `CorrectedBuyer` | Buyer data from corrected invoice (if changed) |
+
+### Settlement (Rozliczenie) - COMPLETE STRUCTURE NOT MAPPED
+| XML field | Struct field | Notes |
+| --------- | ------------ | ----- |
+| `Fa>Rozliczenie` | `Settlement` | Additional charges and deductions |
+| `Fa>Rozliczenie>Obciazenia` | `Charges` | Charges added to total (0-100) |
+| `Fa>Rozliczenie>Obciazenia>SumaObciazen` | `TotalCharges` | Sum of all charges |
+| `Fa>Rozliczenie>Odliczenia` | `Deductions` | Deductions from total (0-100) |
+| `Fa>Rozliczenie>Odliczenia>SumaOdliczen` | `TotalDeductions` | Sum of all deductions |
+| `Fa>Rozliczenie>DoZaplaty` | `AmountToPay` | Final amount to pay |
+| `Fa>Rozliczenie>DoRozliczenia` | `AmountToSettle` | Overpaid amount to settle/refund |
+
+### Transaction Conditions (WarunkiTransakcji) - COMPLETE STRUCTURE NOT MAPPED
+| XML field | Struct field | Notes |
+| --------- | ------------ | ----- |
+| `Fa>WarunkiTransakcji` | `TransactionConditions` | Complete transaction conditions structure |
+| `Fa>WarunkiTransakcji>Umowy` | `Contracts` | Contract references (date & number, 0-100) |
+| `Fa>WarunkiTransakcji>Zamowienia` | `Orders` | Order references (date & number, 0-100) |
+| `Fa>WarunkiTransakcji>NrPartiiTowaru` | `BatchNumbers` | Product batch numbers (0-1000) |
+| `Fa>WarunkiTransakcji>WarunkiDostawy` | `DeliveryTerms` | Incoterms delivery conditions |
+| `Fa>WarunkiTransakcji>KursUmowny` | `ContractRate` | Contract exchange rate |
+| `Fa>WarunkiTransakcji>WalutaUmowna` | `ContractCurrency` | Contract currency |
+| `Fa>WarunkiTransakcji>Transport` | `Transport` | Transport/shipping details (0-20) |
+| `Fa>WarunkiTransakcji>PodmiotPosredniczacy` | `IntermediaryParty` | Intermediary entity marker |
+
+### Transport - COMPLETE STRUCTURE NOT MAPPED
+| XML field | Struct field | Notes |
+| --------- | ------------ | ----- |
+| `Transport>RodzajTransportu` | `TransportType` | Transport type: 1=sea, 2=rail, 3=road, 4=air, 5=postal, 7=fixed, 8=waterway, 9=own |
+| `Transport>TransportInny` | `OtherTransportType` | Marker for other transport type |
+| `Transport>OpisInnegoTransportu` | `OtherTransportDesc` | Description of other transport type |
+| `Transport>Przewoznik` | `Carrier` | Carrier information |
+| `Transport>NrZleceniaTransportu` | `TransportOrderNumber` | Transport order number |
+| `Transport>OpisLadunku` | `CargoType` | Cargo/packaging type code |
+| `Transport>LadunekInny` | `OtherCargoType` | Marker for other cargo type |
+| `Transport>OpisInnegoLadunku` | `OtherCargoDesc` | Description of other cargo type |
+| `Transport>JednostkaOpakowania` | `PackagingUnit` | Packaging unit description |
+| `Transport>DataGodzRozpTransportu` | `TransportStartTime` | Transport start date/time |
+| `Transport>DataGodzZakTransportu` | `TransportEndTime` | Transport end date/time |
+| `Transport>WysylkaZ` | `ShipFrom` | Shipping from address |
+| `Transport>WysylkaPrzez` | `ShipVia` | Intermediate shipping addresses (0-20) |
+| `Transport>WysylkaDo` | `ShipTo` | Shipping to address |
+
+### Order (Zamowienie) - STRUCTURE PRESENT BUT NOT FULLY MAPPED
+| XML field | Struct field | Notes |
+| --------- | ------------ | ----- |
+| `Fa>Zamowienie` | `Order` | Order information for ZAL/KOR_ZAL type invoices |
+| `Fa>Zamowienie>WartoscZamowienia` | `OrderAmount` | Total order value including tax |
+| `Fa>Zamowienie>ZamowienieWiersz` | `LineItems` | Order line items (1-10000) |
+
+### Annotations - Extended Fields
+| XML field | Struct field | Notes |
+| --------- | ------------ | ----- |
+| `Fa>Adnotacje>NoweSrodkiTransportu` | `NewTransportMeans` | Complete new transport means structure |
+| `Fa>Adnotacje>NoweSrodkiTransportu>P_22` | `Marker` | New transport means marker |
+| `Fa>Adnotacje>NoweSrodkiTransportu>P_42_5` | `Art42Obligation` | Art. 42 ust. 5 obligation |
+| `Fa>Adnotacje>NoweSrodkiTransportu>NowySrodekTransportu` | `NewTransportMeansItems` | Vehicle/watercraft/aircraft details (0-10000) |
+
+### Line Items (FaWiersz) - Extended Fields
+| XML field | Struct field | Notes |
+| --------- | ------------ | ----- |
+| `FaWiersz>UU_ID` | `UniqueID` | Universal unique line ID (max 50 chars) |
+| `FaWiersz>P_6A` | `CompletionDate` | Completion date for this specific line |
+| `FaWiersz>Indeks` | `InternalCode` | Internal product code (max 50 chars) |
+| `FaWiersz>GTIN` | `GTIN` | Global Trade Item Number (max 20 chars) |
+| `FaWiersz>PKWiU` | `PKWiU` | Polish Classification of Products and Services |
+| `FaWiersz>CN` | `CN` | Combined Nomenclature code |
+| `FaWiersz>PKOB` | `PKOB` | Polish Classification of Construction Objects |
+| `FaWiersz>P_9B` | `GrossUnitPrice` | Gross unit price (for art. 106e ust. 7-8) |
+| `FaWiersz>P_11A` | `GrossPriceTotal` | Gross total price (for art. 106e ust. 7-8) |
+| `FaWiersz>P_11Vat` | `VATAmount` | VAT amount (for art. 106e ust. 10) |
+| `FaWiersz>P_12_XII` | `OSSTaxRate` | OSS (One Stop Shop) VAT rate percentage |
+| `FaWiersz>P_12_Zal_15` | `Attachment15GoodsMarker` | Split payment marker (value: 1) |
+| `FaWiersz>KursWaluty` | `CurrencyRate` | Currency exchange rate for this line |
+
+### Order Line Items (ZamowienieWiersz) - Extended Fields
+| XML field | Struct field | Notes |
+| --------- | ------------ | ----- |
+| `ZamowienieWiersz>UU_IDZ` | `UniqueID` | Universal unique order line ID |
+| `ZamowienieWiersz>IndeksZ` | `InternalCode` | Internal product code |
+| `ZamowienieWiersz>GTINZ` | `GTIN` | Global Trade Item Number |
+| `ZamowienieWiersz>PKWiUZ` | `PKWiU` | Polish Classification code |
+| `ZamowienieWiersz>CNZ` | `CN` | Combined Nomenclature code |
+| `ZamowienieWiersz>PKOBZ` | `PKOB` | Construction objects code |
+
+### Payment - Extended Fields
+| XML field | Struct field | Notes |
+| --------- | ------------ | ----- |
+| `Platnosc>ZaplataCzesciowa>PlatnoscInna` | `OtherPaymentMeanMarker` | Marker for other payment method |
+| `Platnosc>ZaplataCzesciowa>OpisPlatnosci` | `OtherPaymentMean` | Description of other payment method |
+| `Platnosc>TerminPlatnosci>TerminOpis` | `TermDescription` | Alternative textual payment deadline format |
+| `Platnosc>LinkDoPlatnosci` | `PaymentLink` | Payment link URL with IPKSeF parameter |
+| `Platnosc>IPKSeF` | `KSeFPaymentID` | KSeF payment identifier (13 chars) |
+
+### Other Not Mapped Fields
+| XML field | Notes |
+| --------- | ----- |
+| `Stopka` | Footer information - not required in schema, identifies parties in national databases |
+| `Zalacznik` | Attachment structure for custom data (key-value pairs or tables) - not required |
 
 `WarunkiTransakcji` (transaction conditions) may contain (taken from example 4):
 - `Umowy` - contract(s) date and number
