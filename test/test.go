@@ -7,6 +7,7 @@ import (
 	"flag"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/invopop/gobl"
@@ -102,7 +103,7 @@ func loadAndEnvelope(name string) (*gobl.Envelope, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer src.Close()
+	defer src.Close() // nolint:errcheck
 
 	buf := new(bytes.Buffer)
 	if _, err := buf.ReadFrom(src); err != nil {
@@ -181,6 +182,14 @@ func removeLastEntry(dir string) string {
 	lastEntry := "/" + filepath.Base(dir)
 	i := strings.LastIndex(dir, lastEntry)
 	return dir[:i]
+}
+
+// NormalizeXMLDate replaces dynamic DataWytworzeniaFa timestamps with a placeholder
+// to allow deterministic comparison of XML output in tests.
+func NormalizeXMLDate(xml string) string {
+	// Match DataWytworzeniaFa with any ISO 8601 timestamp
+	re := regexp.MustCompile(`<DataWytworzeniaFa>[^<]+</DataWytworzeniaFa>`)
+	return re.ReplaceAllString(xml, "<DataWytworzeniaFa>NORMALIZED</DataWytworzeniaFa>")
 }
 
 // ValidateAgainstFA3Schema is implemented in build-tagged files:

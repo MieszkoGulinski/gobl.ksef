@@ -8,7 +8,7 @@ require (
 	github.com/MieszkoGulinski/goxades v1.0.6-ksef
 	github.com/beevik/etree v1.5.1
 	github.com/go-resty/resty/v2 v2.16.5
-	github.com/invopop/gobl v0.306.0
+	github.com/invopop/gobl v0.307.0
 	github.com/joho/godotenv v1.5.1
 	github.com/russellhaering/goxmldsig v1.5.0
 	github.com/spf13/cobra v1.9.1
@@ -36,7 +36,7 @@ require (
 )
 
 require (
-	cloud.google.com/go v0.121.3
+	cloud.google.com/go v0.121.3 // indirect
 	github.com/Masterminds/semver/v3 v3.3.1 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
 	github.com/google/uuid v1.6.0 // indirect
@@ -45,4 +45,4 @@ require (
 	github.com/stretchr/testify v1.10.0
 )
 
-replace github.com/invopop/gobl => ../gobl
+// replace github.com/invopop/gobl => ../gobl

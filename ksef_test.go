@@ -33,7 +33,8 @@ func TestBuildFAVAT(t *testing.T) {
 		output, err := test.LoadOutputFile("invoice-standard.xml")
 		require.NoError(t, err)
 
-		assert.Equal(t, string(output), string(data))
+		// Normalize dynamic timestamps before comparison
+		assert.Equal(t, test.NormalizeXMLDate(string(output)), test.NormalizeXMLDate(string(data)))
 	})
 
 	t.Run("should return bytes of the credit-note invoice", func(t *testing.T) {
@@ -46,7 +47,8 @@ func TestBuildFAVAT(t *testing.T) {
 		output, err := test.LoadOutputFile("credit-note-standard.xml")
 		require.NoError(t, err)
 
-		assert.Equal(t, string(output), string(data))
+		// Normalize dynamic timestamps before comparison
+		assert.Equal(t, test.NormalizeXMLDate(string(output)), test.NormalizeXMLDate(string(data)))
 	})
 
 	t.Run("should generate valid KSeF document", func(t *testing.T) {
@@ -91,7 +93,8 @@ func TestBuildFAVAT(t *testing.T) {
 		output, err := test.LoadOutputFile("invoice-self-billed.xml")
 		require.NoError(t, err)
 
-		assert.Equal(t, string(output), string(data))
+		// Normalize dynamic timestamps before comparison
+		assert.Equal(t, test.NormalizeXMLDate(string(output)), test.NormalizeXMLDate(string(data)))
 	})
 
 	t.Run("should generate valid exempt invoice", func(t *testing.T) {

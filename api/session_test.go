@@ -22,7 +22,6 @@ func TestCreateSession(t *testing.T) {
 		client := ksef_api.NewClient(
 			&ksef_api.ContextIdentifier{Nip: "8126178616"},
 			certData,
-			ksef_api.WithDebugClient(),
 		)
 
 		ctx := context.Background()
@@ -43,7 +42,6 @@ func TestCreateSession(t *testing.T) {
 
 func TestUploadInvoice(t *testing.T) {
 	t.Run("uploads invoice during session", func(t *testing.T) {
-		fmt.Println(1)
 		ctxIdentifier := &ksef_api.ContextIdentifier{Nip: "8126178616"}
 		certData, err := ksef_api.LoadCertificate("./test/cert-20260102-131809.pfx")
 		require.NoError(t, err)
@@ -51,7 +49,6 @@ func TestUploadInvoice(t *testing.T) {
 		client := ksef_api.NewClient(
 			ctxIdentifier,
 			certData,
-			ksef_api.WithDebugClient(),
 		)
 
 		ctx := context.Background()
@@ -61,8 +58,11 @@ func TestUploadInvoice(t *testing.T) {
 		uploadSession, err := client.CreateSession(ctx)
 		require.NoError(t, err)
 
-		doc, err := test.BuildFAVATFrom("invoice-pl-pl.json")
+		doc, err := test.BuildFAVATFrom("invoice-standard.json")
 		require.NoError(t, err)
+
+		// Update seller NIP to match the authenticated context
+		doc.Seller.NIP = ctxIdentifier.Nip
 
 		// Generate unique identifier for the invoice.
 		// Without it, uploading will result in error because of a duplicate.
