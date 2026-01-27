@@ -26,10 +26,3 @@ func ValidateAgainstFA3Schema(t *testing.T, data []byte) {
 	validation := xsdhandler.ValidateMem(data, xsdvalidate.ParsErrDefault)
 	assert.Nil(t, validation)
 }
-
-
-
-
-
-
-
