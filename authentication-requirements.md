@@ -59,6 +59,8 @@ There are two types of KSeF certificate:
 
 Both certificate types must be obtained separately.
 
+A video tutorial (in Polish) about using Aplikacja Podatnika is available [here](https://www.youtube.com/watch?v=KkyNw_tBN2s).
+
 ### Logging into API using ePUAP
 
 1. User logs into ePUAP
