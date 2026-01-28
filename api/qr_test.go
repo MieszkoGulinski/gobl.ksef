@@ -1,10 +1,20 @@
 package api
 
 import (
+	"crypto"
+	"crypto/ecdsa"
+	"crypto/elliptic"
+	"crypto/rand"
+	"crypto/rsa"
+	"crypto/sha256"
+	"encoding/base64"
+	"math/big"
+	"strings"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestGenerateQrCodeURL(t *testing.T) {
@@ -30,7 +40,7 @@ func TestGenerateCertificateQrCodeURL(t *testing.T) {
 	// Base64 RawURL of 00010203 -> AAECAw
 
 	t.Run("test environment", func(t *testing.T) {
-		url, err := GenerateCertificateQrCodeURL(
+		url, err := GenerateUnsignedCertificateQrCodeURL(
 			EnvironmentTest,
 			"1111111111", // contextNip
 			"2222222222", // sellerNip
@@ -42,7 +52,7 @@ func TestGenerateCertificateQrCodeURL(t *testing.T) {
 	})
 
 	t.Run("production environment", func(t *testing.T) {
-		url, err := GenerateCertificateQrCodeURL(
+		url, err := GenerateUnsignedCertificateQrCodeURL(
 			EnvironmentProduction,
 			"1111111111",
 			"2222222222",
@@ -54,11 +64,58 @@ func TestGenerateCertificateQrCodeURL(t *testing.T) {
 	})
 
 	t.Run("empty args", func(t *testing.T) {
-		_, err := GenerateCertificateQrCodeURL(EnvironmentTest, "", "222", "C", invoiceHash)
+		_, err := GenerateUnsignedCertificateQrCodeURL(EnvironmentTest, "", "222", "C", invoiceHash)
 		assert.Error(t, err)
-		_, err = GenerateCertificateQrCodeURL(EnvironmentTest, "111", "", "C", invoiceHash)
+		_, err = GenerateUnsignedCertificateQrCodeURL(EnvironmentTest, "111", "", "C", invoiceHash)
 		assert.Error(t, err)
-		_, err = GenerateCertificateQrCodeURL(EnvironmentTest, "111", "222", "", invoiceHash)
+		_, err = GenerateUnsignedCertificateQrCodeURL(EnvironmentTest, "111", "222", "", invoiceHash)
 		assert.Error(t, err)
 	})
+}
+
+func TestGenerateSignedCertificateQrCodeURL_ECDSA(t *testing.T) {
+	unsignedURL := "qr.ksef.mf.gov.pl/certificate/Nip/1111111111/2222222222/CERT123/AAECAw"
+	privateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	require.NoError(t, err)
+
+	signedURL, err := GenerateSignedCertificateQrCodeURL(unsignedURL, privateKey)
+	require.NoError(t, err)
+
+	prefix := "https://" + unsignedURL + "/"
+	if !assert.True(t, strings.HasPrefix(signedURL, prefix)) {
+		return
+	}
+
+	sigEncoded := strings.TrimPrefix(signedURL, prefix)
+	signature, err := base64.RawURLEncoding.DecodeString(sigEncoded)
+	require.NoError(t, err)
+
+	size := (privateKey.Params().BitSize + 7) / 8
+	require.Equal(t, 2*size, len(signature))
+
+	r := new(big.Int).SetBytes(signature[:size])
+	s := new(big.Int).SetBytes(signature[size:])
+	hash := sha256.Sum256([]byte(unsignedURL))
+	assert.True(t, ecdsa.Verify(&privateKey.PublicKey, hash[:], r, s))
+}
+
+func TestGenerateSignedCertificateQrCodeURL_RSA(t *testing.T) {
+	unsignedURL := "qr.ksef.mf.gov.pl/certificate/Nip/3333333333/4444444444/CERT999/BBEFAA"
+	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
+	require.NoError(t, err)
+
+	signedURL, err := GenerateSignedCertificateQrCodeURL(unsignedURL, privateKey)
+	require.NoError(t, err)
+
+	prefix := "https://" + unsignedURL + "/"
+	if !assert.True(t, strings.HasPrefix(signedURL, prefix)) {
+		return
+	}
+
+	sigEncoded := strings.TrimPrefix(signedURL, prefix)
+	signature, err := base64.RawURLEncoding.DecodeString(sigEncoded)
+	require.NoError(t, err)
+
+	hash := sha256.Sum256([]byte(unsignedURL))
+	assert.NoError(t, rsa.VerifyPSS(&privateKey.PublicKey, crypto.SHA256, hash[:], signature, &rsa.PSSOptions{SaltLength: 32, Hash: crypto.SHA256}))
 }
