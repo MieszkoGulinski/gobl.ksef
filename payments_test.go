@@ -5,10 +5,12 @@ import (
 	"time"
 
 	ksef "github.com/invopop/gobl.ksef"
+	"github.com/invopop/gobl/addons/pl/favat"
 	"github.com/invopop/gobl/bill"
 	"github.com/invopop/gobl/cal"
 	"github.com/invopop/gobl/num"
 	"github.com/invopop/gobl/pay"
+	"github.com/invopop/gobl/tax"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -33,7 +35,7 @@ func TestNewPayment(t *testing.T) {
 			AdvancePayments:        []*ksef.AdvancePayment{},
 			DueDates:               []*ksef.DueDate{},
 			PaymentMean:            "",
-			OtherPaymentMeanMarker: "1",
+			OtherPaymentMeanMarker: "",
 			OtherPaymentMean:       "",
 			BankAccounts:           []*ksef.BankAccount{},
 			FactorBankAccounts:     []*ksef.BankAccount{},
@@ -43,7 +45,35 @@ func TestNewPayment(t *testing.T) {
 		assert.Equal(t, result, pay)
 	})
 
-	t.Run("should return set payment method from payment instructions", func(t *testing.T) {
+	t.Run("should return set payment method from payment instructions extension", func(t *testing.T) {
+		payment := &bill.PaymentDetails{
+			Instructions: &pay.Instructions{
+				Key: "credit-transfer",
+				Ext: tax.Extensions{
+					favat.ExtKeyPaymentMeans: "6", // credit transfer code
+				},
+			},
+		}
+		totals := &bill.Totals{}
+		pay := ksef.NewPayment(payment, totals)
+		result := &ksef.Payment{
+			PaidMarker:             "",
+			PaymentDate:            "",
+			PartiallyPaidMarker:    "",
+			AdvancePayments:        []*ksef.AdvancePayment{},
+			DueDates:               []*ksef.DueDate{},
+			PaymentMean:            "6", // from extension
+			OtherPaymentMeanMarker: "",
+			OtherPaymentMean:       "",
+			BankAccounts:           []*ksef.BankAccount{},
+			FactorBankAccounts:     []*ksef.BankAccount{},
+			Discount:               (*ksef.Discount)(nil),
+		}
+
+		assert.Equal(t, result, pay)
+	})
+
+	t.Run("should use other payment marker when key without extension", func(t *testing.T) {
 		payment := &bill.PaymentDetails{
 			Instructions: &pay.Instructions{
 				Key: "credit-transfer",
@@ -57,9 +87,9 @@ func TestNewPayment(t *testing.T) {
 			PartiallyPaidMarker:    "",
 			AdvancePayments:        []*ksef.AdvancePayment{},
 			DueDates:               []*ksef.DueDate{},
-			PaymentMean:            "6", // mapped from credit-transfer
-			OtherPaymentMeanMarker: "",
-			OtherPaymentMean:       "",
+			PaymentMean:            "",
+			OtherPaymentMeanMarker: "1",
+			OtherPaymentMean:       "credit-transfer",
 			BankAccounts:           []*ksef.BankAccount{},
 			FactorBankAccounts:     []*ksef.BankAccount{},
 			Discount:               (*ksef.Discount)(nil),

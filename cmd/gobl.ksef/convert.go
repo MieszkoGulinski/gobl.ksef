@@ -52,7 +52,12 @@ func (c *convertOpts) runE(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("parsing input as GOBL Envelope: %w", err)
 	}
 
-	doc, err := ksef.NewDocument(env)
+	// Calculate/normalize the envelope to apply addon extensions
+	if err := env.Calculate(); err != nil {
+		return fmt.Errorf("calculating envelope: %w", err)
+	}
+
+	doc, err := ksef.BuildFavat(env)
 	if err != nil {
 		return fmt.Errorf("building FA_VAT document: %w", err)
 	}

@@ -55,9 +55,14 @@ func (c *sendOpts) runE(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("reading input: %w", err)
 	}
 
+	certData, err := ksef_api.LoadCertificate(keyPath)
+	if err != nil {
+		return fmt.Errorf("loading certificate: %w", err)
+	}
+
 	client := ksef_api.NewClient(
 		&ksef_api.ContextIdentifier{Nip: nip},
-		keyPath,
+		certData,
 	)
 
 	env, err := SendInvoice(client, data)
@@ -90,7 +95,7 @@ func SendInvoice(c *ksef_api.Client, data []byte) (*gobl.Envelope, error) {
 		return nil, fmt.Errorf("parsing input as GOBL Envelope: %w", err)
 	}
 
-	doc, err := ksef.NewDocument(env)
+	doc, err := ksef.BuildFavat(env)
 	if err != nil {
 		return nil, fmt.Errorf("building FA_VAT document: %w", err)
 	}

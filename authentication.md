@@ -27,10 +27,6 @@ There is a CLI application in .NET that allows to generate a self-signed certifi
 4. Run the application: `dotnet run --framework net10.0 --output file --nip 8976111986 --no-startup-warnings`
 5. The application will generate a self-signed certificate and save it to the current directory. It will generate two files: `cert-{timestamp}.pfx` and `cert-{timestamp}.cer`.
 
-## Login using the client
-
-The client provides a simple way to login to the KSeF API using a certificate. Internally, it uses the same process as described below. See the [README](../api/README.md) for more details.
-
 ## Login to the KSeF API
 
 This is translated from [Authentication in KSeF](https://github.com/CIRFMF/ksef-docs/blob/main/uwierzytelnianie.md) document:
@@ -97,6 +93,8 @@ Public key is needed to:
 ## How to authorize an external company to act on your behalf
 
 If you are a Polish company X, to allow company Y to act on your behalf in KSeF:
-1. Company Y needs to obtain an appropriate certificate - a qualified EU certificate
+1. Company Y needs to obtain a [qualified EU certificate](https://eidas.ec.europa.eu/efda/trust-services/browse/eidas/tls).
 2. The Polish company X needs to give company Y permissions. It's possible to do this through the API endpoint for this purpose, `permissions/eu-entities/administration/grants`, where company X provides company Y's certificate fingerprint, EU VAT number and company name. It's also possible to do this through the KSeF web interface - [a video showing how to do it is here](https://youtu.be/COXvohndNCA).
-3. After that, company Y can login to KSeF API using the qualified EU certificate, and providing context identifier (NipVatUe) containing company X's NIP (Polish business entity identifier) and Y's EU VAT number.
+3. After that, company Y can login to KSeF API using the qualified EU certificate, and providing context identifier (`NipVatUe`) containing company X's NIP (Polish business entity identifier) and Y's EU VAT number.
+
+`NipVatUe` context binds a Polish company identified by NIP with EU business entity identified by EU VAT number.

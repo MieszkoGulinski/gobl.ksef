@@ -3,7 +3,6 @@ package api
 import (
 	"encoding/xml"
 	"errors"
-	"fmt"
 
 	"github.com/beevik/etree"
 	"github.com/invopop/xmldsig"
@@ -12,8 +11,6 @@ import (
 var ErrCertificatePrivateKeyNotRSA = errors.New("certificate private key is not RSA, goxades only supports RSA")
 
 func (c *Client) buildSignedAuthorizationRequest(challenge *authorizationChallengeResponse, contextIdentifier *ContextIdentifier) ([]byte, error) {
-	// I tried to use the github.com/invopop/xmldsig library, but it doesn't work, as it has many options hardcoded that aren't compatible with the KSEF API
-
 	// 1. Assembly the XML request - the signing library requires XML as an etree object
 
 	doc := etree.NewDocument()
@@ -73,8 +70,6 @@ func (c *Client) buildSignedAuthorizationRequest(challenge *authorizationChallen
 	if err != nil {
 		return nil, err
 	}
-
-	fmt.Println(signedXML)
 
 	return []byte(signedXML), nil
 }

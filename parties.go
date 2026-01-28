@@ -1,8 +1,8 @@
 package ksef
 
 import (
-	"fmt"
-
+	"github.com/invopop/gobl/addons/pl/favat"
+	"github.com/invopop/gobl/bill"
 	"github.com/invopop/gobl/l10n"
 	"github.com/invopop/gobl/org"
 )
@@ -12,14 +12,19 @@ type Address struct {
 	CountryCode string `xml:"KodKraju"`
 	AddressL1   string `xml:"AdresL1"`
 	AddressL2   string `xml:"AdresL2,omitempty"`
+	GLN         string `xml:"GLN,omitempty"` // Global Location Number
 }
 
 // Seller defines the XML structure for KSeF seller
 type Seller struct {
-	NIP     string          `xml:"DaneIdentyfikacyjne>NIP"`
-	Name    string          `xml:"DaneIdentyfikacyjne>Nazwa"`
-	Address *Address        `xml:"Adres"`
-	Contact *ContactDetails `xml:"DaneKontaktowe,omitempty"`
+	VATPrefix             string          `xml:"PrefiksPodatnika,omitempty"`
+	NIP                   string          `xml:"DaneIdentyfikacyjne>NIP"`
+	Name                  string          `xml:"DaneIdentyfikacyjne>Nazwa"`
+	EORI                  string          `xml:"NrEORI,omitempty"`
+	Address               *Address        `xml:"Adres"`
+	CorrespondenceAddress *Address        `xml:"AdresKoresp,omitempty"`
+	Contact               *ContactDetails `xml:"DaneKontaktowe,omitempty"`
+	TaxpayerStatus        int             `xml:"StatusInfoPodatnika,omitempty"` // 1=liquidation, 2=restructuring, 3=bankruptcy, 4=inheritance
 }
 
 // ContactDetails defines the XML structure for KSeF contact
@@ -40,44 +45,76 @@ type Buyer struct {
 	// or
 	NoID int `xml:"DaneIdentyfikacyjne>BrakID,omitempty"`
 
-	Name    string          `xml:"DaneIdentyfikacyjne>Nazwa,omitempty"`
-	Address *Address        `xml:"Adres,omitempty"`
-	Contact *ContactDetails `xml:"DaneKontaktowe,omitempty"`
+	Name                  string          `xml:"DaneIdentyfikacyjne>Nazwa,omitempty"`
+	BuyerID               string          `xml:"IDNabywcy,omitempty"`
+	EORI                  string          `xml:"NrEORI,omitempty"`
+	Address               *Address        `xml:"Adres,omitempty"`
+	CorrespondenceAddress *Address        `xml:"AdresKoresp,omitempty"`
+	Contact               *ContactDetails `xml:"DaneKontaktowe,omitempty"`
+	CustomerNumber        string          `xml:"NrKlienta,omitempty"`
 
-	JST int `xml:"JST"` // JST (Jednostka Samorządu Terytorialnego = local government unit) 1 = Yes, 2 = No
-	GV  int `xml:"GV"`  // GV (Group VAT) 1 = Yes, 2 = No
+	JST string `xml:"JST"` // JST (Jednostka Samorządu Terytorialnego = local government unit) 1 = Yes, 2 = No
+	GV  string `xml:"GV"`  // GV (Group VAT) 1 = Yes, 2 = No
+}
+
+// ThirdParty defines the XML structure for KSeF third party (Podmiot3)
+type ThirdParty struct {
+	BuyerID               string          `xml:"IDNabywcy,omitempty"`
+	EORI                  string          `xml:"NrEORI,omitempty"`
+	NIP                   string          `xml:"DaneIdentyfikacyjne>NIP,omitempty"`
+	InternalID            string          `xml:"DaneIdentyfikacyjne>IDWew,omitempty"`
+	UECode                string          `xml:"DaneIdentyfikacyjne>KodUE,omitempty"`
+	UEVatNumber           string          `xml:"DaneIdentyfikacyjne>NrVatUE,omitempty"`
+	CountryCode           string          `xml:"DaneIdentyfikacyjne>KodKraju,omitempty"`
+	IDNumber              string          `xml:"DaneIdentyfikacyjne>NrID,omitempty"`
+	NoID                  int             `xml:"DaneIdentyfikacyjne>BrakID,omitempty"`
+	Name                  string          `xml:"DaneIdentyfikacyjne>Nazwa,omitempty"`
+	Address               *Address        `xml:"Adres,omitempty"`
+	CorrespondenceAddress *Address        `xml:"AdresKoresp,omitempty"`
+	Contact               *ContactDetails `xml:"DaneKontaktowe,omitempty"`
+	Role                  string          `xml:"Rola,omitempty"`     // TRolaPodmiotu3: 1-11
+	OtherRole             int             `xml:"RolaInna,omitempty"` // 1 for other role
+	OtherRoleDescription  string          `xml:"OpisRoli,omitempty"` // description when OtherRole=1
+	Share                 string          `xml:"Udzial,omitempty"`   // percentage share
+	CustomerNumber        string          `xml:"NrKlienta,omitempty"`
+}
+
+// AuthorizedEntity defines the XML structure for KSeF authorized entity (PodmiotUpowazniony)
+type AuthorizedEntity struct {
+	EORI                  string   `xml:"NrEORI,omitempty"`
+	NIP                   string   `xml:"DaneIdentyfikacyjne>NIP"`
+	Name                  string   `xml:"DaneIdentyfikacyjne>Nazwa"`
+	Address               *Address `xml:"Adres"`
+	CorrespondenceAddress *Address `xml:"AdresKoresp,omitempty"`
+	Email                 string   `xml:"DaneKontaktowe>EmailPU,omitempty"`
+	Phone                 string   `xml:"DaneKontaktowe>TelefonPU,omitempty"`
+	Role                  int      `xml:"RolaPU"` // 1=enforcement authority, 2=court bailiff, 3=tax representative
 }
 
 // newAddress gets the address data from GOBL address
 func newAddress(address *org.Address) *Address {
+	addressLine1 := addressLine1(address)
+	var addressLine2 string
+	if len(addressLine1) > 512 {
+		addressLine2 = addressLine1[512:]
+		addressLine1 = addressLine1[:512]
+	}
 	adres := &Address{
 		CountryCode: string(address.Country),
-		AddressL1:   addressLine1(address),
-		AddressL2:   addressLine2(address),
+		AddressL1:   addressLine1,
+		AddressL2:   addressLine2,
 	}
 
 	return adres
 }
 
-// nameToString get the seller name out of the organization
-func nameToString(name *org.Name) string {
-	return name.Prefix + nameMaybe(name.Given) +
-		nameMaybe(name.Middle) + nameMaybe(name.Surname) +
-		nameMaybe(name.Surname2) + nameMaybe(name.Suffix)
-}
-
-// NewSeller converts a GOBL Party into a KSeF seller
-func NewSeller(supplier *org.Party) *Seller {
-	var name string
-	if supplier.Name != "" {
-		name = supplier.Name
-	} else {
-		name = nameToString(supplier.People[0].Name)
-	}
+// NewFavatSeller converts a GOBL Party into a KSeF seller
+func NewFavatSeller(supplier *org.Party) *Seller {
 	seller := &Seller{
-		Address: newAddress(supplier.Addresses[0]),
-		NIP:     string(supplier.TaxID.Code),
-		Name:    name,
+		VATPrefix: supplier.TaxID.Country.String(),
+		Address:   newAddress(supplier.Addresses[0]),
+		NIP:       string(supplier.TaxID.Code),
+		Name:      supplier.Name,
 	}
 	if len(supplier.Telephones) > 0 {
 		seller.Contact = &ContactDetails{
@@ -94,45 +131,17 @@ func NewSeller(supplier *org.Party) *Seller {
 	return seller
 }
 
-// EU countries
-var euCountriesCodes = []string{
-	"AT", // Austria
-	"BE", // Belgium
-	"BG", // Bulgaria
-	"CY", // Cyprus
-	"CZ", // Czech Republic
-	"DE", // Germany
-	"DK", // Denmark
-	"EE", // Estonia
-	"EL", // Greece
-	"ES", // Spain
-	"FI", // Finland
-	"FR", // France
-	"HR", // Croatia
-	"HU", // Hungary
-	"IE", // Ireland
-	"IT", // Italy
-	"LT", // Lithuania
-	"LU", // Luxembourg
-	"LV", // Latvia
-	"MT", // Malta
-	"NL", // Netherlands
-	"PL", // Poland
-	"PT", // Portugal
-	"RO", // Romania
-	"SE", // Sweden
-	"SI", // Slovenia
-	"SK", // Slovakia
-	"XI", // Northern Ireland (listed in XML schema but not member of EU)
-}
-
-// NewBuyer converts a GOBL Party into a KSeF buyer
-func NewBuyer(customer *org.Party) *Buyer {
+// NewFavatBuyer converts a GOBL Party into a KSeF buyer
+func NewFavatBuyer(customer *org.Party) *Buyer {
 
 	buyer := &Buyer{
-		Name: customer.Name,
-		JST:  2, // hardcoded as "No"
-		GV:   2, // hardcoded as "No"
+		JST: "2",
+		GV:  "2",
+	}
+
+	if customer == nil {
+		buyer.NoID = 1
+		return buyer
 	}
 
 	if customer.TaxID == nil {
@@ -141,7 +150,7 @@ func NewBuyer(customer *org.Party) *Buyer {
 	} else if customer.TaxID.Country == l10n.PL.Tax() {
 		// Buyer is a Polish business entity
 		buyer.NIP = string(customer.TaxID.Code)
-	} else if isEUCountry(string(customer.TaxID.Country)) {
+	} else if l10n.Union(l10n.EU).HasMember(customer.TaxID.Country.Code()) {
 		// Buyer is an EU business entity (non-Polish)
 		buyer.UECode = string(customer.TaxID.Country)
 		buyer.UEVatNumber = string(customer.TaxID.Code)
@@ -152,8 +161,6 @@ func NewBuyer(customer *org.Party) *Buyer {
 			buyer.IDNumber = string(customer.TaxID.Code)
 		}
 	}
-
-	fmt.Println(buyer.Name)
 
 	if len(customer.Addresses) > 0 {
 		buyer.Address = newAddress(customer.Addresses[0])
@@ -171,44 +178,103 @@ func NewBuyer(customer *org.Party) *Buyer {
 		buyer.Contact.Email = customer.Emails[0].Address
 	}
 
+	if customer.Name != "" {
+		buyer.Name = customer.Name
+	}
+
+	if customer.Ext != nil && customer.Ext.Get(favat.ExtKeyJST) != "" {
+		buyer.JST = customer.Ext.Get(favat.ExtKeyJST).String()
+	}
+	if customer.Ext != nil && customer.Ext.Get(favat.ExtKeyGroupVAT) != "" {
+		buyer.GV = customer.Ext.Get(favat.ExtKeyGroupVAT).String()
+	}
+
 	return buyer
 }
 
 func addressLine1(address *org.Address) string {
-	if address.PostOfficeBox != "" {
-		return address.PostOfficeBox
+	line1 := address.Street
+	if address.Number != "" {
+		line1 += " " + address.Number
+	}
+	if address.Block != "" {
+		line1 += " " + address.Block
+	}
+	if address.Floor != "" {
+		line1 += " " + address.Floor
+	}
+	if address.Door != "" {
+		line1 += " " + address.Door
 	}
 
-	return address.Street +
-		", " + address.Number +
-		addressMaybe(address.Block) +
-		addressMaybe(address.Floor) +
-		addressMaybe(address.Door)
-}
-
-func addressLine2(address *org.Address) string {
-	return address.Code.String() + ", " + address.Locality
-}
-
-func addressMaybe(element string) string {
-	if element != "" {
-		return ", " + element
+	if address.Code.String() != "" {
+		line1 += ", " + address.Code.String()
 	}
-	return ""
-}
-
-func nameMaybe(element string) string {
-	if element != "" {
-		return " " + element
+	if address.Locality != "" {
+		line1 += ", " + address.Locality
 	}
-	return ""
+
+	return line1
 }
 
-func isEUCountry(code string) bool {
-	for _, c := range euCountriesCodes {
-		if c == code {
-			return true
+func NewThirdParties(invoice *bill.Invoice) []*ThirdParty {
+	thirdParties := make([]*ThirdParty, 0, 100)
+
+	// TODO: Reading from identities work for third parties like Group VAT or JST. However, for other third parties like issuer or recipient should be mapped from another GOBL structure.
+	if len(invoice.Supplier.Identities) > 0 {
+		thirdParty := newThirdPartyFromIdentity(invoice.Supplier.Identities[0])
+		if thirdParty != nil {
+			thirdParties = append(thirdParties, thirdParty)
 		}
 	}
-	return false
+
+	if invoice.Customer != nil {
+		if len(invoice.Customer.Identities) > 0 {
+			thirdParty := newThirdPartyFromIdentity(invoice.Customer.Identities[0])
+			if thirdParty != nil {
+				thirdParties = append(thirdParties, thirdParty)
+			}
+		}
+	}
+
+	return thirdParties
+}
+
+func newThirdPartyFromIdentity(identity *org.Identity) *ThirdParty {
+
+	if identity.Ext == nil || identity.Ext.Get(favat.ExtKeyThirdPartyRole) == "" {
+		return nil
+	}
+
+	role := identity.Ext.Get(favat.ExtKeyThirdPartyRole)
+	if role == "" {
+		return nil
+	}
+
+	thirdParty := &ThirdParty{
+		Role: role.String(),
+	}
+
+	if identity.Code == "" {
+		thirdParty.NoID = 1
+		return thirdParty
+	}
+
+	if identity.Country == l10n.PL.ISO() {
+		thirdParty.NIP = identity.Code.String()
+		return thirdParty
+	}
+
+	if l10n.Union(l10n.EU).HasMember(identity.Country.Code()) {
+		thirdParty.UECode = identity.Country.String()
+		thirdParty.UEVatNumber = identity.Code.String()
+		return thirdParty
+	}
+
+	thirdParty.IDNumber = identity.Code.String()
+	if identity.Country != "" {
+		thirdParty.CountryCode = identity.Country.String()
+	}
+
+	return thirdParty
 }
