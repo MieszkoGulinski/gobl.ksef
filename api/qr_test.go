@@ -75,10 +75,10 @@ func TestGenerateCertificateQrCodeURL(t *testing.T) {
 
 func TestGenerateSignedCertificateQrCodeURL_ECDSA(t *testing.T) {
 	unsignedURL := "qr.ksef.mf.gov.pl/certificate/Nip/1111111111/2222222222/CERT123/AAECAw"
-	privateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	require.NoError(t, err)
 
-	signedURL, err := GenerateSignedCertificateQrCodeURL(unsignedURL, privateKey)
+	signedURL, err := GenerateSignedCertificateQrCodeURL(unsignedURL, key)
 	require.NoError(t, err)
 
 	prefix := "https://" + unsignedURL + "/"
@@ -90,21 +90,21 @@ func TestGenerateSignedCertificateQrCodeURL_ECDSA(t *testing.T) {
 	signature, err := base64.RawURLEncoding.DecodeString(sigEncoded)
 	require.NoError(t, err)
 
-	size := (privateKey.Params().BitSize + 7) / 8
+	size := (key.Params().BitSize + 7) / 8
 	require.Equal(t, 2*size, len(signature))
 
 	r := new(big.Int).SetBytes(signature[:size])
 	s := new(big.Int).SetBytes(signature[size:])
 	hash := sha256.Sum256([]byte(unsignedURL))
-	assert.True(t, ecdsa.Verify(&privateKey.PublicKey, hash[:], r, s))
+	assert.True(t, ecdsa.Verify(&key.PublicKey, hash[:], r, s))
 }
 
 func TestGenerateSignedCertificateQrCodeURL_RSA(t *testing.T) {
 	unsignedURL := "qr.ksef.mf.gov.pl/certificate/Nip/3333333333/4444444444/CERT999/BBEFAA"
-	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
+	key, err := rsa.GenerateKey(rand.Reader, 2048)
 	require.NoError(t, err)
 
-	signedURL, err := GenerateSignedCertificateQrCodeURL(unsignedURL, privateKey)
+	signedURL, err := GenerateSignedCertificateQrCodeURL(unsignedURL, key)
 	require.NoError(t, err)
 
 	prefix := "https://" + unsignedURL + "/"
@@ -117,5 +117,5 @@ func TestGenerateSignedCertificateQrCodeURL_RSA(t *testing.T) {
 	require.NoError(t, err)
 
 	hash := sha256.Sum256([]byte(unsignedURL))
-	assert.NoError(t, rsa.VerifyPSS(&privateKey.PublicKey, crypto.SHA256, hash[:], signature, &rsa.PSSOptions{SaltLength: 32, Hash: crypto.SHA256}))
+	assert.NoError(t, rsa.VerifyPSS(&key.PublicKey, crypto.SHA256, hash[:], signature, &rsa.PSSOptions{SaltLength: 32, Hash: crypto.SHA256}))
 }

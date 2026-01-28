@@ -13,7 +13,7 @@ import (
 )
 
 func TestGenerateCSR(t *testing.T) {
-	privateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	require.NoError(t, err)
 
 	data := &CertificateEnrollmentData{
@@ -27,7 +27,7 @@ func TestGenerateCSR(t *testing.T) {
 		OrganizationIdentifier: "1234567890",
 	}
 
-	csrBase64, err := data.GenerateCSR(privateKey)
+	csrBase64, err := data.GenerateCSR(key)
 	require.NoError(t, err)
 
 	csrDER, err := base64.StdEncoding.DecodeString(csrBase64)
