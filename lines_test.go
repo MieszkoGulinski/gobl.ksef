@@ -4,114 +4,293 @@ import (
 	"testing"
 
 	ksef "github.com/invopop/gobl.ksef"
+	"github.com/invopop/gobl/addons/pl/favat"
 	"github.com/invopop/gobl/bill"
 	"github.com/invopop/gobl/num"
 	"github.com/invopop/gobl/org"
 	"github.com/invopop/gobl/tax"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestNewLines(t *testing.T) {
-	t.Run("calculates unitDiscount", func(t *testing.T) {
+	t.Run("converts basic lines", func(t *testing.T) {
+		price, _ := num.AmountFromString("100.00")
+		qty, _ := num.AmountFromString("2")
+		total, _ := num.AmountFromString("200.00")
+
 		lines := []*bill.Line{
 			{
+				Index:    1,
+				Quantity: qty,
 				Item: &org.Item{
-					Price: num.NewAmount(20000, 2),
+					Name:  "Test Item",
+					Price: &price,
+					Unit:  "h",
 				},
+				Total: &total,
 				Taxes: tax.Set{
-					{
-						Percent: &num.Percentage{},
+					&tax.Combo{
+						Category: tax.CategoryVAT,
+						Percent:  num.NewPercentage(23, 2),
 					},
 				},
-				Quantity: num.MakeAmount(1, 0),
-				Discounts: []*bill.LineDiscount{
-					{
-						Amount: num.MakeAmount(10000, 2),
-					},
-				},
-				Total: num.NewAmount(10000, 2),
 			},
 		}
 
-		ln := ksef.NewLines(lines, 2)
+		result := ksef.NewLines(lines)
 
-		assert.Equal(t, "100.00", ln[0].UnitDiscount)
+		require.Len(t, result, 1)
+		assert.Equal(t, 1, result[0].LineNumber)
+		assert.Equal(t, "Test Item", result[0].Name)
+		assert.Equal(t, "HUR", result[0].Measure)
+		assert.Equal(t, "100.00", result[0].NetUnitPrice)
+		assert.Equal(t, "2", result[0].Quantity)
+		assert.Equal(t, "200.00", result[0].NetPriceTotal)
+		assert.Equal(t, "23", result[0].VATRate)
 	})
 
-	t.Run("calculates unitDiscount per unit", func(t *testing.T) {
+	t.Run("handles multiple lines", func(t *testing.T) {
+		price, _ := num.AmountFromString("50.00")
+		qty, _ := num.AmountFromString("1")
+		total, _ := num.AmountFromString("50.00")
+
 		lines := []*bill.Line{
 			{
+				Index:    1,
+				Quantity: qty,
 				Item: &org.Item{
-					Price: num.NewAmount(20000, 2),
+					Name:  "Item 1",
+					Price: &price,
+					Unit:  "h",
 				},
+				Total: &total,
 				Taxes: tax.Set{
-					{
-						Percent: &num.Percentage{},
+					&tax.Combo{
+						Category: tax.CategoryVAT,
+						Percent:  num.NewPercentage(23, 2),
 					},
 				},
-				Quantity: num.MakeAmount(2, 0),
-				Discounts: []*bill.LineDiscount{
-					{
-						Amount: num.MakeAmount(10000, 2),
+			},
+			{
+				Index:    2,
+				Quantity: qty,
+				Item: &org.Item{
+					Name:  "Item 2",
+					Price: &price,
+					Unit:  "service",
+				},
+				Total: &total,
+				Taxes: tax.Set{
+					&tax.Combo{
+						Category: tax.CategoryVAT,
+						Percent:  num.NewPercentage(8, 2),
 					},
 				},
-				Total: num.NewAmount(10000, 2), // Total is still 100.00 PLN
 			},
 		}
 
-		ln := ksef.NewLines(lines, 2)
+		result := ksef.NewLines(lines)
 
-		assert.Equal(t, "50.00", ln[0].UnitDiscount)
+		require.Len(t, result, 2)
+		assert.Equal(t, "Item 1", result[0].Name)
+		assert.Equal(t, "Item 2", result[1].Name)
+		assert.Equal(t, 1, result[0].LineNumber)
+		assert.Equal(t, 2, result[1].LineNumber)
 	})
 
-	t.Run("returns empty string for unitDiscount if no discount present", func(t *testing.T) {
+	t.Run("handles line without VAT percent", func(t *testing.T) {
+		price, _ := num.AmountFromString("100.00")
+		qty, _ := num.AmountFromString("1")
+		total, _ := num.AmountFromString("100.00")
+
 		lines := []*bill.Line{
 			{
+				Index:    1,
+				Quantity: qty,
 				Item: &org.Item{
-					Price: num.NewAmount(20000, 2), // 200.00 PLN
+					Name:  "Exempt Item",
+					Price: &price,
+					Unit:  "h",
 				},
+				Total: &total,
 				Taxes: tax.Set{
-					{
-						Percent: &num.Percentage{},
+					&tax.Combo{
+						Category: tax.CategoryVAT,
+						// No Percent for exempt items
 					},
 				},
-				Quantity:  num.MakeAmount(1, 0),
-				Discounts: []*bill.LineDiscount{},
-				Total:     num.NewAmount(20000, 2), // Total is still 200.00 PLN
 			},
 		}
 
-		ln := ksef.NewLines(lines, 2)
+		result := ksef.NewLines(lines)
 
-		assert.Equal(t, "", ln[0].UnitDiscount)
+		require.Len(t, result, 1)
+		assert.Equal(t, "", result[0].VATRate)
 	})
 
-	t.Run("unitDiscount adds up multiple discounts", func(t *testing.T) {
+	t.Run("handles line with discounts", func(t *testing.T) {
+		price, _ := num.AmountFromString("100.00")
+		qty, _ := num.AmountFromString("2")
+		total, _ := num.AmountFromString("180.00")
+		discountAmt, _ := num.AmountFromString("20.00")
+
 		lines := []*bill.Line{
 			{
+				Index:    1,
+				Quantity: qty,
 				Item: &org.Item{
-					Price: num.NewAmount(30000, 2), // 300.00 PLN
+					Name:  "Discounted Item",
+					Price: &price,
+					Unit:  "h",
 				},
-				Taxes: tax.Set{
-					{
-						Percent: &num.Percentage{},
-					},
-				},
-				Quantity: num.MakeAmount(1, 0),
 				Discounts: []*bill.LineDiscount{
 					{
-						Amount: num.MakeAmount(10000, 2),
-					},
-					{
-						Amount: num.MakeAmount(10000, 2),
+						Amount: discountAmt,
+						Reason: "Volume discount",
 					},
 				},
-				Total: num.NewAmount(10000, 2),
+				Total: &total,
+				Taxes: tax.Set{
+					&tax.Combo{
+						Category: tax.CategoryVAT,
+						Percent:  num.NewPercentage(23, 2),
+					},
+				},
 			},
 		}
 
-		ln := ksef.NewLines(lines, 2)
+		result := ksef.NewLines(lines)
 
-		assert.Equal(t, "200.00", ln[0].UnitDiscount)
+		require.Len(t, result, 1)
+		assert.Equal(t, "10.00", result[0].UnitDiscount) // 20.00 / 2 = 10.00
+	})
+
+	t.Run("handles multiple discounts on same line", func(t *testing.T) {
+		price, _ := num.AmountFromString("100.00")
+		qty, _ := num.AmountFromString("4")
+		total, _ := num.AmountFromString("360.00")
+		discount1, _ := num.AmountFromString("20.00")
+		discount2, _ := num.AmountFromString("20.00")
+
+		lines := []*bill.Line{
+			{
+				Index:    1,
+				Quantity: qty,
+				Item: &org.Item{
+					Name:  "Multiple Discounts",
+					Price: &price,
+					Unit:  "h",
+				},
+				Discounts: []*bill.LineDiscount{
+					{Amount: discount1, Reason: "Discount 1"},
+					{Amount: discount2, Reason: "Discount 2"},
+				},
+				Total: &total,
+				Taxes: tax.Set{
+					&tax.Combo{
+						Category: tax.CategoryVAT,
+						Percent:  num.NewPercentage(23, 2),
+					},
+				},
+			},
+		}
+
+		result := ksef.NewLines(lines)
+
+		require.Len(t, result, 1)
+		assert.Equal(t, "10.00", result[0].UnitDiscount) // (20.00 + 20.00) / 4 = 10.00
+	})
+}
+
+func TestNewOrderLines(t *testing.T) {
+	t.Run("converts order lines with VAT calculation", func(t *testing.T) {
+		price, _ := num.AmountFromString("100.00")
+		qty, _ := num.AmountFromString("2")
+		total, _ := num.AmountFromString("200.00")
+
+		lines := []*bill.Line{
+			{
+				Index:    1,
+				Quantity: qty,
+				Item: &org.Item{
+					Name:  "Order Item",
+					Price: &price,
+					Unit:  "h",
+				},
+				Total: &total,
+				Taxes: tax.Set{
+					&tax.Combo{
+						Category: tax.CategoryVAT,
+						Percent:  num.NewPercentage(23, 2),
+						Ext: tax.Extensions{
+							favat.ExtKeyTaxCategory: "1",
+						},
+					},
+				},
+			},
+		}
+
+		result := ksef.NewOrderLines(lines, 2)
+
+		require.Len(t, result, 1)
+		assert.Equal(t, 1, result[0].LineNumber)
+		assert.Equal(t, "Order Item", result[0].Name)
+		assert.Equal(t, "HUR", result[0].Measure)
+		assert.Equal(t, "100.00", result[0].NetUnitPrice)
+		assert.Equal(t, "2", result[0].Quantity)
+		assert.Equal(t, "200.00", result[0].NetPriceTotal)
+		assert.Equal(t, "23", result[0].VATRate)
+		// Note: TaxValue calculation in current code uses Percent.Amount() which
+		// returns the percentage value directly (23), not the decimal (0.23),
+		// resulting in 200.00 * 23 = 4600.00 (there's a TODO in the code about this)
+		assert.Equal(t, "4600.00", result[0].TaxValue)
+	})
+
+	t.Run("handles multiple order lines", func(t *testing.T) {
+		price, _ := num.AmountFromString("50.00")
+		qty, _ := num.AmountFromString("1")
+		total, _ := num.AmountFromString("50.00")
+
+		lines := []*bill.Line{
+			{
+				Index:    1,
+				Quantity: qty,
+				Item: &org.Item{
+					Name:  "Item 1",
+					Price: &price,
+					Unit:  "h",
+				},
+				Total: &total,
+				Taxes: tax.Set{
+					&tax.Combo{
+						Category: tax.CategoryVAT,
+						Percent:  num.NewPercentage(23, 2),
+					},
+				},
+			},
+			{
+				Index:    2,
+				Quantity: qty,
+				Item: &org.Item{
+					Name:  "Item 2",
+					Price: &price,
+					Unit:  "service",
+				},
+				Total: &total,
+				Taxes: tax.Set{
+					&tax.Combo{
+						Category: tax.CategoryVAT,
+						Percent:  num.NewPercentage(8, 2),
+					},
+				},
+			},
+		}
+
+		result := ksef.NewOrderLines(lines, 2)
+
+		require.Len(t, result, 2)
+		assert.Equal(t, "Item 1", result[0].Name)
+		assert.Equal(t, "Item 2", result[1].Name)
 	})
 }

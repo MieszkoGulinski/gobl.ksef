@@ -1,6 +1,8 @@
-# GOBL to KSeF Conversion
+# GOBL ↔ KSeF Conversion
 
-Convert GOBL to the Polish FA_VAT format and send to KSeF.
+Convert GOBL to the Polish FA_VAT XML format (and, in future, back from KSeF into GOBL).
+
+The main conversion entrypoints are `ksef.BuildFAVAT` (model) and `ksef.MarshalFAVAT` (XML bytes).
 
 Copyright [Invopop Ltd.](https://invopop.com) 2023. Released publicly under the [Apache License Version 2.0](LICENSE). For commercial licenses please contact the [dev team at invopop](mailto:dev@invopop.com). In order to accept contributions to this library we will require transferring copyrights to Invopop Ltd.
 
@@ -17,6 +19,38 @@ The following list the steps to follow through on in order to accomplish the goa
 2. Convert GOBL into FA_VAT format in library. A couple of good examples: [gobl.cfdi for Mexico](https://github.com/invopop/gobl.cfdi) and [gobl.verifactu for Spain](https://github.com/invopop/gobl.verifactu). Library would just be able to run tests in the first version.
 3. Build a CLI (copy from gobl.cfdi and gobl.verifactu projects) to convert GOBL JSON documents into FA_VAT XML.
 4. Build a second part of this project that allows documents to be sent directly to the KSeF. A partial example of this can be found in the [gobl.ticketbai project](https://github.com/invopop/gobl.ticketbai/tree/refactor/internal/gateways). It'd probably be useful to be able to upload via the CLI too.
+
+## Testing
+
+The test suite automatically discovers and tests all GOBL JSON files in `test/data/`.
+
+### Running Tests
+
+**Validate existing XML files against the schema:**
+```bash
+go test ./test -v
+```
+
+**Convert GOBL to KSeF XML and validate:**
+```bash
+go test ./test --update -v
+```
+
+**With XSD schema validation (requires libxml2):**
+```bash
+# Using the helper script (sets LD_LIBRARY_PATH automatically)
+./test/test.sh -v
+./test/test.sh --update -v
+
+# Or manually
+LD_LIBRARY_PATH=/home/linuxbrew/.linuxbrew/opt/libxml2/lib:$LD_LIBRARY_PATH go test -tags xsdvalidate ./test -v
+```
+
+### Test Data
+
+- **Input**: GOBL JSON files in `test/data/*.json`
+- **Output**: KSeF XML files in `test/data/out/*.xml`
+- **Schema**: FA3 XSD and dependencies in `test/data/schema/`
 
 ## Unsupported fields
 

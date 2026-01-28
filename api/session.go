@@ -37,17 +37,17 @@ type UploadSession struct {
 	ValidUntil           string
 	SymmetricKey         []byte
 	InitializationVector []byte
-	client               *Client
+	Client               *Client
 }
 
 func (s *UploadSession) clientForRequests() (*Client, error) {
 	if s == nil {
 		return nil, fmt.Errorf("upload session is nil")
 	}
-	if s.client == nil {
+	if s.Client == nil {
 		return nil, fmt.Errorf("upload session missing client")
 	}
-	return s.client, nil
+	return s.Client, nil
 }
 
 // SessionStatus contains basic status information for a session returned by the API.
@@ -124,7 +124,7 @@ func (c *Client) CreateSession(ctx context.Context) (*UploadSession, error) {
 		ValidUntil:           response.ValidUntil,
 		SymmetricKey:         symmetricKey,
 		InitializationVector: initializationVector,
-		client:               c,
+		Client:               c,
 	}, nil
 }
 

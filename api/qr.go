@@ -7,25 +7,33 @@ import (
 	"time"
 )
 
+const (
+	EnvironmentProductionQrUrl = "https://qr.ksef.mf.gov.pl/invoice"
+	EnvironmentDemoQrUrl       = "https://qr-demo.ksef.mf.gov.pl/invoice"
+	EnvironmentTestQrUrl       = "https://qr-test.ksef.mf.gov.pl/invoice"
+)
+
 // GenerateQrCodeURL builds the verification URL for an uploaded invoice.
-func (c *Client) GenerateQrCodeURL(nip string, invoiceHash string, invoicingDate time.Time) (string, error) {
-	if c == nil {
-		return "", fmt.Errorf("client is nil")
+func GenerateQrCodeURL(environment Environment, nip string, invoicingDate time.Time, invoiceHash []byte) (string, error) {
+	var baseUrl string
+	switch environment {
+	case EnvironmentProduction:
+		baseUrl = EnvironmentProductionQrUrl
+	case EnvironmentDemo:
+		baseUrl = EnvironmentDemoQrUrl
+	case EnvironmentTest:
+		baseUrl = EnvironmentTestQrUrl
+	default:
+		return "", fmt.Errorf("invalid environment: %s", environment)
 	}
-	if c.qrUrl == "" {
-		return "", fmt.Errorf("qr url base is empty")
-	}
+
 	if nip == "" {
 		return "", fmt.Errorf("nip is empty")
 	}
 
-	hashBytes, err := base64.StdEncoding.DecodeString(invoiceHash)
-	if err != nil {
-		return "", fmt.Errorf("invalid invoice hash: %w", err)
-	}
-	base64URLHash := base64.RawURLEncoding.EncodeToString(hashBytes)
+	base64URLHash := base64.RawURLEncoding.EncodeToString(invoiceHash)
 
-	base := strings.TrimRight(c.qrUrl, "/")
+	base := strings.TrimRight(baseUrl, "/")
 	return fmt.Sprintf("%s/%s/%s/%s",
 		base,
 		nip,

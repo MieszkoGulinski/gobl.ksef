@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Faktura xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://crd.gov.pl/wzor/2025/06/25/13775/">
+  <Naglowek>
+    <KodFormularza kodSystemowy="FA (3)" wersjaSchemy="1-0E">FA</KodFormularza>
+    <WariantFormularza>3</WariantFormularza>
+    <DataWytworzeniaFa>2026-01-27T09:17:03Z</DataWytworzeniaFa>
+    <SystemInfo>Invopop</SystemInfo>
+  </Naglowek>
+  <Podmiot1>
+    <PrefiksPodatnika>PL</PrefiksPodatnika>
+    <DaneIdentyfikacyjne>
+      <NIP>9876543210</NIP>
+      <Nazwa>Sklep Testowy</Nazwa>
+    </DaneIdentyfikacyjne>
+    <Adres>
+      <KodKraju>PL</KodKraju>
+      <AdresL1>ul. Handlowa 5, 00-001, Warsaw</AdresL1>
+    </Adres>
+  </Podmiot1>
+  <Podmiot2>
+    <DaneIdentyfikacyjne>
+      <BrakID>1</BrakID>
+    </DaneIdentyfikacyjne>
+    <JST>2</JST>
+    <GV>2</GV>
+  </Podmiot2>
+  <Fa>
+    <KodWaluty>PLN</KodWaluty>
+    <P_1>2026-01-20</P_1>
+    <P_2>UPR-001</P_2>
+    <P_13_2>30.00</P_13_2>
+    <P_14_2>2.40</P_14_2>
+    <P_15>32.40</P_15>
+    <Adnotacje>
+      <P_16>2</P_16>
+      <P_17>2</P_17>
+      <P_18>2</P_18>
+      <P_18A>2</P_18A>
+      <Zwolnienie>
+        <P_19N>1</P_19N>
+      </Zwolnienie>
+      <NoweSrodkiTransportu>
+        <P_22N>1</P_22N>
+      </NoweSrodkiTransportu>
+      <P_23>2</P_23>
+      <PMarzy>
+        <P_PMarzyN>1</P_PMarzyN>
+      </PMarzy>
+    </Adnotacje>
+    <RodzajFaktury>UPR</RodzajFaktury>
+    <DodatkowyOpis>
+      <Klucz>general</Klucz>
+      <Wartosc>Simplified invoice for small transactions up to 450 PLN.</Wartosc>
+    </DodatkowyOpis>
+    <FaWiersz>
+      <NrWierszaFa>1</NrWierszaFa>
+      <P_7>Coffee</P_7>
+      <P_8B>2</P_8B>
+      <P_9A>15.00</P_9A>
+      <P_11>30.00</P_11>
+      <P_12>8</P_12>
+    </FaWiersz>
+  </Fa>
+</Faktura>
