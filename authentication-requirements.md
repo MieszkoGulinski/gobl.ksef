@@ -106,45 +106,27 @@ func main() {
         log.Fatal(err)
     }
 
-    // 1. Obtain required data that must go into the CSR subject
-    enrollmentData, err := client.GetCertificateEnrollmentData(ctx)
-    if err != nil {
-        log.Fatal(err)
-    }
-
-    // 2. Create ECDSA key pair that will represent the new KSeF certificate
+    // Create ECDSA key pair that will represent the new KSeF certificate
     privateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
     if err != nil {
         log.Fatal(err)
     }
 
-    // 3. Create the CSR using the attributes returned by the API
-    csr, err := enrollmentData.GenerateCSR(privateKey)
-    if err != nil {
-        log.Fatal(err)
-    }
-
-    // 4. Submit request to create the certificate
-    enrollmentResp, err := client.EnrollCertificate(
+    // CreateCertificate runs the whole flow: fetch data, generate CSR, submit, and poll.
+    result, err := client.CreateCertificate(
         ctx,
         "My Auth Cert",
         ksef.CertificateTypeAuthentication,
-        csr,
+        privateKey,
         nil, // optional validFrom
     )
     if err != nil {
         log.Fatal(err)
     }
+    log.Printf("Certificate request completed at %s", result.Status.RequestDate.Format(time.RFC3339))
 
-    // 5. Poll endpoint until KSeF finishes processing the request (status 200)
-    statusResp, err := client.PollCertificateEnrollmentStatus(ctx, enrollmentResp.ReferenceNumber)
-    if err != nil {
-        log.Fatal(err)
-    }
-    log.Printf("Certificate request completed at %s", statusResp.RequestDate.Format(time.RFC3339))
-
-    // 6. Once you learn the certificate serial number from subsequent steps,
-    //    you can revoke it at any time:
+    // Once you obtain the certificate serial number from subsequent steps,
+    // you can revoke it at any time:
     if err := client.RevokeCertificate(ctx, "0123ABCD4567EF89"); err != nil {
         log.Fatal(err)
     }

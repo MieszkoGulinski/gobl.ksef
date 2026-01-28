@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"crypto/ecdsa"
 	"errors"
 	"fmt"
 	"net/url"
@@ -53,6 +54,12 @@ type certificateEnrollmentRequest struct {
 type CertificateEnrollmentResponse struct {
 	ReferenceNumber string `json:"referenceNumber"`
 	Timestamp       string `json:"timestamp"`
+}
+
+// CertificateCreationResult bundles the responses returned during certificate creation.
+type CertificateCreationResult struct {
+	Enrollment *CertificateEnrollmentResponse
+	Status     *CertificateEnrollmentStatusResponse
 }
 
 // CertificateEnrollmentStatusResponse describes the status returned for an enrollment reference number.
@@ -131,6 +138,38 @@ func (c *Client) EnrollCertificate(ctx context.Context, certificateName string, 
 	}
 
 	return response, nil
+}
+
+// CreateCertificate orchestrates the full flow of requesting a KSeF certificate using the provided key material.
+func (c *Client) CreateCertificate(ctx context.Context, certificateName string, certificateType CertificateType, privateKey *ecdsa.PrivateKey, validFrom *time.Time) (*CertificateCreationResult, error) {
+	if privateKey == nil {
+		return nil, fmt.Errorf("private key is required")
+	}
+
+	enrollmentData, err := c.GetCertificateEnrollmentData(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	csr, err := enrollmentData.GenerateCSR(privateKey)
+	if err != nil {
+		return nil, err
+	}
+
+	enrollmentResp, err := c.EnrollCertificate(ctx, certificateName, certificateType, csr, validFrom)
+	if err != nil {
+		return nil, err
+	}
+
+	statusResp, err := c.PollCertificateEnrollmentStatus(ctx, enrollmentResp.ReferenceNumber)
+	if err != nil {
+		return nil, err
+	}
+
+	return &CertificateCreationResult{
+		Enrollment: enrollmentResp,
+		Status:     statusResp,
+	}, nil
 }
 
 // RevokeCertificate submits a revocation request for the provided certificate serial number.
