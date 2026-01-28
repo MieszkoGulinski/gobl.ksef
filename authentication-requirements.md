@@ -23,7 +23,7 @@ Once inside the test environment, you can create an Authorization token to use t
 
 Based on [this](https://github.com/CIRFMF/ksef-docs/blob/main/auth/testowe-certyfikaty-i-podpisy-xades.md) document.
 
-There is a CLI application in .NET that allows to generate a self-signed certificate that can be used in the test environment. To run the application:
+There is a CLI application in .NET that allows to generate a self-signed certificate that can be used to log into the test environment. To run the application:
 
 1. Install .NET 10.0 SDK
 2. Download the repository: `git clone https://github.com/CIRFMF/ksef-client-csharp.git`
@@ -55,7 +55,7 @@ It can be obtained using using the following methods:
 
 There are two types of KSeF certificate:
 - Online - for logging into API
-- Offline - for signing invoices in case of KSeF system unavailability
+- Offline - for signing invoices in case of KSeF system unavailability - see [offline mode](offline-mode.md) for details
 
 Both certificate types must be obtained separately.
 
