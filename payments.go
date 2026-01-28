@@ -1,8 +1,13 @@
 package ksef
 
 import (
+	"fmt"
+
 	"github.com/invopop/gobl/addons/pl/favat"
 	"github.com/invopop/gobl/bill"
+	"github.com/invopop/gobl/cbc"
+	"github.com/invopop/gobl/pay"
+	"github.com/invopop/gobl/tax"
 )
 
 // Payment defines the XML structure for KSeF payment
@@ -144,4 +149,117 @@ func NewPayment(pay *bill.PaymentDetails, totals *bill.Totals) *Payment {
 	}
 
 	return payment
+}
+
+// parsePayment converts KSEF payment data to GOBL payment.
+func (inv *Inv) parsePayment(goblInv *bill.Invoice) error {
+	if inv.Payment == nil {
+		return nil
+	}
+
+	payment := &bill.PaymentDetails{}
+
+	// Parse payment instructions
+	if inv.Payment.PaymentMean != "" || len(inv.Payment.BankAccounts) > 0 {
+		payment.Instructions = &pay.Instructions{
+			Ext: make(tax.Extensions),
+		}
+
+		// Parse payment means
+		if inv.Payment.PaymentMean != "" {
+			payment.Instructions.Key = parsePaymentMeansCode(inv.Payment.PaymentMean)
+			payment.Instructions.Ext[favat.ExtKeyPaymentMeans] = cbc.Code(inv.Payment.PaymentMean)
+		} else if inv.Payment.OtherPaymentMeanMarker == "1" {
+			payment.Instructions.Key = cbc.Key(inv.Payment.OtherPaymentMean)
+		}
+
+		// Parse bank accounts
+		if len(inv.Payment.BankAccounts) > 0 {
+			payment.Instructions.CreditTransfer = make([]*pay.CreditTransfer, 0, len(inv.Payment.BankAccounts))
+			for _, account := range inv.Payment.BankAccounts {
+				ct := &pay.CreditTransfer{
+					Number: account.AccountNumber,
+					Name:   account.BankName,
+				}
+
+				if account.SWIFT != "" {
+					ct.BIC = account.SWIFT
+				}
+				payment.Instructions.CreditTransfer = append(payment.Instructions.CreditTransfer, ct)
+			}
+		}
+	}
+
+	// Parse payment terms (due dates)
+	if len(inv.Payment.DueDates) > 0 {
+		payment.Terms = &pay.Terms{
+			DueDates: make([]*pay.DueDate, 0, len(inv.Payment.DueDates)),
+		}
+		for _, dd := range inv.Payment.DueDates {
+			if dd.Date != "" {
+				date, err := parseDate(dd.Date)
+				if err != nil {
+					return fmt.Errorf("parsing due date: %w", err)
+				}
+				payment.Terms.DueDates = append(payment.Terms.DueDates, &pay.DueDate{
+					Date: &date,
+				})
+			}
+		}
+	}
+
+	// Parse advance payments
+	if len(inv.Payment.AdvancePayments) > 0 {
+		payment.Advances = make([]*pay.Advance, 0, len(inv.Payment.AdvancePayments))
+		for _, adv := range inv.Payment.AdvancePayments {
+			advance := &pay.Advance{
+				Description: "Advance payment", // GOBL requires a description
+				Ext:         make(tax.Extensions),
+			}
+			if adv.PaymentAmount != "" {
+				amt, err := parseAmount(adv.PaymentAmount)
+				if err != nil {
+					return fmt.Errorf("parsing advance amount: %w", err)
+				}
+				advance.Amount = amt
+			}
+			if adv.PaymentDate != "" {
+				date, err := parseDate(adv.PaymentDate)
+				if err != nil {
+					return fmt.Errorf("parsing advance date: %w", err)
+				}
+				advance.Date = &date
+			}
+			if adv.PaymentMean != "" {
+				advance.Ext[favat.ExtKeyPaymentMeans] = cbc.Code(adv.PaymentMean)
+			}
+			payment.Advances = append(payment.Advances, advance)
+		}
+	}
+
+	goblInv.Payment = payment
+
+	return nil
+}
+
+// parsePaymentMeansCode converts KSEF payment means code to GOBL payment key.
+func parsePaymentMeansCode(code string) cbc.Key {
+	switch code {
+	case "1":
+		return pay.MeansKeyCash
+	case "2":
+		return pay.MeansKeyCard
+	case "3":
+		return pay.MeansKeyOther.With(favat.MeansKeyVoucher)
+	case "4":
+		return pay.MeansKeyCheque
+	case "5":
+		return pay.MeansKeyOther.With(favat.MeansKeyCredit)
+	case "6":
+		return pay.MeansKeyCreditTransfer
+	case "7":
+		return pay.MeansKeyOnline
+	default:
+		return pay.MeansKeyAny
+	}
 }

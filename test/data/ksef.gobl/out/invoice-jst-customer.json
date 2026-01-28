@@ -1,0 +1,120 @@
+{
+  "$schema": "https://gobl.org/draft-0/envelope",
+  "head": {
+    "uuid": "019c058a-c4d4-7e7c-b5e8-f4d9fe122c18",
+    "dig": {
+      "alg": "sha256",
+      "val": "8acd84fd7c3869200d54b6cabe4c0b8a3bbf5a9dcabcdf7ce949d5e0891c488f"
+    }
+  },
+  "doc": {
+    "$schema": "https://gobl.org/draft-0/bill/invoice",
+    "$regime": "PL",
+    "$addons": [
+      "pl-favat-v3"
+    ],
+    "uuid": "019c058a-c4d4-7e93-93a3-79f225254939",
+    "type": "standard",
+    "code": "JST-001",
+    "issue_date": "2026-01-20",
+    "currency": "PLN",
+    "tax": {
+      "ext": {
+        "pl-favat-invoice-type": "VAT"
+      }
+    },
+    "supplier": {
+      "name": "Testowa Firma Sp. z o.o.",
+      "tax_id": {
+        "country": "PL",
+        "code": "9876543210"
+      },
+      "addresses": [
+        {
+          "street": "ul. Główna 1, 00-001, Warsaw",
+          "country": "PL"
+        }
+      ]
+    },
+    "customer": {
+      "name": "Urząd Miasta Warsaw",
+      "tax_id": {
+        "country": "PL",
+        "code": "9876543210"
+      },
+      "identities": [
+        {
+          "code": "JST-WARSAW-2025",
+          "ext": {
+            "pl-favat-third-party-role": "8"
+          }
+        }
+      ],
+      "addresses": [
+        {
+          "street": "Plac Defilad 1, 00-901, Warsaw",
+          "country": "PL"
+        }
+      ],
+      "ext": {
+        "pl-favat-jst": "1"
+      }
+    },
+    "lines": [
+      {
+        "i": 1,
+        "quantity": "1",
+        "item": {
+          "name": "IT System Development for Local Government",
+          "price": "50000.00"
+        },
+        "sum": "50000.00",
+        "taxes": [
+          {
+            "cat": "VAT",
+            "key": "standard",
+            "rate": "general",
+            "percent": "23.0%",
+            "ext": {
+              "pl-favat-tax-category": "1"
+            }
+          }
+        ],
+        "total": "50000.00"
+      }
+    ],
+    "totals": {
+      "sum": "50000.00",
+      "total": "50000.00",
+      "taxes": {
+        "categories": [
+          {
+            "code": "VAT",
+            "rates": [
+              {
+                "key": "standard",
+                "ext": {
+                  "pl-favat-tax-category": "1"
+                },
+                "base": "50000.00",
+                "percent": "23.0%",
+                "amount": "11500.00"
+              }
+            ],
+            "amount": "11500.00"
+          }
+        ],
+        "sum": "11500.00"
+      },
+      "tax": "11500.00",
+      "total_with_tax": "61500.00",
+      "payable": "61500.00"
+    },
+    "notes": [
+      {
+        "key": "general",
+        "text": "Invoice for services provided to Local Government Unit (JST)."
+      }
+    ]
+  }
+}

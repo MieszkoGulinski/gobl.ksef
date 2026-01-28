@@ -9,6 +9,9 @@ import (
 	"github.com/invopop/gobl"
 	"github.com/invopop/gobl/addons/pl/favat"
 	"github.com/invopop/gobl/bill"
+	"github.com/invopop/gobl/cbc"
+	"github.com/invopop/gobl/currency"
+	"github.com/invopop/gobl/tax"
 )
 
 // Constants for KSeF XML
@@ -75,4 +78,106 @@ func (d *Invoice) Bytes() ([]byte, error) {
 	}
 
 	return append([]byte(xml.Header), data...), nil
+}
+
+// ParseKSeF converts a KSeF FA_VAT XML document into a GOBL envelope.
+func ParseKSeF(xmlData []byte) (*gobl.Envelope, error) {
+	var doc Invoice
+	if err := xml.Unmarshal(xmlData, &doc); err != nil {
+		return nil, fmt.Errorf("unmarshaling XML: %w", err)
+	}
+
+	inv, err := doc.ToGOBL()
+	if err != nil {
+		return nil, fmt.Errorf("converting to GOBL: %w", err)
+	}
+
+	env, err := gobl.Envelop(inv)
+	if err != nil {
+		return nil, fmt.Errorf("creating envelope: %w", err)
+	}
+
+	return env, nil
+}
+
+// ToGOBL converts the KSeF Invoice to a GOBL invoice.
+func (d *Invoice) ToGOBL() (*bill.Invoice, error) {
+	if d.Inv == nil {
+		return nil, fmt.Errorf("missing invoice data")
+	}
+
+	inv := &bill.Invoice{}
+	inv.Addons = tax.WithAddons(favat.V3)
+	inv.Currency = currency.Code(parseCurrency(d.Inv.CurrencyCode))
+
+	// Parse invoice data
+	if err := d.Inv.parseInvoiceData(inv); err != nil {
+		return nil, err
+	}
+
+	// Parse parties
+	d.parseParties(inv)
+
+	// Parse lines
+	if err := d.Inv.parseLines(inv); err != nil {
+		return nil, err
+	}
+
+	// Parse payment
+	if err := d.Inv.parsePayment(inv); err != nil {
+		return nil, err
+	}
+
+	// Calculate totals
+	if err := inv.Calculate(); err != nil {
+		return nil, fmt.Errorf("calculating invoice: %w", err)
+	}
+
+	return inv, nil
+}
+
+func parseCurrency(code string) cbc.Code {
+	if code == "" {
+		return "PLN"
+	}
+	return cbc.Code(code)
+}
+
+// parseParties converts KSEF parties to GOBL parties.
+func (d *Invoice) parseParties(inv *bill.Invoice) {
+	// Parse supplier (Podmiot1)
+	if d.Seller != nil {
+		inv.Supplier = d.Seller.toGOBL()
+	}
+
+	// Parse customer (Podmiot2)
+	if d.Buyer != nil {
+		inv.Customer = d.Buyer.toGOBL()
+	}
+
+	// Parse third parties (Podmiot3)
+	if len(d.ThirdParties) > 0 {
+		for _, tp := range d.ThirdParties {
+			// Third parties can add identities to supplier or customer
+			identity := tp.toIdentity()
+			if identity != nil {
+				// Determine if this third party belongs to supplier or customer
+				// based on role codes
+				if tp.Role != "" {
+					role := tp.Role
+					switch role {
+					case "7", "9": // JST issuer, GV issuer
+						if inv.Supplier != nil {
+							inv.Supplier.Identities = append(inv.Supplier.Identities, identity)
+						}
+					case "8", "10": // JST recipient, GV recipient
+						if inv.Customer != nil {
+							inv.Customer.Identities = append(inv.Customer.Identities, identity)
+						}
+					}
+				}
+			}
+		}
+	}
+
 }

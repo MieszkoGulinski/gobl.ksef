@@ -1,0 +1,117 @@
+{
+  "$schema": "https://gobl.org/draft-0/envelope",
+  "head": {
+    "uuid": "019c058a-c4d9-77d0-b49b-74986040574a",
+    "dig": {
+      "alg": "sha256",
+      "val": "1ab9334e3b1bbc826c41095415d36f46e498db38151aa8dd1d283e15a6916e81"
+    }
+  },
+  "doc": {
+    "$schema": "https://gobl.org/draft-0/bill/invoice",
+    "$regime": "PL",
+    "$addons": [
+      "pl-favat-v3"
+    ],
+    "uuid": "019c058a-c4d9-77e6-aaaa-2156ecc3f0af",
+    "type": "standard",
+    "code": "PAY-001",
+    "issue_date": "2026-01-20",
+    "currency": "PLN",
+    "tax": {
+      "ext": {
+        "pl-favat-invoice-type": "VAT"
+      }
+    },
+    "supplier": {
+      "name": "Sklep Testowy",
+      "tax_id": {
+        "country": "PL",
+        "code": "9876543210"
+      },
+      "addresses": [
+        {
+          "street": "ul. Handlowa 5, 00-001, Warsaw",
+          "country": "PL"
+        }
+      ]
+    },
+    "customer": {
+      "name": "Klient Indywidualny",
+      "tax_id": {
+        "country": "PL",
+        "code": "9876543210"
+      },
+      "addresses": [
+        {
+          "street": "ul. Klienta 10, 00-015, Warsaw",
+          "country": "PL"
+        }
+      ]
+    },
+    "lines": [
+      {
+        "i": 1,
+        "quantity": "1",
+        "item": {
+          "name": "Electronics - Laptop",
+          "price": "3500.00"
+        },
+        "sum": "3500.00",
+        "taxes": [
+          {
+            "cat": "VAT",
+            "key": "standard",
+            "rate": "general",
+            "percent": "23.0%",
+            "ext": {
+              "pl-favat-tax-category": "1"
+            }
+          }
+        ],
+        "total": "3500.00"
+      }
+    ],
+    "payment": {
+      "instructions": {
+        "key": "card",
+        "ext": {
+          "pl-favat-payment-means": "2"
+        }
+      }
+    },
+    "totals": {
+      "sum": "3500.00",
+      "total": "3500.00",
+      "taxes": {
+        "categories": [
+          {
+            "code": "VAT",
+            "rates": [
+              {
+                "key": "standard",
+                "ext": {
+                  "pl-favat-tax-category": "1"
+                },
+                "base": "3500.00",
+                "percent": "23.0%",
+                "amount": "805.00"
+              }
+            ],
+            "amount": "805.00"
+          }
+        ],
+        "sum": "805.00"
+      },
+      "tax": "805.00",
+      "total_with_tax": "4305.00",
+      "payable": "4305.00"
+    },
+    "notes": [
+      {
+        "key": "general",
+        "text": "Payment received by card at point of sale."
+      }
+    ]
+  }
+}
