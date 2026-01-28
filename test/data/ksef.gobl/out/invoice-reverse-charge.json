@@ -1,10 +1,10 @@
 {
   "$schema": "https://gobl.org/draft-0/envelope",
   "head": {
-    "uuid": "019c058a-c4e2-769a-ab0f-8759f70c8be3",
+    "uuid": "019c05af-43f0-7865-98cc-42e791c126fe",
     "dig": {
       "alg": "sha256",
-      "val": "466da259e93e4d1e65d2219ae8f02cc2655887082516837dbdb714fc8c8cf78c"
+      "val": "4afc0b7c2b12c4d6b4d2ad1515fd169beed4b177ab2e2ba3244643b51f620e82"
     }
   },
   "doc": {
@@ -16,7 +16,7 @@
     "$tags": [
       "reverse-charge"
     ],
-    "uuid": "019c058a-c4e2-76af-8246-d216616ef41f",
+    "uuid": "019c05af-43f0-786c-8ee7-ca6e3b563720",
     "type": "standard",
     "code": "RC-001",
     "issue_date": "2026-01-20",

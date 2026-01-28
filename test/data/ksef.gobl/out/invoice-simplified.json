@@ -1,10 +1,10 @@
 {
   "$schema": "https://gobl.org/draft-0/envelope",
   "head": {
-    "uuid": "019c058a-c4e9-78cd-b431-8cb45f03c669",
+    "uuid": "019c05af-43f3-797f-b3dc-2034c5e5bdb9",
     "dig": {
       "alg": "sha256",
-      "val": "d348328de936a3fdee786274bba3900f6893277a8ee41103028eaa4ec0bfa223"
+      "val": "2cd4a8cf774e307c322d1b5a46f32eba6016fc0acb91327bf6fd4058df4222b9"
     }
   },
   "doc": {
@@ -16,7 +16,7 @@
     "$tags": [
       "simplified"
     ],
-    "uuid": "019c058a-c4e9-78dc-8d67-a315399c5a62",
+    "uuid": "019c05af-43f3-79a8-b654-462dc364c0ca",
     "type": "standard",
     "code": "UPR-001",
     "issue_date": "2026-01-20",

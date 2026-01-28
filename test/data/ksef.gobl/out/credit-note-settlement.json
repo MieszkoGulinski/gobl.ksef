@@ -1,10 +1,10 @@
 {
   "$schema": "https://gobl.org/draft-0/envelope",
   "head": {
-    "uuid": "019c058a-c4c3-73c0-a5e9-5c083eecca94",
+    "uuid": "019c05af-43d8-7620-867e-7c0f2be39890",
     "dig": {
       "alg": "sha256",
-      "val": "6d92e8a47bec43ed4a8fb5e3271bd62de60960fd0eebb4461d950ec8dc83fa50"
+      "val": "090bd61761f437cb5f74342ccb8bcd1edcfd68fba8f15ed08d011521041ba5fa"
     }
   },
   "doc": {
@@ -16,7 +16,7 @@
     "$tags": [
       "settlement"
     ],
-    "uuid": "019c058a-c4c3-73d1-a1ec-c335ee89f57a",
+    "uuid": "019c05af-43d8-7639-a834-af9ce4c874a8",
     "type": "credit-note",
     "code": "KOR-ROZ-001",
     "issue_date": "2026-01-20",

@@ -128,9 +128,9 @@ func (d *Invoice) ToGOBL() (*bill.Invoice, error) {
 		return nil, err
 	}
 
-	// Calculate totals
-	if err := inv.Calculate(); err != nil {
-		return nil, fmt.Errorf("calculating invoice: %w", err)
+	// Calculate totals and adjust for rounding if needed
+	if err := AdjustRounding(inv, d.Inv.TotalAmountDue); err != nil {
+		return nil, fmt.Errorf("adjusting rounding: %w", err)
 	}
 
 	return inv, nil

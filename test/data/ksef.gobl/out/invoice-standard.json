@@ -1,10 +1,10 @@
 {
   "$schema": "https://gobl.org/draft-0/envelope",
   "head": {
-    "uuid": "019c058a-c4eb-771c-9935-66664328814a",
+    "uuid": "019c05af-43f4-7b57-b7af-f590b270e20c",
     "dig": {
       "alg": "sha256",
-      "val": "6c4e5282b2bccacb31cc7293e3e3b8fc12f07e36a8c2f7db0a19295f98bf1a3a"
+      "val": "fa334ebd5408dd8c4383f0a4215c78c86d4938c5d6722d4577f2bba8a31af485"
     }
   },
   "doc": {
@@ -13,7 +13,7 @@
     "$addons": [
       "pl-favat-v3"
     ],
-    "uuid": "019c058a-c4eb-772b-80e9-b9edf451a622",
+    "uuid": "019c05af-43f4-7b5e-966b-e49b31e51c2d",
     "type": "standard",
     "code": "INVOICE-001",
     "issue_date": "2026-01-20",
