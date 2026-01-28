@@ -57,9 +57,6 @@ func (d *CertificateEnrollmentData) asPkixName() (pkix.Name, error) {
 	if d.CountryName == "" {
 		return pkix.Name{}, fmt.Errorf("countryName is empty")
 	}
-	if d.UniqueIdentifier == "" {
-		return pkix.Name{}, fmt.Errorf("uniqueIdentifier is empty")
-	}
 
 	name := pkix.Name{
 		CommonName:   d.CommonName,

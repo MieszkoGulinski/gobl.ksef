@@ -17,7 +17,7 @@ type CertificateEnrollmentData struct {
 	CountryName            string `json:"countryName"`
 	OrganizationName       string `json:"organizationName,omitempty"`
 	GivenName              string `json:"givenName,omitempty"`
-	UniqueIdentifier       string `json:"uniqueIdentifier"`
+	UniqueIdentifier       string `json:"uniqueIdentifier,omitempty"`
 	OrganizationIdentifier string `json:"organizationIdentifier,omitempty"`
 }
 
