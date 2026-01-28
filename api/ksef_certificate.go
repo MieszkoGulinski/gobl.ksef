@@ -3,10 +3,14 @@ package api
 import (
 	"context"
 	"crypto/ecdsa"
+	"crypto/x509"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"net/url"
 	"time"
+
+	"software.sslmate.com/src/go-pkcs12"
 )
 
 // CertificateEnrollmentData stores the subject data required to prepare a certificate request.
@@ -50,13 +54,16 @@ type certificateEnrollmentRequest struct {
 	ValidFrom       *time.Time      `json:"validFrom,omitempty"`
 }
 
+type certificateRetrieveRequest struct {
+	CertificateSerialNumbers []string `json:"certificateSerialNumbers"`
+}
+
 // CertificateEnrollmentResponse stores the response metadata returned after submitting a CSR.
 type CertificateEnrollmentResponse struct {
 	ReferenceNumber string `json:"referenceNumber"`
 	Timestamp       string `json:"timestamp"`
 }
 
-// CertificateCreationResult bundles the responses returned during certificate creation.
 // CertificateEnrollmentStatusResponse describes the status returned for an enrollment reference number.
 type CertificateEnrollmentStatusResponse struct {
 	RequestDate             time.Time                    `json:"requestDate"`
@@ -69,6 +76,19 @@ type CertificateEnrollmentStatus struct {
 	Code        int      `json:"code"`
 	Description string   `json:"description"`
 	Details     []string `json:"details,omitempty"`
+}
+
+// CertificateRetrieveEntry represents a single certificate returned by /certificates/retrieve.
+type CertificateRetrieveEntry struct {
+	Certificate             string `json:"certificate"`
+	CertificateName         string `json:"certificateName"`
+	CertificateSerialNumber string `json:"certificateSerialNumber"`
+	CertificateType         string `json:"certificateType"`
+}
+
+// CertificateRetrieveResponse mirrors the API response for POST /certificates/retrieve.
+type CertificateRetrieveResponse struct {
+	Certificates []CertificateRetrieveEntry `json:"certificates"`
 }
 
 // GetCertificateEnrollmentData returns the identification data used when building a new CSR.
@@ -136,37 +156,100 @@ func (c *Client) EnrollCertificate(ctx context.Context, certificateName string, 
 	return response, nil
 }
 
+// RetrieveCertificate downloads metadata and content for the provided certificate serial number.
+func (c *Client) RetrieveCertificate(ctx context.Context, certificateSerialNumber string) (*CertificateRetrieveEntry, error) {
+	if certificateSerialNumber == "" {
+		return nil, fmt.Errorf("certificate serial number is required")
+	}
+
+	token, err := c.getAccessToken(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	request := &certificateRetrieveRequest{
+		CertificateSerialNumbers: []string{certificateSerialNumber},
+	}
+
+	response := &CertificateRetrieveResponse{}
+	resp, err := c.client.R().
+		SetContext(ctx).
+		SetAuthToken(token).
+		SetBody(request).
+		SetResult(response).
+		Post(c.url + "/certificates/retrieve")
+	if err != nil {
+		return nil, err
+	}
+	if resp.IsError() {
+		return nil, newErrorResponse(resp)
+	}
+	if len(response.Certificates) != 1 {
+		return nil, fmt.Errorf("expected exactly 1 certificate, got %d", len(response.Certificates))
+	}
+
+	return &response.Certificates[0], nil
+}
+
 // CreateKsefCertificate orchestrates the full flow of requesting a KSeF certificate using the provided key material.
-// Returns the certificate serial number once the request succeeds.
-func (c *Client) CreateKsefCertificate(ctx context.Context, certificateName string, certificateType CertificateType, privateKey *ecdsa.PrivateKey, validFrom *time.Time) (string, error) {
+// Returns the retrieved certificate response once the request succeeds.
+func (c *Client) CreateKsefCertificate(ctx context.Context, certificateName string, certificateType CertificateType, privateKey *ecdsa.PrivateKey, validFrom *time.Time) (*CertificateRetrieveEntry, error) {
 	if privateKey == nil {
-		return "", fmt.Errorf("private key is required")
+		return nil, fmt.Errorf("private key is required")
 	}
 
 	enrollmentData, err := c.GetCertificateEnrollmentData(ctx)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	csr, err := enrollmentData.GenerateCSR(privateKey)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	enrollmentResp, err := c.EnrollCertificate(ctx, certificateName, certificateType, csr, validFrom)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	statusResp, err := c.PollCertificateEnrollmentStatus(ctx, enrollmentResp.ReferenceNumber)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	if statusResp.CertificateSerialNumber == "" {
-		return "", fmt.Errorf("certificate serial number missing in enrollment status response")
+		return nil, fmt.Errorf("certificate serial number missing in enrollment status response")
 	}
-	return statusResp.CertificateSerialNumber, nil
+	return c.RetrieveCertificate(ctx, statusResp.CertificateSerialNumber)
+}
+
+// BuildPKCS12Certificate is a helper that bundles the retrieved certificate and the private key into a PKCS#12 archive.
+// Note: there are multiple possible encodings of PKCS#12 (LegacyRC2, Legacy, Modern). LegacyRC2 is insecure, and Modern may be not compatible with older systems.
+func BuildPKCS12Certificate(entry *CertificateRetrieveEntry, privateKey *ecdsa.PrivateKey, password string) ([]byte, error) {
+	if entry == nil {
+		return nil, fmt.Errorf("certificate entry is nil")
+	}
+	if privateKey == nil {
+		return nil, fmt.Errorf("private key is nil")
+	}
+
+	certBytes, err := base64.StdEncoding.DecodeString(entry.Certificate)
+	if err != nil {
+		return nil, fmt.Errorf("decode certificate: %w", err)
+	}
+
+	cert, err := x509.ParseCertificate(certBytes)
+	if err != nil {
+		return nil, fmt.Errorf("parse certificate: %w", err)
+	}
+
+	pfx, err := pkcs12.Legacy.Encode(privateKey, cert, nil, password)
+	if err != nil {
+		return nil, fmt.Errorf("encode pkcs12: %w", err)
+	}
+
+	return pfx, nil
 }
 
 // RevokeCertificate submits a revocation request for the provided certificate serial number.
