@@ -5,6 +5,7 @@ Based on
 - [article about offline mode due to KSeF failure](https://ksef.podatki.gov.pl/informacje-ogolne-ksef-20/tryb-offline-niedostepnosc-ksef)
 - [article about KSeF failure mode](https://ksef.podatki.gov.pl/informacje-ogolne-ksef-20/tryb-awaryjny)
 - [article about QR codes](https://ksef.podatki.gov.pl/informacje-ogolne-ksef-20/kody-weryfikujace-qr/)
+- [QR codes documentation](https://github.com/CIRFMF/ksef-docs/blob/main/kody-qr.md)
 
 This is a mode where invoices are not uploaded immediately to KSeF, but are stored locally and uploaded later. It can be used in the following cases:
 
@@ -33,4 +34,25 @@ The URL contains:
 
 ## How to generate QR code with "Certyfikat" text below
 
-..
+Use `api/qr.go` file in this repository, in `GenerateCertificateQrCodeURL` function.
+
+The function assembles the URL containing:
+
+1. Base URL, depending on environment (production, demo, test)
+2. Context NIP
+3. Seller NIP
+4. Certificate serial number
+5. Invoice hash
+
+Then, the URL is hashed and signed using the provided **offline** KSeF certificate (**not** the one used for authentication). Other certificates (qualified, KSeF online) won't work.
+
+When using a RSA certificate, use the following parameters for signing:
+- RSASSA-PSS algorithm
+- Hash algorithm: SHA-256
+- MGF1 with SHA-256
+- Salt length: 32 bytes
+
+When using a ECDSA certificate, use the following parameters for signing:
+- Hash algorithm: SHA-256
+- Curve: secp256r1
+- IEEE P1363 format
