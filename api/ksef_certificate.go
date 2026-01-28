@@ -2,8 +2,9 @@ package api
 
 import (
 	"context"
+	"crypto/ecdsa"
+	"crypto/elliptic"
 	"crypto/rand"
-	"crypto/rsa"
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/asn1"
@@ -54,16 +55,17 @@ func (c *Client) GetCertificateEnrollmentData(ctx context.Context) (*Certificate
 }
 
 // GenerateCSR builds a PKCS#10 certificate signing request encoded in Base64.
-// The private key must be RSA and match the public key that will be embedded in the CSR.
-func (d *CertificateEnrollmentData) GenerateCSR(privateKey *rsa.PrivateKey) (string, error) {
+// The private key must be EC (secp256r1) and match the public key that will be embedded in the CSR.
+// API documentation says that both RSA and EC keys are supported, but EC is recommended.
+func (d *CertificateEnrollmentData) GenerateCSR(privateKey *ecdsa.PrivateKey) (string, error) {
 	if d == nil {
 		return "", fmt.Errorf("certificate enrollment data is nil")
 	}
 	if privateKey == nil {
 		return "", fmt.Errorf("private key is nil")
 	}
-	if err := privateKey.Validate(); err != nil {
-		return "", fmt.Errorf("invalid private key: %w", err)
+	if privateKey.Curve != elliptic.P256() {
+		return "", fmt.Errorf("unsupported EC curve: expected P-256")
 	}
 
 	subject, err := d.asPkixName()
@@ -73,7 +75,7 @@ func (d *CertificateEnrollmentData) GenerateCSR(privateKey *rsa.PrivateKey) (str
 
 	template := &x509.CertificateRequest{
 		Subject:            subject,
-		SignatureAlgorithm: x509.SHA256WithRSA,
+		SignatureAlgorithm: x509.ECDSAWithSHA256,
 	}
 
 	csr, err := x509.CreateCertificateRequest(rand.Reader, template, privateKey)

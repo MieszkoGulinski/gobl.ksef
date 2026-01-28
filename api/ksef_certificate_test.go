@@ -1,8 +1,9 @@
 package api
 
 import (
+	"crypto/ecdsa"
+	"crypto/elliptic"
 	"crypto/rand"
-	"crypto/rsa"
 	"crypto/x509"
 	"encoding/base64"
 	"testing"
@@ -12,7 +13,7 @@ import (
 )
 
 func TestGenerateCSR(t *testing.T) {
-	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
+	privateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	require.NoError(t, err)
 
 	data := &CertificateEnrollmentData{
