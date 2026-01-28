@@ -112,8 +112,8 @@ func main() {
         log.Fatal(err)
     }
 
-    // CreateCertificate runs the whole flow: fetch data, generate CSR, submit, and poll.
-    result, err := client.CreateCertificate(
+    // CreateKsefCertificate runs the whole flow: fetch data, generate CSR, submit, and poll.
+    serialNumber, err := client.CreateKsefCertificate(
         ctx,
         "My Auth Cert",
         ksef.CertificateTypeAuthentication,
@@ -123,7 +123,7 @@ func main() {
     if err != nil {
         log.Fatal(err)
     }
-    log.Printf("Certificate request completed at %s", result.Status.RequestDate.Format(time.RFC3339))
+    log.Printf("Certificate request completed, serial number %s", serialNumber)
 
     // Once you obtain the certificate serial number from subsequent steps,
     // you can revoke it at any time:

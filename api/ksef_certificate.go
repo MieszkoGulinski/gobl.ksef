@@ -57,15 +57,11 @@ type CertificateEnrollmentResponse struct {
 }
 
 // CertificateCreationResult bundles the responses returned during certificate creation.
-type CertificateCreationResult struct {
-	Enrollment *CertificateEnrollmentResponse
-	Status     *CertificateEnrollmentStatusResponse
-}
-
 // CertificateEnrollmentStatusResponse describes the status returned for an enrollment reference number.
 type CertificateEnrollmentStatusResponse struct {
-	RequestDate time.Time                    `json:"requestDate"`
-	Status      *CertificateEnrollmentStatus `json:"status"`
+	RequestDate             time.Time                    `json:"requestDate"`
+	Status                  *CertificateEnrollmentStatus `json:"status"`
+	CertificateSerialNumber string                       `json:"certificateSerialNumber,omitempty"`
 }
 
 // CertificateEnrollmentStatus mirrors the StatusInfo structure returned by the API.
@@ -140,36 +136,37 @@ func (c *Client) EnrollCertificate(ctx context.Context, certificateName string, 
 	return response, nil
 }
 
-// CreateCertificate orchestrates the full flow of requesting a KSeF certificate using the provided key material.
-func (c *Client) CreateCertificate(ctx context.Context, certificateName string, certificateType CertificateType, privateKey *ecdsa.PrivateKey, validFrom *time.Time) (*CertificateCreationResult, error) {
+// CreateKsefCertificate orchestrates the full flow of requesting a KSeF certificate using the provided key material.
+// Returns the certificate serial number once the request succeeds.
+func (c *Client) CreateKsefCertificate(ctx context.Context, certificateName string, certificateType CertificateType, privateKey *ecdsa.PrivateKey, validFrom *time.Time) (string, error) {
 	if privateKey == nil {
-		return nil, fmt.Errorf("private key is required")
+		return "", fmt.Errorf("private key is required")
 	}
 
 	enrollmentData, err := c.GetCertificateEnrollmentData(ctx)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	csr, err := enrollmentData.GenerateCSR(privateKey)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	enrollmentResp, err := c.EnrollCertificate(ctx, certificateName, certificateType, csr, validFrom)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	statusResp, err := c.PollCertificateEnrollmentStatus(ctx, enrollmentResp.ReferenceNumber)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	return &CertificateCreationResult{
-		Enrollment: enrollmentResp,
-		Status:     statusResp,
-	}, nil
+	if statusResp.CertificateSerialNumber == "" {
+		return "", fmt.Errorf("certificate serial number missing in enrollment status response")
+	}
+	return statusResp.CertificateSerialNumber, nil
 }
 
 // RevokeCertificate submits a revocation request for the provided certificate serial number.
