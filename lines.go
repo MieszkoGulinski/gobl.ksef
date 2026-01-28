@@ -174,8 +174,8 @@ func NewOrderLines(lines []*bill.Line, cu uint32) []*OrderLine {
 	return orderLines
 }
 
-// toGOBL converts a KSEF Line to a GOBL Line.
-func (l *Line) toGOBL() (*bill.Line, error) {
+// ToGOBL converts a KSEF Line to a GOBL Line.
+func (l *Line) ToGOBL() (*bill.Line, error) {
 	line := &bill.Line{
 		Item: &org.Item{
 			Name: l.Name,

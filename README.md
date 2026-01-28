@@ -64,6 +64,9 @@ FA_VAT is the Polish electronic invoice format. The format uses XML.
 - [Types definition](https://raw.githubusercontent.com/CIRFMF/ksef-docs/refs/heads/main/faktury/schemy/FA/bazowe/ElementarneTypyDanych_v10-0E.xsd) (description of fields is in Polish) - we have to open it as raw, as [the original link](https://github.com/CIRFMF/ksef-docs/blob/main/faktury/schemy/FA/bazowe/StrukturyDanych_v10-0E.xsd) does not add newlines
 - [Complex types definition](https://raw.githubusercontent.com/CIRFMF/ksef-docs/refs/heads/main/faktury/schemy/FA/bazowe/StrukturyDanych_v10-0E.xsd) (description of fields is in Polish) - we have to open it as raw, as [the original link](https://github.com/CIRFMF/ksef-docs/blob/main/faktury/schemy/FA/bazowe/StrukturyDanych_v10-0E.xsd) does not add newlines
 
+## Parsing
+The parsing is in MVP and some cases are not entirely handle. They will be handle little by little once we start facing them. There might be cases where the invoices from the tax agency don't come with lines, which makes it difficult to parse on our sie as we would need to fake lines.
+
 ## KSeF API
 
 KSeF is the Polish system for submitting electronic invoices to the Polish authorities.

@@ -281,8 +281,8 @@ func newThirdPartyFromIdentity(identity *org.Identity) *ThirdParty {
 	return thirdParty
 }
 
-// toGOBL converts a KSEF Seller to a GOBL Party (supplier).
-func (s *Seller) toGOBL() *org.Party {
+// ToGOBL converts a KSEF Seller to a GOBL Party (supplier).
+func (s *Seller) ToGOBL() *org.Party {
 	party := &org.Party{
 		Name: s.Name,
 	}
@@ -317,8 +317,8 @@ func (s *Seller) toGOBL() *org.Party {
 	return party
 }
 
-// toGOBL converts a KSEF Buyer to a GOBL Party (customer).
-func (b *Buyer) toGOBL() *org.Party {
+// ToGOBL converts a KSEF Buyer to a GOBL Party (customer).
+func (b *Buyer) ToGOBL() *org.Party {
 	// Check if buyer has no ID (simplified invoice)
 	if b.NoID == 1 {
 		return nil

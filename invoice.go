@@ -552,7 +552,7 @@ func (inv *Inv) parseLines(goblInv *bill.Invoice) error {
 	goblInv.Lines = make([]*bill.Line, 0, len(inv.Lines))
 
 	for _, ksefLine := range inv.Lines {
-		line, err := ksefLine.toGOBL()
+		line, err := ksefLine.ToGOBL()
 		if err != nil {
 			return fmt.Errorf("parsing line %d: %w", ksefLine.LineNumber, err)
 		}

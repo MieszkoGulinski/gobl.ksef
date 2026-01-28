@@ -269,3 +269,27 @@ func TestNewPayment(t *testing.T) {
 		assert.Equal(t, result, pay)
 	})
 }
+
+func TestParsePaymentMeansCode(t *testing.T) {
+	tests := []struct {
+		name     string
+		code     string
+		expected string
+	}{
+		{"Cash payment", "1", "cash"},
+		{"Card payment", "2", "card"},
+		{"Voucher payment", "3", "other+voucher"},
+		{"Cheque payment", "4", "cheque"},
+		{"Credit payment", "5", "other+credit"},
+		{"Credit transfer", "6", "credit-transfer"},
+		{"Online payment", "7", "online"},
+		{"Unknown code", "99", "any"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := ksef.ParsePaymentMeansCode(tt.code)
+			assert.Equal(t, tt.expected, result.String())
+		})
+	}
+}

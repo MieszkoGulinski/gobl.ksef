@@ -147,12 +147,12 @@ func parseCurrency(code string) cbc.Code {
 func (d *Invoice) parseParties(inv *bill.Invoice) {
 	// Parse supplier (Podmiot1)
 	if d.Seller != nil {
-		inv.Supplier = d.Seller.toGOBL()
+		inv.Supplier = d.Seller.ToGOBL()
 	}
 
 	// Parse customer (Podmiot2)
 	if d.Buyer != nil {
-		inv.Customer = d.Buyer.toGOBL()
+		inv.Customer = d.Buyer.ToGOBL()
 	}
 
 	// Parse third parties (Podmiot3)

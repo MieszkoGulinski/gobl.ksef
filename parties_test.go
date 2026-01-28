@@ -834,3 +834,171 @@ func TestNewThirdParties(t *testing.T) {
 		assert.Equal(t, "B12345678", thirdParties[0].UEVatNumber)
 	})
 }
+
+func TestSellerToGOBL(t *testing.T) {
+	t.Run("converts Polish seller to GOBL party", func(t *testing.T) {
+		seller := &ksef.Seller{
+			VATPrefix: "PL",
+			NIP:       "1234567890",
+			Name:      "Test Company Sp. z o.o.",
+			Address: &ksef.Address{
+				CountryCode: "PL",
+				AddressL1:   "ul. Testowa 123, 00-001 Warszawa",
+			},
+		}
+
+		party := seller.ToGOBL()
+
+		assert.Equal(t, "Test Company Sp. z o.o.", party.Name)
+		assert.NotNil(t, party.TaxID)
+		assert.Equal(t, l10n.PL.Tax(), party.TaxID.Country)
+		assert.Equal(t, "1234567890", string(party.TaxID.Code))
+		assert.Len(t, party.Addresses, 1)
+		assert.Equal(t, l10n.PL.ISO(), party.Addresses[0].Country)
+	})
+
+	t.Run("converts EU seller with different VAT prefix", func(t *testing.T) {
+		seller := &ksef.Seller{
+			VATPrefix: "DE",
+			NIP:       "123456789",
+			Name:      "German Company GmbH",
+			Address: &ksef.Address{
+				CountryCode: "DE",
+				AddressL1:   "Hauptstraße 10, 10115 Berlin",
+			},
+		}
+
+		party := seller.ToGOBL()
+
+		assert.NotNil(t, party.TaxID)
+		assert.Equal(t, l10n.DE.Tax(), party.TaxID.Country)
+		assert.Equal(t, "123456789", string(party.TaxID.Code))
+	})
+
+	t.Run("converts seller with contact info", func(t *testing.T) {
+		seller := &ksef.Seller{
+			VATPrefix: "PL",
+			NIP:       "1234567890",
+			Name:      "Test Company",
+			Contact: &ksef.ContactDetails{
+				Phone: "+48 123 456 789",
+				Email: "contact@test.pl",
+			},
+		}
+
+		party := seller.ToGOBL()
+
+		assert.Len(t, party.Telephones, 1)
+		assert.Equal(t, "+48 123 456 789", party.Telephones[0].Number)
+		assert.Len(t, party.Emails, 1)
+		assert.Equal(t, "contact@test.pl", party.Emails[0].Address)
+	})
+
+	t.Run("converts seller without address", func(t *testing.T) {
+		seller := &ksef.Seller{
+			VATPrefix: "PL",
+			NIP:       "1234567890",
+			Name:      "Test Company",
+		}
+
+		party := seller.ToGOBL()
+
+		assert.Empty(t, party.Addresses)
+	})
+}
+
+func TestBuyerToGOBL(t *testing.T) {
+	t.Run("converts Polish buyer to GOBL party", func(t *testing.T) {
+		buyer := &ksef.Buyer{
+			NIP:  "9876543210",
+			Name: "Polish Buyer Sp. z o.o.",
+			Address: &ksef.Address{
+				CountryCode: "PL",
+				AddressL1:   "ul. Kupiecka 45, 00-002 Kraków",
+			},
+		}
+
+		party := buyer.ToGOBL()
+
+		assert.Equal(t, "Polish Buyer Sp. z o.o.", party.Name)
+		assert.NotNil(t, party.TaxID)
+		assert.Equal(t, l10n.PL.Tax(), party.TaxID.Country)
+		assert.Equal(t, "9876543210", string(party.TaxID.Code))
+	})
+
+	t.Run("converts EU buyer with UE code", func(t *testing.T) {
+		buyer := &ksef.Buyer{
+			UECode:      "DE",
+			UEVatNumber: "123456789",
+			Name:        "German Buyer",
+			Address: &ksef.Address{
+				CountryCode: "DE",
+				AddressL1:   "Hauptstraße 10",
+			},
+		}
+
+		party := buyer.ToGOBL()
+
+		assert.NotNil(t, party.TaxID)
+		assert.Equal(t, l10n.DE.Tax(), party.TaxID.Country)
+		assert.Equal(t, "123456789", string(party.TaxID.Code))
+	})
+
+	t.Run("converts non-EU buyer with country code", func(t *testing.T) {
+		buyer := &ksef.Buyer{
+			CountryCode: "US",
+			IDNumber:    "12-3456789",
+			Name:        "US Buyer",
+			Address: &ksef.Address{
+				CountryCode: "US",
+				AddressL1:   "Main Street 100",
+			},
+		}
+
+		party := buyer.ToGOBL()
+
+		assert.NotNil(t, party.TaxID)
+		assert.Equal(t, l10n.US.Tax(), party.TaxID.Country)
+		assert.Equal(t, "12-3456789", string(party.TaxID.Code))
+	})
+
+	t.Run("converts buyer with NoID set to nil", func(t *testing.T) {
+		buyer := &ksef.Buyer{
+			NoID: 1,
+			Name: "Consumer",
+		}
+
+		party := buyer.ToGOBL()
+
+		assert.Nil(t, party)
+	})
+
+	t.Run("converts buyer with contact info", func(t *testing.T) {
+		buyer := &ksef.Buyer{
+			NIP:  "1234567890",
+			Name: "Test Buyer",
+			Contact: &ksef.ContactDetails{
+				Phone: "+48 987 654 321",
+				Email: "buyer@example.pl",
+			},
+		}
+
+		party := buyer.ToGOBL()
+
+		assert.Len(t, party.Telephones, 1)
+		assert.Equal(t, "+48 987 654 321", party.Telephones[0].Number)
+		assert.Len(t, party.Emails, 1)
+		assert.Equal(t, "buyer@example.pl", party.Emails[0].Address)
+	})
+
+	t.Run("converts buyer without address", func(t *testing.T) {
+		buyer := &ksef.Buyer{
+			NIP:  "1234567890",
+			Name: "Test Buyer",
+		}
+
+		party := buyer.ToGOBL()
+
+		assert.Empty(t, party.Addresses)
+	})
+}

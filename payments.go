@@ -167,7 +167,7 @@ func (inv *Inv) parsePayment(goblInv *bill.Invoice) error {
 
 		// Parse payment means
 		if inv.Payment.PaymentMean != "" {
-			payment.Instructions.Key = parsePaymentMeansCode(inv.Payment.PaymentMean)
+			payment.Instructions.Key = ParsePaymentMeansCode(inv.Payment.PaymentMean)
 			payment.Instructions.Ext[favat.ExtKeyPaymentMeans] = cbc.Code(inv.Payment.PaymentMean)
 		} else if inv.Payment.OtherPaymentMeanMarker == "1" {
 			payment.Instructions.Key = cbc.Key(inv.Payment.OtherPaymentMean)
@@ -242,8 +242,8 @@ func (inv *Inv) parsePayment(goblInv *bill.Invoice) error {
 	return nil
 }
 
-// parsePaymentMeansCode converts KSEF payment means code to GOBL payment key.
-func parsePaymentMeansCode(code string) cbc.Key {
+// ParsePaymentMeansCode converts KSEF payment means code to GOBL payment key.
+func ParsePaymentMeansCode(code string) cbc.Key {
 	switch code {
 	case "1":
 		return pay.MeansKeyCash
