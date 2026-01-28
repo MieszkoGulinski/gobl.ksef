@@ -92,6 +92,7 @@ func (c *Client) GetCertificateEnrollmentData(ctx context.Context) (*Certificate
 }
 
 // EnrollCertificate submits the generated CSR and returns reference metadata.
+// validFrom is optional, if not provided, the certificate will be valid from the current date.
 func (c *Client) EnrollCertificate(ctx context.Context, certificateName string, certificateType CertificateType, csr string, validFrom *time.Time) (*CertificateEnrollmentResponse, error) {
 	if certificateName == "" {
 		return nil, fmt.Errorf("certificateName is required")

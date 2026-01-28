@@ -72,3 +72,81 @@ A video tutorial (in Polish) about using Aplikacja Podatnika is available [here]
 7. Client application, being authenticated as the user, generates a KSeF certificate and saves it for later use
 
 Steps from 2 to 6 must be done in 5 minutes, otherwise the authentication challenge expires. See [here](./authentication.md) for details about the authentication process.
+
+### Creating a KSeF certificate using this library
+
+`gobl.ksef` library exposes functions that allow requesting a KSeF certificate.
+
+How to use them:
+```go
+package main
+
+import (
+    "context"
+    "crypto/ecdsa"
+    "crypto/elliptic"
+    "crypto/rand"
+    "log"
+    "time"
+
+    ksef "github.com/invopop/gobl.ksef/api"
+)
+
+func main() {
+    ctx := context.Background()
+
+    // Load the certificate used to authenticate against KSeF (not the new one yet).
+    certificateData, err := ksef.LoadCertificate("./path/to/auth-certificate.pfx")
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    client := ksef.NewClient(&ksef.ContextIdentifier{Nip: "1234567890"}, certificateData)
+    if err := client.Authenticate(ctx); err != nil {
+        log.Fatal(err)
+    }
+
+    // 1. Obtain required data that must go into the CSR subject
+    enrollmentData, err := client.GetCertificateEnrollmentData(ctx)
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    // 2. Create ECDSA key pair that will represent the new KSeF certificate
+    privateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    // 3. Create the CSR using the attributes returned by the API
+    csr, err := enrollmentData.GenerateCSR(privateKey)
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    // 4. Submit request to create the certificate
+    enrollmentResp, err := client.EnrollCertificate(
+        ctx,
+        "My Auth Cert",
+        ksef.CertificateTypeAuthentication,
+        csr,
+        nil, // optional validFrom
+    )
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    // 5. Poll endpoint until KSeF finishes processing the request (status 200)
+    statusResp, err := client.PollCertificateEnrollmentStatus(ctx, enrollmentResp.ReferenceNumber)
+    if err != nil {
+        log.Fatal(err)
+    }
+    log.Printf("Certificate request completed at %s", statusResp.RequestDate.Format(time.RFC3339))
+
+    // 6. Once you learn the certificate serial number from subsequent steps,
+    //    you can revoke it at any time:
+    if err := client.RevokeCertificate(ctx, "0123ABCD4567EF89"); err != nil {
+        log.Fatal(err)
+    }
+}
+```
