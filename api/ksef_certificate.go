@@ -2,7 +2,9 @@ package api
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"net/url"
 	"time"
 )
 
@@ -26,6 +28,11 @@ const (
 	CertificateTypeOffline        CertificateType = "Offline"
 )
 
+var (
+	ErrCertificateEnrollmentPollingCountExceeded = errors.New("certificate enrollment polling count exceeded")
+	ErrCertificateEnrollmentFailed               = errors.New("certificate enrollment failed")
+)
+
 func (t CertificateType) isValid() bool {
 	switch t {
 	case CertificateTypeAuthentication, CertificateTypeOffline:
@@ -46,6 +53,19 @@ type certificateEnrollmentRequest struct {
 type CertificateEnrollmentResponse struct {
 	ReferenceNumber string `json:"referenceNumber"`
 	Timestamp       string `json:"timestamp"`
+}
+
+// CertificateEnrollmentStatusResponse describes the status returned for an enrollment reference number.
+type CertificateEnrollmentStatusResponse struct {
+	RequestDate time.Time                    `json:"requestDate"`
+	Status      *CertificateEnrollmentStatus `json:"status"`
+}
+
+// CertificateEnrollmentStatus mirrors the StatusInfo structure returned by the API.
+type CertificateEnrollmentStatus struct {
+	Code        int      `json:"code"`
+	Description string   `json:"description"`
+	Details     []string `json:"details,omitempty"`
 }
 
 // GetCertificateEnrollmentData returns the identification data used when building a new CSR.
@@ -110,4 +130,60 @@ func (c *Client) EnrollCertificate(ctx context.Context, certificateName string, 
 	}
 
 	return response, nil
+}
+
+// GetCertificateEnrollmentStatus returns processing status for the specified certificate request reference number.
+func (c *Client) GetCertificateEnrollmentStatus(ctx context.Context, referenceNumber string) (*CertificateEnrollmentStatusResponse, error) {
+	if referenceNumber == "" {
+		return nil, fmt.Errorf("referenceNumber is required")
+	}
+
+	token, err := c.getAccessToken(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CertificateEnrollmentStatusResponse{}
+	resp, err := c.client.R().
+		SetContext(ctx).
+		SetAuthToken(token).
+		SetResult(response).
+		Get(c.url + "/certificates/enrollments/" + url.PathEscape(referenceNumber))
+	if err != nil {
+		return nil, err
+	}
+	if resp.IsError() {
+		return nil, newErrorResponse(resp)
+	}
+
+	return response, nil
+}
+
+// PollCertificateEnrollmentStatus keeps querying enrollment status until it succeeds or fails.
+func (c *Client) PollCertificateEnrollmentStatus(ctx context.Context, referenceNumber string) (*CertificateEnrollmentStatusResponse, error) {
+	attempt := 0
+	for {
+		attempt++
+		if attempt > 30 {
+			return nil, ErrCertificateEnrollmentPollingCountExceeded
+		}
+
+		statusResp, err := c.GetCertificateEnrollmentStatus(ctx, referenceNumber)
+		if err != nil {
+			return nil, err
+		}
+		if statusResp == nil || statusResp.Status == nil {
+			return nil, fmt.Errorf("certificate enrollment status response missing status")
+		}
+
+		switch statusResp.Status.Code {
+		case 200:
+			return statusResp, nil
+		case 100:
+			time.Sleep(2 * time.Second)
+			continue
+		default:
+			return nil, fmt.Errorf("%w: %s", ErrCertificateEnrollmentFailed, statusResp.Status.Description)
+		}
+	}
 }

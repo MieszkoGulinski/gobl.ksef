@@ -85,7 +85,7 @@ func GenerateUnsignedCertificateQrCodeURL(environment Environment, contextNip st
 // Private key must come from a KSeF offline certificate (important!). Example how to obtain it:
 // privateKey, _, _, err := pkcs12.DecodeChain(certificateData, certificatePassword)
 func GenerateSignedCertificateQrCodeURL(unsignedUrl string, privateKey crypto.Signer) (string, error) {
-	urlHash := sha256.Sum256([]byte(unsignedUrl))
+	urlHash := sha256.Sum256([]byte(unsignedUrl)) // KSeF requires SHA-256
 
 	var signature []byte
 	var err error
