@@ -2,14 +2,8 @@ package api
 
 import (
 	"context"
-	"crypto/ecdsa"
-	"crypto/elliptic"
-	"crypto/rand"
-	"crypto/x509"
-	"crypto/x509/pkix"
-	"encoding/asn1"
-	"encoding/base64"
 	"fmt"
+	"time"
 )
 
 // CertificateEnrollmentData stores the subject data required to prepare a certificate request.
@@ -24,12 +18,35 @@ type CertificateEnrollmentData struct {
 	OrganizationIdentifier string `json:"organizationIdentifier,omitempty"`
 }
 
-var (
-	oidSurname                = asn1.ObjectIdentifier{2, 5, 4, 4}
-	oidGivenName              = asn1.ObjectIdentifier{2, 5, 4, 42}
-	oidUniqueIdentifier       = asn1.ObjectIdentifier{2, 5, 4, 45}
-	oidOrganizationIdentifier = asn1.ObjectIdentifier{2, 5, 4, 97}
+// CertificateType identifies the target certificate flavor.
+type CertificateType string
+
+const (
+	CertificateTypeAuthentication CertificateType = "Authentication"
+	CertificateTypeOffline        CertificateType = "Offline"
 )
+
+func (t CertificateType) isValid() bool {
+	switch t {
+	case CertificateTypeAuthentication, CertificateTypeOffline:
+		return true
+	default:
+		return false
+	}
+}
+
+type certificateEnrollmentRequest struct {
+	CertificateName string          `json:"certificateName"`
+	CertificateType CertificateType `json:"certificateType"`
+	CSR             string          `json:"csr"`
+	ValidFrom       *time.Time      `json:"validFrom,omitempty"`
+}
+
+// CertificateEnrollmentResponse stores the response metadata returned after submitting a CSR.
+type CertificateEnrollmentResponse struct {
+	ReferenceNumber string `json:"referenceNumber"`
+	Timestamp       string `json:"timestamp"`
+}
 
 // GetCertificateEnrollmentData returns the identification data used when building a new CSR.
 func (c *Client) GetCertificateEnrollmentData(ctx context.Context) (*CertificateEnrollmentData, error) {
@@ -54,75 +71,43 @@ func (c *Client) GetCertificateEnrollmentData(ctx context.Context) (*Certificate
 	return response, nil
 }
 
-// GenerateCSR builds a PKCS#10 certificate signing request encoded in Base64.
-// The private key must be EC (secp256r1) and match the public key that will be embedded in the CSR.
-// API documentation says that both RSA and EC keys are supported, but EC is recommended.
-func (d *CertificateEnrollmentData) GenerateCSR(privateKey *ecdsa.PrivateKey) (string, error) {
-	if d == nil {
-		return "", fmt.Errorf("certificate enrollment data is nil")
+// EnrollCertificate submits the generated CSR and returns reference metadata.
+func (c *Client) EnrollCertificate(ctx context.Context, certificateName string, certificateType CertificateType, csr string, validFrom *time.Time) (*CertificateEnrollmentResponse, error) {
+	if certificateName == "" {
+		return nil, fmt.Errorf("certificateName is required")
 	}
-	if privateKey == nil {
-		return "", fmt.Errorf("private key is nil")
+	if !certificateType.isValid() {
+		return nil, fmt.Errorf("certificateType is invalid: %s", certificateType)
 	}
-	if privateKey.Curve != elliptic.P256() {
-		return "", fmt.Errorf("unsupported EC curve: expected P-256")
+	if csr == "" {
+		return nil, fmt.Errorf("csr is required")
 	}
 
-	subject, err := d.asPkixName()
+	token, err := c.getAccessToken(ctx)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	template := &x509.CertificateRequest{
-		Subject:            subject,
-		SignatureAlgorithm: x509.ECDSAWithSHA256,
+	request := &certificateEnrollmentRequest{
+		CertificateName: certificateName,
+		CertificateType: certificateType,
+		CSR:             csr,
+		ValidFrom:       validFrom,
 	}
 
-	csr, err := x509.CreateCertificateRequest(rand.Reader, template, privateKey)
+	response := &CertificateEnrollmentResponse{}
+	resp, err := c.client.R().
+		SetContext(ctx).
+		SetAuthToken(token).
+		SetBody(request).
+		SetResult(response).
+		Post(c.url + "/certificates/enrollments")
 	if err != nil {
-		return "", fmt.Errorf("create certificate request: %w", err)
+		return nil, err
+	}
+	if resp.IsError() {
+		return nil, newErrorResponse(resp)
 	}
 
-	return base64.StdEncoding.EncodeToString(csr), nil
-}
-
-func (d *CertificateEnrollmentData) asPkixName() (pkix.Name, error) {
-	if d.CommonName == "" {
-		return pkix.Name{}, fmt.Errorf("commonName is empty")
-	}
-	if d.CountryName == "" {
-		return pkix.Name{}, fmt.Errorf("countryName is empty")
-	}
-	if d.UniqueIdentifier == "" {
-		return pkix.Name{}, fmt.Errorf("uniqueIdentifier is empty")
-	}
-
-	name := pkix.Name{
-		CommonName:   d.CommonName,
-		SerialNumber: d.SerialNumber,
-	}
-
-	if d.CountryName != "" {
-		name.Country = []string{d.CountryName}
-	}
-	if d.OrganizationName != "" {
-		name.Organization = []string{d.OrganizationName}
-	}
-
-	name.ExtraNames = appendAttribute(name.ExtraNames, oidSurname, d.Surname)
-	name.ExtraNames = appendAttribute(name.ExtraNames, oidGivenName, d.GivenName)
-	name.ExtraNames = appendAttribute(name.ExtraNames, oidUniqueIdentifier, d.UniqueIdentifier)
-	name.ExtraNames = appendAttribute(name.ExtraNames, oidOrganizationIdentifier, d.OrganizationIdentifier)
-
-	return name, nil
-}
-
-func appendAttribute(attrs []pkix.AttributeTypeAndValue, oid asn1.ObjectIdentifier, value string) []pkix.AttributeTypeAndValue {
-	if value == "" {
-		return attrs
-	}
-	return append(attrs, pkix.AttributeTypeAndValue{
-		Type:  oid,
-		Value: value,
-	})
+	return response, nil
 }
