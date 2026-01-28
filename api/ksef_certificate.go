@@ -132,6 +132,31 @@ func (c *Client) EnrollCertificate(ctx context.Context, certificateName string, 
 	return response, nil
 }
 
+// RevokeCertificate submits a revocation request for the provided certificate serial number.
+func (c *Client) RevokeCertificate(ctx context.Context, certificateSerialNumber string) error {
+	if certificateSerialNumber == "" {
+		return fmt.Errorf("certificateSerialNumber is required")
+	}
+
+	token, err := c.getAccessToken(ctx)
+	if err != nil {
+		return err
+	}
+
+	resp, err := c.client.R().
+		SetContext(ctx).
+		SetAuthToken(token).
+		Post(c.url + "/certificates/" + url.PathEscape(certificateSerialNumber) + "/revoke")
+	if err != nil {
+		return err
+	}
+	if resp.IsError() {
+		return newErrorResponse(resp)
+	}
+
+	return nil
+}
+
 // GetCertificateEnrollmentStatus returns processing status for the specified certificate request reference number.
 func (c *Client) GetCertificateEnrollmentStatus(ctx context.Context, referenceNumber string) (*CertificateEnrollmentStatusResponse, error) {
 	if referenceNumber == "" {
