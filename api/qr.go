@@ -112,7 +112,7 @@ func GenerateSignedCertificateQrCodeURL(unsignedUrl string, privateKey crypto.Si
 			return "", err
 		}
 	default:
-		return "", fmt.Errorf("Certificate private key must be ECDSA or RSA")
+		return "", fmt.Errorf("certificate private key must be ECDSA or RSA")
 	}
 
 	signatureBase64 := base64.RawURLEncoding.EncodeToString(signature)
