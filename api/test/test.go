@@ -7,6 +7,7 @@ import (
 	"context"
 
 	ksef_api "github.com/invopop/gobl.ksef/api"
+	"github.com/invopop/xmldsig"
 	//"github.com/jarcoal/httpmock"
 )
 
@@ -28,14 +29,14 @@ func Client() (*ksef_api.Client, error) {
 	// httpmock.RegisterResponder("POST", "https://ksef-test.mf.gov.pl/api/online/Session/InitToken",
 	// 	httpmock.NewJsonResponderOrPanic(200, &ksef_api.InitSessionTokenResponse{ReferenceNumber: "ExampleReferenceNumber", SessionToken: &ksef_api.SessionToken{Token: sessionToken}}))
 
-	certData, err := ksef_api.LoadCertificate("api/test/cert-20260102-131809.pfx")
+	cert, err := xmldsig.LoadCertificate("api/test/cert-20260102-131809.pfx", "")
 	if err != nil {
 		return nil, err
 	}
 
 	client := ksef_api.NewClient(
 		&ksef_api.ContextIdentifier{Nip: "8126178616"},
-		certData,
+		cert,
 	)
 
 	ctx := context.Background()

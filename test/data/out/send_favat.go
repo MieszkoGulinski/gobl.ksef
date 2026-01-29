@@ -7,6 +7,7 @@ import (
 	"os"
 
 	ksef_api "github.com/invopop/gobl.ksef/api"
+	"github.com/invopop/xmldsig"
 )
 
 func main() {
@@ -35,14 +36,14 @@ func main() {
 
 	// Create API client
 	fmt.Println("Step 2: Authenticating with KSeF...")
-	certData, err := ksef_api.LoadCertificate(certPath)
+	cert, err := xmldsig.LoadCertificate(certPath, "")
 	if err != nil {
 		log.Fatalf("Failed to load certificate: %v", err)
 	}
 
 	client := ksef_api.NewClient(
 		&ksef_api.ContextIdentifier{Nip: nip},
-		certData,
+		cert,
 	)
 
 	ctx := context.Background()

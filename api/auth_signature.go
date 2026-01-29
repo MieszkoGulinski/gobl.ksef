@@ -49,11 +49,13 @@ func (c *Client) buildSignedAuthorizationRequest(challenge *authorizationChallen
 	}
 
 	// Sign
-	cert, _ := xmldsig.LoadCertificate(c.certificatePath, "")
-	signature, _ := xmldsig.Sign([]byte(unsignedXML),
-		xmldsig.WithCertificate(cert),
+	signature, err := xmldsig.Sign([]byte(unsignedXML),
+		xmldsig.WithCertificate(c.certificate),
 		xmldsig.WithKSeF(),
 	)
+	if err != nil {
+		return nil, err
+	}
 
 	// attach signature to XML
 	signatureXML, err := xml.Marshal(signature)
