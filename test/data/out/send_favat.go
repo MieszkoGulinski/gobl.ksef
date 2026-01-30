@@ -6,8 +6,8 @@ import (
 	"log"
 	"os"
 
+	"github.com/MieszkoGulinski/xmldsig"
 	ksef_api "github.com/invopop/gobl.ksef/api"
-	"github.com/invopop/xmldsig"
 )
 
 func main() {

@@ -4,8 +4,8 @@ import (
 	"encoding/xml"
 	"errors"
 
+	"github.com/MieszkoGulinski/xmldsig"
 	"github.com/beevik/etree"
-	"github.com/invopop/xmldsig"
 )
 
 var ErrCertificatePrivateKeyNotRSA = errors.New("certificate private key is not RSA, goxades only supports RSA")

@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/MieszkoGulinski/xmldsig"
 	ksef_api "github.com/invopop/gobl.ksef/api"
-	"github.com/invopop/xmldsig"
 	"github.com/stretchr/testify/require"
 )
 

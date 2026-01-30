@@ -6,8 +6,8 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/MieszkoGulinski/xmldsig"
 	"github.com/go-resty/resty/v2"
-	"github.com/invopop/xmldsig"
 )
 
 // ErrCertificateNotConfigured indicates that the client certificate is missing.

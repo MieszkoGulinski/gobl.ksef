@@ -7,11 +7,11 @@ import (
 	"io"
 	"os"
 
+	"github.com/MieszkoGulinski/xmldsig"
 	"github.com/invopop/gobl"
 	ksef "github.com/invopop/gobl.ksef"
 	ksef_api "github.com/invopop/gobl.ksef/api"
 	"github.com/invopop/gobl/bill"
-	"github.com/invopop/xmldsig"
 	"github.com/spf13/cobra"
 )
 
