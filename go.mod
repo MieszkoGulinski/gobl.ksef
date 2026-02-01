@@ -5,14 +5,13 @@ go 1.24.0
 toolchain go1.24.3
 
 require (
-	github.com/MieszkoGulinski/xmldsig v0.1.0
-	github.com/beevik/etree v1.5.1
+	github.com/beevik/etree v1.6.0
 	github.com/go-resty/resty/v2 v2.16.5
 	github.com/invopop/gobl v0.307.0
+	github.com/invopop/xmldsig v0.11.1-0.20260201164905-6c78263d44ef
 	github.com/joho/godotenv v1.5.1
 	github.com/spf13/cobra v1.9.1
 	github.com/terminalstatic/go-xsd-validate v0.1.5
-	software.sslmate.com/src/go-pkcs12 v0.5.0
 )
 
 require (
@@ -21,11 +20,10 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/go-jose/go-jose/v4 v4.1.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
-	github.com/invopop/xmldsig v0.11.0 // indirect
 	github.com/invopop/yaml v0.3.1 // indirect
 	github.com/jonboulle/clockwork v0.5.0 // indirect
 	github.com/magefile/mage v1.15.0 // indirect
-	github.com/mailru/easyjson v0.9.0 // indirect
+	github.com/mailru/easyjson v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/russellhaering/goxmldsig v1.5.0 // indirect
 	github.com/spf13/pflag v1.0.6 // indirect
@@ -33,6 +31,7 @@ require (
 	golang.org/x/crypto v0.47.0 // indirect
 	golang.org/x/net v0.48.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
+	software.sslmate.com/src/go-pkcs12 v0.7.0 // indirect
 )
 
 require (
@@ -42,5 +41,7 @@ require (
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/invopop/jsonschema v0.13.0 // indirect
 	github.com/invopop/validation v0.8.0 // indirect
-	github.com/stretchr/testify v1.10.0
+	github.com/stretchr/testify v1.11.1
 )
+
+// replace github.com/invopop/xmldsig => ../xmldsig
