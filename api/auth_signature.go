@@ -1,21 +1,16 @@
 package api
 
 import (
-	"crypto"
-	"crypto/rsa"
+	"encoding/xml"
 	"errors"
 
-	xades "github.com/MieszkoGulinski/goxades"
 	"github.com/beevik/etree"
-	dsig "github.com/russellhaering/goxmldsig"
-	"software.sslmate.com/src/go-pkcs12"
+	"github.com/invopop/xmldsig"
 )
 
 var ErrCertificatePrivateKeyNotRSA = errors.New("certificate private key is not RSA, goxades only supports RSA")
 
 func (c *Client) buildSignedAuthorizationRequest(challenge *authorizationChallengeResponse, contextIdentifier *ContextIdentifier) ([]byte, error) {
-	// I tried to use the github.com/invopop/xmldsig library, but it doesn't work, as it has many options hardcoded that aren't compatible with the KSEF API
-
 	// 1. Assembly the XML request - the signing library requires XML as an etree object
 
 	doc := etree.NewDocument()
@@ -48,53 +43,30 @@ func (c *Client) buildSignedAuthorizationRequest(challenge *authorizationChallen
 	}
 	root.CreateElement("SubjectIdentifierType").SetText(subjectIdentifierType)
 
-	// 2. Extract private key and certificate from the P12/PFX certificate data
-	privateKey, cert, _, err :=
-		pkcs12.DecodeChain(c.certificateData, c.certificatePassword)
+	unsignedXML, err := doc.WriteToString()
 	if err != nil {
 		return nil, err
 	}
 
-	rsaKey, ok := privateKey.(*rsa.PrivateKey)
-	if !ok {
-		return nil, ErrCertificatePrivateKeyNotRSA
-	}
-
-	store := xades.MemoryX509KeyStore{
-		PrivateKey: rsaKey,
-		Cert:       cert,
-		CertBinary: cert.Raw,
-	}
-
-	// 3. Sign the XML request
-	canonicalizerSignedInfo := dsig.MakeC14N10ExclusiveCanonicalizerWithPrefixList("") // http://www.w3.org/TR/2001/REC-xml-c14n-20010315
-	// Using exclusive canonicalizer resulted in xsi and xsd attributes disappearing from AuthTokenRequest
-	canonicalizerData := dsig.MakeC14N10RecCanonicalizer()                              // http://www.w3.org/TR/2001/REC-xml-c14n-20010315
-	canonicalizerSignedProps := dsig.MakeC14N10ExclusiveCanonicalizerWithPrefixList("") // http://www.w3.org/2001/10/xml-exc-c14n#
-
-	// Taken from example in library docs
-	signContext := xades.SigningContext{
-		DataContext: xades.SignedDataContext{
-			Canonicalizer: canonicalizerData,
-			Hash:          crypto.SHA256,
-			ReferenceURI:  "",
-			IsEnveloped:   true,
-		},
-		PropertiesContext: xades.SignedPropertiesContext{
-			Canonicalizer: canonicalizerSignedProps,
-			Hash:          crypto.SHA256,
-		},
-		Canonicalizer:     canonicalizerSignedInfo,
-		Hash:              crypto.SHA256,
-		KeyStore:          store,
-		IssuerSerializer:  xades.IssuerSerializerKSeF,
-		SigningTimeFormat: xades.SigningTimeFormatKSeF,
-	}
-	signature, err := xades.CreateSignature(root, &signContext)
+	// Sign
+	signature, err := xmldsig.Sign([]byte(unsignedXML),
+		xmldsig.WithCertificate(c.certificate),
+		xmldsig.WithKSeF(),
+	)
 	if err != nil {
 		return nil, err
 	}
-	root.AddChild(signature)
+
+	// attach signature to XML
+	signatureXML, err := xml.Marshal(signature)
+	if err != nil {
+		return nil, err
+	}
+	sigDoc := etree.NewDocument()
+	if err := sigDoc.ReadFromBytes(signatureXML); err != nil {
+		return nil, err
+	}
+	root.AddChild(sigDoc.Root())
 
 	signedXML, err := doc.WriteToString()
 	if err != nil {
