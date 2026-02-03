@@ -1,8 +1,15 @@
 # GOBL ↔ KSeF Conversion
 
-Convert GOBL to the Polish FA_VAT XML format (and, in future, back from KSeF into GOBL).
+Bidirectional conversion between GOBL and the Polish FA_VAT XML format (KSeF).
 
-The main conversion entrypoints are `ksef.BuildFAVAT` (model) and `ksef.MarshalFAVAT` (XML bytes).
+## Main Conversion Entrypoints
+
+**GOBL → KSeF:**
+- `ksef.BuildFavat(env *gobl.Envelope) (*Invoice, error)` - Converts a GOBL envelope to a KSeF FA_VAT invoice model
+- `(*Invoice).Bytes() ([]byte, error)` - Returns the XML representation as bytes
+
+**KSeF → GOBL:**
+- `ksef.ParseKSeF(xmlData []byte) (*gobl.Envelope, error)` - Converts KSeF FA_VAT XML to a GOBL envelope
 
 Copyright [Invopop Ltd.](https://invopop.com) 2023. Released publicly under the [Apache License Version 2.0](LICENSE). For commercial licenses please contact the [dev team at invopop](mailto:dev@invopop.com). In order to accept contributions to this library we will require transferring copyrights to Invopop Ltd.
 
@@ -22,16 +29,16 @@ The following list the steps to follow through on in order to accomplish the goa
 
 ## Testing
 
-The test suite automatically discovers and tests all GOBL JSON files in `test/data/`.
+The test suite includes tests for both conversion directions and round-trip validation.
 
 ### Running Tests
 
-**Validate existing XML files against the schema:**
+**Run all tests:**
 ```bash
 go test ./test -v
 ```
 
-**Convert GOBL to KSeF XML and validate:**
+**Update golden files:**
 ```bash
 go test ./test --update -v
 ```
@@ -48,8 +55,15 @@ LD_LIBRARY_PATH=/home/linuxbrew/.linuxbrew/opt/libxml2/lib:$LD_LIBRARY_PATH go t
 
 ### Test Data
 
-- **Input**: GOBL JSON files in `test/data/*.json`
-- **Output**: KSeF XML files in `test/data/out/*.xml`
+**GOBL → KSeF conversion:**
+- **Input**: GOBL JSON files in `test/data/gobl.ksef/*.json`
+- **Output**: KSeF XML files in `test/data/gobl.ksef/out/*.xml`
+
+**KSeF → GOBL conversion:**
+- **Input**: KSeF XML files in `test/data/ksef.gobl/*.xml`
+- **Output**: GOBL JSON files in `test/data/ksef.gobl/out/*.json`
+
+**Schema validation:**
 - **Schema**: FA3 XSD and dependencies in `test/data/schema/`
 
 ## Unsupported fields
@@ -64,8 +78,18 @@ FA_VAT is the Polish electronic invoice format. The format uses XML.
 - [Types definition](https://raw.githubusercontent.com/CIRFMF/ksef-docs/refs/heads/main/faktury/schemy/FA/bazowe/ElementarneTypyDanych_v10-0E.xsd) (description of fields is in Polish) - we have to open it as raw, as [the original link](https://github.com/CIRFMF/ksef-docs/blob/main/faktury/schemy/FA/bazowe/StrukturyDanych_v10-0E.xsd) does not add newlines
 - [Complex types definition](https://raw.githubusercontent.com/CIRFMF/ksef-docs/refs/heads/main/faktury/schemy/FA/bazowe/StrukturyDanych_v10-0E.xsd) (description of fields is in Polish) - we have to open it as raw, as [the original link](https://github.com/CIRFMF/ksef-docs/blob/main/faktury/schemy/FA/bazowe/StrukturyDanych_v10-0E.xsd) does not add newlines
 
-## Parsing
-The parsing is in MVP and some cases are not entirely handled. They will be handled little by little once we start facing them. There might be cases where the invoices from the tax agency don't come with lines, which makes it difficult to parse on our side as we would need to fake lines.
+## Parsing (KSeF → GOBL)
+
+The parsing functionality converts KSeF FA_VAT XML documents back into GOBL format. The current implementation includes:
+
+- **Party conversion**: Converts seller (Podmiot1), buyer (Podmiot2), and third parties (Podmiot3) to GOBL parties
+- **Invoice data**: Parses invoice metadata including codes, dates, and currency
+- **Line items**: Converts FA_VAT line items to GOBL invoice lines
+- **Payment terms**: Extracts payment information and terms
+- **Rounding adjustments**: Handles rounding differences to ensure totals match
+- **Round-trip validation**: All conversions are validated through round-trip tests (GOBL → KSeF → GOBL)
+
+**Note**: The parsing is functional but may not handle all edge cases. Some complex scenarios from the tax agency might require special handling, particularly invoices without line items, which would need synthetic lines created.
 
 ## KSeF API
 
