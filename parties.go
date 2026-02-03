@@ -366,16 +366,18 @@ func (b *Buyer) ToGOBL() *org.Party {
 	}
 
 	// Parse extensions
-	if party.Ext == nil {
-		party.Ext = make(tax.Extensions)
-	}
+	if b.JST == "1" || b.GV == "1" {
+		if party.Ext == nil {
+			party.Ext = make(tax.Extensions)
+		}
 
-	if b.JST == "1" {
-		party.Ext[favat.ExtKeyJST] = "1"
-	}
+		if b.JST == "1" {
+			party.Ext[favat.ExtKeyJST] = "1"
+		}
 
-	if b.GV == "1" {
-		party.Ext[favat.ExtKeyGroupVAT] = "1"
+		if b.GV == "1" {
+			party.Ext[favat.ExtKeyGroupVAT] = "1"
+		}
 	}
 
 	return party
