@@ -1,9 +1,13 @@
 package ksef
 
 import (
+	"strings"
+
 	"github.com/invopop/gobl/addons/pl/favat"
 	"github.com/invopop/gobl/bill"
+	"github.com/invopop/gobl/cbc"
 	"github.com/invopop/gobl/num"
+	"github.com/invopop/gobl/org"
 	"github.com/invopop/gobl/tax"
 )
 
@@ -168,4 +172,183 @@ func NewOrderLines(lines []*bill.Line, cu uint32) []*OrderLine {
 	}
 
 	return orderLines
+}
+
+// ToGOBL converts a KSEF Line to a GOBL Line.
+func (l *Line) ToGOBL() (*bill.Line, error) {
+	line := &bill.Line{
+		Item: &org.Item{
+			Name: l.Name,
+		},
+	}
+
+	// Parse quantity
+	if l.Quantity != "" {
+		qty, err := parseAmount(l.Quantity)
+		if err != nil {
+			return nil, err
+		}
+		line.Quantity = qty
+	}
+
+	// Parse unit price
+	if l.NetUnitPrice != "" {
+		price, err := parseAmount(l.NetUnitPrice)
+		if err != nil {
+			return nil, err
+		}
+		line.Item.Price = &price
+	}
+
+	// Parse unit of measure
+	if l.Measure != "" {
+		line.Item.Unit = parseUnit(l.Measure)
+	}
+
+	// Parse discount
+	if l.UnitDiscount != "" {
+		discount, err := parseAmount(l.UnitDiscount)
+		if err != nil {
+			return nil, err
+		}
+		if !discount.IsZero() {
+			line.Discounts = []*bill.LineDiscount{
+				{
+					Amount: discount,
+				},
+			}
+		}
+	}
+
+	// Parse VAT rate and create tax combo
+	var rateStr string
+	if l.OSSTaxRate != "" {
+		rateStr = l.OSSTaxRate
+	} else if l.VATRate != "" {
+		rateStr = l.VATRate
+	}
+
+	if rateStr != "" {
+		taxInfo := parseVATRate(rateStr)
+		taxCombo := &tax.Combo{
+			Category: tax.CategoryVAT,
+			Key:      taxInfo.Key,
+			Rate:     taxInfo.Rate,
+			Percent:  taxInfo.Percent,
+			Ext: tax.Extensions{
+				favat.ExtKeyTaxCategory: taxInfo.TaxCategory,
+			},
+		}
+		line.Taxes = tax.Set{taxCombo}
+	}
+
+	return line, nil
+}
+
+// parseAmount parses a string amount to num.Amount
+func parseAmount(s string) (num.Amount, error) {
+	amt, err := num.AmountFromString(s)
+	if err != nil {
+		return num.Amount{}, err
+	}
+	return amt, nil
+}
+
+// parseUnit converts KSEF unit code (UNECE) to GOBL unit
+func parseUnit(code string) org.Unit {
+	return org.Unit(code)
+}
+
+// TaxRateInfo contains the parsed tax rate information
+type TaxRateInfo struct {
+	Key         cbc.Key
+	Rate        cbc.Key
+	Percent     *num.Percentage
+	TaxCategory cbc.Code
+}
+
+// parseVATRate converts KSEF VAT rate string to GOBL tax information.
+// KSEF uses various formats:
+// - "23", "8", "5" for standard rates
+// - "0 KR" for zero-rated (6.1)
+// - "0 WDT" for intra-community (6.2)
+// - "0 EX" for export (6.3)
+// - "zw" for exempt (7)
+// - "np I" for outside scope (8)
+// - "np II" for reverse charge (9)
+// - "oo" for domestic reverse charge (10)
+func parseVATRate(rateStr string) *TaxRateInfo {
+	rateStr = strings.TrimSpace(rateStr)
+
+	info := &TaxRateInfo{}
+
+	switch rateStr {
+	case "23":
+		info.Key = tax.KeyStandard
+		info.Rate = tax.RateGeneral
+		pct := num.MakePercentage(230, 3)
+		info.Percent = &pct
+		info.TaxCategory = "1"
+	case "22":
+		info.Key = tax.KeyStandard
+		pct := num.MakePercentage(220, 3)
+		info.Percent = &pct
+		info.TaxCategory = "1"
+	case "8":
+		info.Key = tax.KeyStandard
+		info.Rate = tax.RateReduced
+		pct := num.MakePercentage(80, 3)
+		info.Percent = &pct
+		info.TaxCategory = "2"
+	case "7":
+		info.Key = tax.KeyStandard
+		pct := num.MakePercentage(70, 3)
+		info.Percent = &pct
+		info.TaxCategory = "2"
+	case "5":
+		info.Key = tax.KeyStandard
+		info.Rate = tax.RateSuperReduced
+		pct := num.MakePercentage(50, 3)
+		info.Percent = &pct
+		info.TaxCategory = "3"
+	case "4":
+		info.Key = tax.KeyStandard
+		pct := num.MakePercentage(40, 3)
+		info.Percent = &pct
+		info.TaxCategory = "4"
+	case "3":
+		info.Key = tax.KeyStandard
+		pct := num.MakePercentage(30, 3)
+		info.Percent = &pct
+		info.TaxCategory = "3"
+	case "0 KR":
+		info.Key = tax.KeyZero
+		pct := num.MakePercentage(0, 3)
+		info.Percent = &pct
+		info.TaxCategory = "6.1"
+	case "0 WDT":
+		info.Key = tax.KeyIntraCommunity
+		pct := num.MakePercentage(0, 3)
+		info.Percent = &pct
+		info.TaxCategory = "6.2"
+	case "0 EX":
+		info.Key = tax.KeyExport
+		pct := num.MakePercentage(0, 3)
+		info.Percent = &pct
+		info.TaxCategory = "6.3"
+	case "zw":
+		info.Key = tax.KeyExempt
+		info.TaxCategory = "7"
+	case "np I":
+		info.Key = tax.KeyOutsideScope
+		info.TaxCategory = "8"
+	case "np II":
+		info.Key = tax.KeyReverseCharge
+		info.TaxCategory = "9"
+	case "oo":
+		info.Key = tax.KeyReverseCharge
+		info.TaxCategory = "10"
+	}
+
+	return info
 }

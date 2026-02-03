@@ -294,3 +294,173 @@ func TestNewOrderLines(t *testing.T) {
 		assert.Equal(t, "Item 2", result[1].Name)
 	})
 }
+
+func TestLineToGOBL(t *testing.T) {
+	t.Run("converts basic KSEF line to GOBL", func(t *testing.T) {
+		ksefLine := &ksef.Line{
+			Name:         "Test Item",
+			Quantity:     "2",
+			NetUnitPrice: "100.00",
+			Measure:      "HUR",
+			VATRate:      "23",
+			NetPriceTotal: "200.00",
+		}
+
+		line, err := ksefLine.ToGOBL()
+
+		require.NoError(t, err)
+		assert.Equal(t, "Test Item", line.Item.Name)
+		assert.Equal(t, "2", line.Quantity.String())
+		assert.Equal(t, "100.00", line.Item.Price.String())
+		assert.Equal(t, org.Unit("HUR"), line.Item.Unit)
+		assert.Len(t, line.Taxes, 1)
+		assert.Equal(t, tax.CategoryVAT, line.Taxes[0].Category)
+		assert.Equal(t, "23", line.Taxes[0].Percent.Amount().MinimalString())
+	})
+
+	t.Run("handles line with discount", func(t *testing.T) {
+		ksefLine := &ksef.Line{
+			Name:          "Discounted Item",
+			Quantity:      "2",
+			NetUnitPrice:  "100.00",
+			UnitDiscount:  "10.00",
+			Measure:       "HUR",
+			VATRate:       "23",
+			NetPriceTotal: "180.00",
+		}
+
+		line, err := ksefLine.ToGOBL()
+
+		require.NoError(t, err)
+		assert.Len(t, line.Discounts, 1)
+		assert.Equal(t, "10.00", line.Discounts[0].Amount.String())
+	})
+
+	t.Run("handles exempt line with zero VAT", func(t *testing.T) {
+		ksefLine := &ksef.Line{
+			Name:          "Exempt Item",
+			Quantity:      "1",
+			NetUnitPrice:  "100.00",
+			Measure:       "HUR",
+			VATRate:       "zw",
+			NetPriceTotal: "100.00",
+		}
+
+		line, err := ksefLine.ToGOBL()
+
+		require.NoError(t, err)
+		assert.Len(t, line.Taxes, 1)
+		assert.Equal(t, tax.KeyExempt, line.Taxes[0].Key)
+		assert.Equal(t, "7", string(line.Taxes[0].Ext[favat.ExtKeyTaxCategory]))
+	})
+
+	t.Run("handles intra-community supply", func(t *testing.T) {
+		ksefLine := &ksef.Line{
+			Name:          "EU Item",
+			Quantity:      "1",
+			NetUnitPrice:  "100.00",
+			Measure:       "HUR",
+			VATRate:       "0 WDT",
+			NetPriceTotal: "100.00",
+		}
+
+		line, err := ksefLine.ToGOBL()
+
+		require.NoError(t, err)
+		assert.Len(t, line.Taxes, 1)
+		assert.Equal(t, tax.KeyIntraCommunity, line.Taxes[0].Key)
+		assert.Equal(t, "6.2", string(line.Taxes[0].Ext[favat.ExtKeyTaxCategory]))
+	})
+
+	t.Run("handles export supply", func(t *testing.T) {
+		ksefLine := &ksef.Line{
+			Name:          "Export Item",
+			Quantity:      "1",
+			NetUnitPrice:  "100.00",
+			Measure:       "HUR",
+			VATRate:       "0 EX",
+			NetPriceTotal: "100.00",
+		}
+
+		line, err := ksefLine.ToGOBL()
+
+		require.NoError(t, err)
+		assert.Len(t, line.Taxes, 1)
+		assert.Equal(t, tax.KeyExport, line.Taxes[0].Key)
+		assert.Equal(t, "6.3", string(line.Taxes[0].Ext[favat.ExtKeyTaxCategory]))
+	})
+
+	t.Run("handles reverse charge", func(t *testing.T) {
+		ksefLine := &ksef.Line{
+			Name:          "Reverse Charge Item",
+			Quantity:      "1",
+			NetUnitPrice:  "100.00",
+			Measure:       "HUR",
+			VATRate:       "np II",
+			NetPriceTotal: "100.00",
+		}
+
+		line, err := ksefLine.ToGOBL()
+
+		require.NoError(t, err)
+		assert.Len(t, line.Taxes, 1)
+		assert.Equal(t, tax.KeyReverseCharge, line.Taxes[0].Key)
+		assert.Equal(t, "9", string(line.Taxes[0].Ext[favat.ExtKeyTaxCategory]))
+	})
+
+	t.Run("handles domestic reverse charge", func(t *testing.T) {
+		ksefLine := &ksef.Line{
+			Name:          "Domestic RC Item",
+			Quantity:      "1",
+			NetUnitPrice:  "100.00",
+			Measure:       "HUR",
+			VATRate:       "oo",
+			NetPriceTotal: "100.00",
+		}
+
+		line, err := ksefLine.ToGOBL()
+
+		require.NoError(t, err)
+		assert.Len(t, line.Taxes, 1)
+		assert.Equal(t, tax.KeyReverseCharge, line.Taxes[0].Key)
+		assert.Equal(t, "10", string(line.Taxes[0].Ext[favat.ExtKeyTaxCategory]))
+	})
+
+	t.Run("handles reduced rate 8%", func(t *testing.T) {
+		ksefLine := &ksef.Line{
+			Name:          "Reduced Item",
+			Quantity:      "1",
+			NetUnitPrice:  "100.00",
+			Measure:       "HUR",
+			VATRate:       "8",
+			NetPriceTotal: "100.00",
+		}
+
+		line, err := ksefLine.ToGOBL()
+
+		require.NoError(t, err)
+		assert.Len(t, line.Taxes, 1)
+		assert.Equal(t, tax.KeyStandard, line.Taxes[0].Key)
+		assert.Equal(t, tax.RateReduced, line.Taxes[0].Rate)
+		assert.Equal(t, "8", line.Taxes[0].Percent.Amount().MinimalString())
+	})
+
+	t.Run("handles super reduced rate 5%", func(t *testing.T) {
+		ksefLine := &ksef.Line{
+			Name:          "Super Reduced Item",
+			Quantity:      "1",
+			NetUnitPrice:  "100.00",
+			Measure:       "HUR",
+			VATRate:       "5",
+			NetPriceTotal: "100.00",
+		}
+
+		line, err := ksefLine.ToGOBL()
+
+		require.NoError(t, err)
+		assert.Len(t, line.Taxes, 1)
+		assert.Equal(t, tax.KeyStandard, line.Taxes[0].Key)
+		assert.Equal(t, tax.RateSuperReduced, line.Taxes[0].Rate)
+		assert.Equal(t, "5", line.Taxes[0].Percent.Amount().MinimalString())
+	})
+}

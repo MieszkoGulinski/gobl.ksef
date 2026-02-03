@@ -19,7 +19,7 @@ import (
 var UpdateOut bool
 
 func init() {
-	flag.BoolVar(&UpdateOut, "update", false, "update the XML output files in test/data/out")
+	flag.BoolVar(&UpdateOut, "update", false, "update the output files in test/data/gobl.ksef/out and test/data/ksef.gobl/out")
 }
 
 // BuildFAVATFrom creates a KSeF FA_VAT document from a GOBL file in the `test/data` folder.
@@ -72,9 +72,9 @@ func GenerateKSeFFrom(inv *bill.Invoice) (*ksef.Invoice, error) {
 	return BuildFAVATFromInvoice(inv)
 }
 
-// LoadOutputFile returns byte data from a file in the `test/data/out` folder
+// LoadOutputFile returns byte data from a file in the `test/data/gobl.ksef/out` folder
 func LoadOutputFile(name string) ([]byte, error) {
-	src, _ := os.Open(filepath.Join(GetOutPath(), name))
+	src, _ := os.Open(filepath.Join(GetDataPath(), "gobl.ksef", "out", name))
 
 	buf := new(bytes.Buffer)
 	if _, err := buf.ReadFrom(src); err != nil {
@@ -99,7 +99,7 @@ func LoadSchemaFile(name string) ([]byte, error) {
 // loadAndEnvelope loads a JSON file and returns it as an envelope.
 // It handles both envelope and direct invoice formats.
 func loadAndEnvelope(name string) (*gobl.Envelope, error) {
-	src, err := os.Open(filepath.Join(GetDataPath(), name))
+	src, err := os.Open(filepath.Join(GetDataPath(), "gobl.ksef", name))
 	if err != nil {
 		return nil, err
 	}
@@ -141,9 +141,9 @@ func GetSchemaPath() string {
 	return filepath.Join(GetDataPath(), "schema")
 }
 
-// GetOutPath returns the path to the `test/data/out` folder
+// GetOutPath returns the path to the `test/data/gobl.ksef/out` folder
 func GetOutPath() string {
-	return filepath.Join(GetDataPath(), "out")
+	return filepath.Join(GetDataPath(), "gobl.ksef", "out")
 }
 
 // GetDataPath returns the path to the `test/data` folder

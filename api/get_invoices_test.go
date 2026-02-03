@@ -7,17 +7,18 @@ import (
 	"time"
 
 	ksef_api "github.com/invopop/gobl.ksef/api"
+	"github.com/invopop/xmldsig"
 	"github.com/stretchr/testify/require"
 )
 
 func TestListInvoices(t *testing.T) {
 	t.Run("lists uploaded invoices in the last 14 days", func(t *testing.T) {
-		certData, err := ksef_api.LoadCertificate("./test/cert-20260102-131809.pfx")
+		cert, err := xmldsig.LoadCertificate("./test/cert-20260102-131809.pfx", "")
 		require.NoError(t, err)
 
 		client := ksef_api.NewClient(
 			&ksef_api.ContextIdentifier{Nip: "8126178616"},
-			certData,
+			cert,
 			ksef_api.WithDebugClient(),
 		)
 
@@ -39,12 +40,12 @@ func TestListInvoices(t *testing.T) {
 
 func TestGetInvoice(t *testing.T) {
 	t.Run("fetches invoice by ksef number", func(t *testing.T) {
-		certData, err := ksef_api.LoadCertificate("./test/cert-20260102-131809.pfx")
+		cert, err := xmldsig.LoadCertificate("./test/cert-20260102-131809.pfx", "")
 		require.NoError(t, err)
 
 		client := ksef_api.NewClient(
 			&ksef_api.ContextIdentifier{Nip: "8126178616"},
-			certData,
+			cert,
 			ksef_api.WithDebugClient(),
 		)
 

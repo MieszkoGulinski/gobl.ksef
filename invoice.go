@@ -1,11 +1,12 @@
 package ksef
 
-/**/
 import (
 	"fmt"
+	"time"
 
 	"github.com/invopop/gobl/addons/pl/favat"
 	"github.com/invopop/gobl/bill"
+	"github.com/invopop/gobl/cal"
 	"github.com/invopop/gobl/cbc"
 	"github.com/invopop/gobl/org"
 	"github.com/invopop/gobl/tax"
@@ -331,6 +332,234 @@ func (inv *Inv) setTaxRates(taxes *tax.Total) {
 			}
 		}
 	}
+}
+
+// parseInvoiceData converts KSEF invoice data to GOBL invoice fields
+func (inv *Inv) parseInvoiceData(goblInv *bill.Invoice) error {
+	// Parse invoice type and tags
+	invType, tags := parseInvoiceType(inv.InvoiceType)
+	goblInv.Type = invType
+	if len(tags) > 0 {
+		goblInv.Tags = tax.Tags{List: tags}
+	}
+
+	// Parse issue date
+	if inv.IssueDate != "" {
+		date, err := parseDate(inv.IssueDate)
+		if err != nil {
+			return fmt.Errorf("parsing issue date: %w", err)
+		}
+		goblInv.IssueDate = date
+	}
+
+	goblInv.Code = cbc.Code(inv.SequentialNumber)
+
+	// Parse ordering period
+	if inv.Period != nil {
+		goblInv.Ordering = &bill.Ordering{
+			Period: &cal.Period{},
+		}
+		if inv.Period.StartDate != "" {
+			start, err := parseDate(inv.Period.StartDate)
+			if err != nil {
+				return fmt.Errorf("parsing period start date: %w", err)
+			}
+			goblInv.Ordering.Period.Start = start
+		}
+		if inv.Period.EndDate != "" {
+			end, err := parseDate(inv.Period.EndDate)
+			if err != nil {
+				return fmt.Errorf("parsing period end date: %w", err)
+			}
+			goblInv.Ordering.Period.End = end
+		}
+	}
+
+	// Parse annotations to tax extensions
+	if inv.Annotations != nil {
+		goblInv.Tax = &bill.Tax{
+			Ext: make(tax.Extensions),
+		}
+
+		// Set invoice type extension
+		if inv.InvoiceType != "" {
+			goblInv.Tax.Ext[favat.ExtKeyInvoiceType] = cbc.Code(inv.InvoiceType)
+		}
+
+		// Cash accounting
+		if inv.Annotations.CashAccounting == "1" {
+			goblInv.Tax.Ext[favat.ExtKeyCashAccounting] = "1"
+		}
+
+		// Self billing
+		if inv.Annotations.SelfBilling == "1" {
+			goblInv.Tax.Ext[favat.ExtKeySelfBilling] = "1"
+			goblInv.Tags.List = append(goblInv.Tags.List, tax.TagSelfBilled)
+		}
+
+		// Reverse charge
+		if inv.Annotations.ReverseCharge == "1" {
+			goblInv.Tax.Ext[favat.ExtKeyReverseCharge] = "1"
+			goblInv.Tags.List = append(goblInv.Tags.List, tax.TagReverseCharge)
+		}
+
+		// Split payment
+		if inv.Annotations.SplitPaymentMechanism == "1" {
+			goblInv.Tax.Ext[favat.ExtKeySplitPayment] = "1"
+		}
+
+		// Tax exemption
+		if inv.Annotations.TaxExemption != nil && inv.Annotations.TaxExemption.Marker == "1" {
+			// Determine exemption code
+			var exemptionCode string
+			var exemptionText string
+
+			if inv.Annotations.TaxExemption.PolishLawBasis != "" {
+				exemptionCode = "A"
+				exemptionText = inv.Annotations.TaxExemption.PolishLawBasis
+			} else if inv.Annotations.TaxExemption.EUDirectiveBasis != "" {
+				exemptionCode = "B"
+				exemptionText = inv.Annotations.TaxExemption.EUDirectiveBasis
+			} else if inv.Annotations.TaxExemption.OtherLegalBasis != "" {
+				exemptionCode = "C"
+				exemptionText = inv.Annotations.TaxExemption.OtherLegalBasis
+			}
+
+			if exemptionCode != "" {
+				goblInv.Tax.Ext[favat.ExtKeyExemption] = cbc.Code(exemptionCode)
+
+				// Add note with exemption text
+				if goblInv.Notes == nil {
+					goblInv.Notes = []*org.Note{}
+				}
+				goblInv.Notes = append(goblInv.Notes, &org.Note{
+					Key:  org.NoteKeyLegal,
+					Code: cbc.Code(exemptionCode),
+					Src:  favat.ExtKeyExemption,
+					Text: exemptionText,
+				})
+			}
+		}
+
+		// Margin scheme
+		if inv.Annotations.MarginScheme != nil && inv.Annotations.MarginScheme.Marker == "1" {
+			var marginCode string
+			if inv.Annotations.MarginScheme.TravelAgencyMargin == "1" {
+				marginCode = "2"
+			} else if inv.Annotations.MarginScheme.UsedGoodsMargin == "1" {
+				marginCode = "3.1"
+			} else if inv.Annotations.MarginScheme.ArtWorksMargin == "1" {
+				marginCode = "3.2"
+			} else if inv.Annotations.MarginScheme.CollectiblesAndAntiquesMargin == "1" {
+				marginCode = "3.3"
+			}
+
+			if marginCode != "" {
+				goblInv.Tax.Ext[favat.ExtKeyMarginScheme] = cbc.Code(marginCode)
+			}
+		}
+	}
+
+	// Parse additional description as notes
+	if len(inv.AdditionalDescription) > 0 {
+		if goblInv.Notes == nil {
+			goblInv.Notes = []*org.Note{}
+		}
+		for _, desc := range inv.AdditionalDescription {
+			goblInv.Notes = append(goblInv.Notes, &org.Note{
+				Key:  cbc.Key(desc.Key),
+				Text: desc.Value,
+			})
+		}
+	}
+
+	// Parse corrected invoices (preceding documents for credit notes)
+	if len(inv.CorrectedInv) > 0 {
+		goblInv.Preceding = []*org.DocumentRef{}
+		for _, corr := range inv.CorrectedInv {
+			preceding := &org.DocumentRef{}
+
+			if corr.SequentialNumber != "" {
+				preceding.Code = cbc.Code(corr.SequentialNumber)
+			}
+			if corr.IssueDate != "" {
+				date, err := parseDate(corr.IssueDate)
+				if err != nil {
+					return fmt.Errorf("parsing corrected invoice date: %w", err)
+				}
+				preceding.IssueDate = &date
+			}
+			if inv.CorrectionReason != "" {
+				preceding.Reason = inv.CorrectionReason
+			}
+			if inv.CorrectionType != "" {
+				preceding.Ext = tax.Extensions{
+					favat.ExtKeyEffectiveDate: cbc.Code(inv.CorrectionType),
+				}
+			}
+
+			goblInv.Preceding = append(goblInv.Preceding, preceding)
+		}
+	}
+
+	return nil
+}
+
+// parseDate parses a date string in YYYY-MM-DD format
+func parseDate(dateStr string) (cal.Date, error) {
+	t, err := time.Parse("2006-01-02", dateStr)
+	if err != nil {
+		return cal.Date{}, fmt.Errorf("invalid date format: %w", err)
+	}
+	return cal.DateOf(t), nil
+}
+
+// parseInvoiceType converts KSEF invoice type to GOBL type and tags.
+func parseInvoiceType(invType string) (cbc.Key, []cbc.Key) {
+	tags := []cbc.Key{}
+
+	switch invType {
+	case "VAT":
+		return bill.InvoiceTypeStandard, tags
+	case "ZAL":
+		tags = append(tags, tax.TagPartial)
+		return bill.InvoiceTypeStandard, tags
+	case "ROZ":
+		tags = append(tags, favat.TagSettlement)
+		return bill.InvoiceTypeStandard, tags
+	case "UPR":
+		tags = append(tags, tax.TagSimplified)
+		return bill.InvoiceTypeStandard, tags
+	case "KOR":
+		return bill.InvoiceTypeCreditNote, tags
+	case "KOR_ZAL":
+		tags = append(tags, tax.TagPartial)
+		return bill.InvoiceTypeCreditNote, tags
+	case "KOR_ROZ":
+		tags = append(tags, favat.TagSettlement)
+		return bill.InvoiceTypeCreditNote, tags
+	default:
+		return bill.InvoiceTypeStandard, tags
+	}
+}
+
+// parseLines converts KSEF lines to GOBL lines.
+func (inv *Inv) parseLines(goblInv *bill.Invoice) error {
+	if len(inv.Lines) == 0 {
+		return nil
+	}
+
+	goblInv.Lines = make([]*bill.Line, 0, len(inv.Lines))
+
+	for _, ksefLine := range inv.Lines {
+		line, err := ksefLine.ToGOBL()
+		if err != nil {
+			return fmt.Errorf("parsing line %d: %w", ksefLine.LineNumber, err)
+		}
+		goblInv.Lines = append(goblInv.Lines, line)
+	}
+
+	return nil
 }
 
 // newAnnotations sets annotations data

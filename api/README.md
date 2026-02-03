@@ -7,9 +7,14 @@ The `api` package provides a client for interacting with KSeF. As of now, it sup
 ### Example
 
 ```go
+cert, err := xmldsig.LoadCertificate("./test/cert-20260102-131809.pfx", "")
+if err != nil {
+    log.Fatalf("load certificate: %v", err)
+}
+
 client := api.NewClient(
-    &api.ContextIdentifier{Nip: "8126178616"}, // The login session will be on the behalf of business entity specified here
-    "./test/cert-20260102-131809.pfx", // Path to certificate
+    &api.ContextIdentifier{Nip: "8126178616"}, // The login session will be on behalf of this entity
+    cert,
 )
 
 ctx := context.Background()

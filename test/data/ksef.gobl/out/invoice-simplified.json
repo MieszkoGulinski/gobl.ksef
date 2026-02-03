@@ -1,0 +1,99 @@
+{
+  "$schema": "https://gobl.org/draft-0/envelope",
+  "head": {
+    "uuid": "019c05af-43f3-797f-b3dc-2034c5e5bdb9",
+    "dig": {
+      "alg": "sha256",
+      "val": "2cd4a8cf774e307c322d1b5a46f32eba6016fc0acb91327bf6fd4058df4222b9"
+    }
+  },
+  "doc": {
+    "$schema": "https://gobl.org/draft-0/bill/invoice",
+    "$regime": "PL",
+    "$addons": [
+      "pl-favat-v3"
+    ],
+    "$tags": [
+      "simplified"
+    ],
+    "uuid": "019c05af-43f3-79a8-b654-462dc364c0ca",
+    "type": "standard",
+    "code": "UPR-001",
+    "issue_date": "2026-01-20",
+    "currency": "PLN",
+    "tax": {
+      "ext": {
+        "pl-favat-invoice-type": "UPR"
+      }
+    },
+    "supplier": {
+      "name": "Sklep Testowy",
+      "tax_id": {
+        "country": "PL",
+        "code": "9876543210"
+      },
+      "addresses": [
+        {
+          "street": "ul. Handlowa 5, 00-001, Warsaw",
+          "country": "PL"
+        }
+      ]
+    },
+    "lines": [
+      {
+        "i": 1,
+        "quantity": "2",
+        "item": {
+          "name": "Coffee",
+          "price": "15.00"
+        },
+        "sum": "30.00",
+        "taxes": [
+          {
+            "cat": "VAT",
+            "key": "standard",
+            "rate": "reduced",
+            "percent": "8.0%",
+            "ext": {
+              "pl-favat-tax-category": "2"
+            }
+          }
+        ],
+        "total": "30.00"
+      }
+    ],
+    "totals": {
+      "sum": "30.00",
+      "total": "30.00",
+      "taxes": {
+        "categories": [
+          {
+            "code": "VAT",
+            "rates": [
+              {
+                "key": "standard",
+                "ext": {
+                  "pl-favat-tax-category": "2"
+                },
+                "base": "30.00",
+                "percent": "8.0%",
+                "amount": "2.40"
+              }
+            ],
+            "amount": "2.40"
+          }
+        ],
+        "sum": "2.40"
+      },
+      "tax": "2.40",
+      "total_with_tax": "32.40",
+      "payable": "32.40"
+    },
+    "notes": [
+      {
+        "key": "general",
+        "text": "Simplified invoice for small transactions up to 450 PLN."
+      }
+    ]
+  }
+}

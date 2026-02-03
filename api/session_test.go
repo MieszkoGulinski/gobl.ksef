@@ -10,18 +10,19 @@ import (
 
 	ksef_api "github.com/invopop/gobl.ksef/api"
 	"github.com/invopop/gobl.ksef/test"
+	"github.com/invopop/xmldsig"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestCreateSession(t *testing.T) {
 	t.Run("creates session", func(t *testing.T) {
-		certData, err := ksef_api.LoadCertificate("./test/cert-20260102-131809.pfx")
+		cert, err := xmldsig.LoadCertificate("./test/cert-20260102-131809.pfx", "")
 		require.NoError(t, err)
 
 		client := ksef_api.NewClient(
 			&ksef_api.ContextIdentifier{Nip: "8126178616"},
-			certData,
+			cert,
 		)
 
 		ctx := context.Background()
@@ -43,12 +44,12 @@ func TestCreateSession(t *testing.T) {
 func TestUploadInvoice(t *testing.T) {
 	t.Run("uploads invoice during session", func(t *testing.T) {
 		ctxIdentifier := &ksef_api.ContextIdentifier{Nip: "8126178616"}
-		certData, err := ksef_api.LoadCertificate("./test/cert-20260102-131809.pfx")
+		cert, err := xmldsig.LoadCertificate("./test/cert-20260102-131809.pfx", "")
 		require.NoError(t, err)
 
 		client := ksef_api.NewClient(
 			ctxIdentifier,
-			certData,
+			cert,
 		)
 
 		ctx := context.Background()

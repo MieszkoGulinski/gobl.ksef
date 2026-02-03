@@ -1,0 +1,113 @@
+{
+  "$schema": "https://gobl.org/draft-0/envelope",
+  "head": {
+    "uuid": "019c05af-43e0-7a17-bfae-4222ab7d04ab",
+    "dig": {
+      "alg": "sha256",
+      "val": "b6c5e8a51f1825e02f3b2d64762aed2bc2065cd89d3fd59f4482afbb759d3ba5"
+    }
+  },
+  "doc": {
+    "$schema": "https://gobl.org/draft-0/bill/invoice",
+    "$regime": "PL",
+    "$addons": [
+      "pl-favat-v3"
+    ],
+    "uuid": "019c05af-43e0-7a31-9c7d-952652823cc9",
+    "type": "standard",
+    "code": "EX-001",
+    "issue_date": "2026-01-20",
+    "currency": "PLN",
+    "tax": {
+      "ext": {
+        "pl-favat-exemption": "A",
+        "pl-favat-invoice-type": "VAT"
+      }
+    },
+    "supplier": {
+      "name": "Medical Services Sp. z o.o.",
+      "tax_id": {
+        "country": "PL",
+        "code": "1111111111"
+      },
+      "addresses": [
+        {
+          "street": "ul. Zdrowia 5, 00-001, Warsaw",
+          "country": "PL"
+        }
+      ]
+    },
+    "customer": {
+      "name": "Patient Jan Kowalski",
+      "tax_id": {
+        "country": "PL",
+        "code": "1111111111"
+      },
+      "addresses": [
+        {
+          "street": "ul. Pacjenta 15, 00-005, Warsaw",
+          "country": "PL"
+        }
+      ]
+    },
+    "lines": [
+      {
+        "i": 1,
+        "quantity": "1",
+        "item": {
+          "name": "Medical Consultation",
+          "price": "200.00"
+        },
+        "sum": "200.00",
+        "taxes": [
+          {
+            "cat": "VAT",
+            "key": "exempt",
+            "ext": {
+              "pl-favat-tax-category": "7"
+            }
+          }
+        ],
+        "total": "200.00"
+      }
+    ],
+    "totals": {
+      "sum": "200.00",
+      "total": "200.00",
+      "taxes": {
+        "categories": [
+          {
+            "code": "VAT",
+            "rates": [
+              {
+                "key": "exempt",
+                "ext": {
+                  "pl-favat-tax-category": "7"
+                },
+                "base": "200.00",
+                "amount": "0.00"
+              }
+            ],
+            "amount": "0.00"
+          }
+        ],
+        "sum": "0.00"
+      },
+      "tax": "0.00",
+      "total_with_tax": "200.00",
+      "payable": "200.00"
+    },
+    "notes": [
+      {
+        "key": "legal",
+        "code": "A",
+        "src": "pl-favat-exemption",
+        "text": "Exempt from VAT under Article 43(1)(18) of the Polish VAT Act - medical services."
+      },
+      {
+        "key": "legal",
+        "text": "Exempt from VAT under Article 43(1)(18) of the Polish VAT Act - medical services."
+      }
+    ]
+  }
+}

@@ -1,0 +1,123 @@
+{
+  "$schema": "https://gobl.org/draft-0/envelope",
+  "head": {
+    "uuid": "019c05af-43f2-775f-a84d-3a16a9f8189e",
+    "dig": {
+      "alg": "sha256",
+      "val": "932abe10a655b1db0d1aa31bd7b0465806c41897d06e9512e39a2f2e595a9d76"
+    }
+  },
+  "doc": {
+    "$schema": "https://gobl.org/draft-0/bill/invoice",
+    "$regime": "PL",
+    "$addons": [
+      "pl-favat-v3"
+    ],
+    "$tags": [
+      "settlement"
+    ],
+    "uuid": "019c05af-43f2-7766-97f4-ca0e171b37ac",
+    "type": "standard",
+    "code": "ROZ-001",
+    "issue_date": "2026-01-20",
+    "currency": "PLN",
+    "tax": {
+      "ext": {
+        "pl-favat-invoice-type": "ROZ"
+      }
+    },
+    "supplier": {
+      "name": "Testowa Firma Sp. z o.o.",
+      "tax_id": {
+        "country": "PL",
+        "code": "9876543210"
+      },
+      "addresses": [
+        {
+          "street": "ul. Główna 1, 00-001, Warsaw",
+          "country": "PL"
+        }
+      ]
+    },
+    "customer": {
+      "name": "Klient Testowy Sp. z o.o.",
+      "tax_id": {
+        "country": "PL",
+        "code": "9876543210"
+      },
+      "addresses": [
+        {
+          "street": "ul. Testowa 10, 30-001, Kraków",
+          "country": "PL"
+        }
+      ]
+    },
+    "lines": [
+      {
+        "i": 1,
+        "quantity": "1",
+        "item": {
+          "name": "Project Completion - Final Invoice",
+          "price": "10000.00"
+        },
+        "sum": "10000.00",
+        "taxes": [
+          {
+            "cat": "VAT",
+            "key": "standard",
+            "rate": "general",
+            "percent": "23.0%",
+            "ext": {
+              "pl-favat-tax-category": "1"
+            }
+          }
+        ],
+        "total": "10000.00"
+      }
+    ],
+    "payment": {
+      "advances": [
+        {
+          "date": "2026-01-20",
+          "description": "Advance payment",
+          "amount": "6150.00"
+        }
+      ]
+    },
+    "totals": {
+      "sum": "10000.00",
+      "total": "10000.00",
+      "taxes": {
+        "categories": [
+          {
+            "code": "VAT",
+            "rates": [
+              {
+                "key": "standard",
+                "ext": {
+                  "pl-favat-tax-category": "1"
+                },
+                "base": "10000.00",
+                "percent": "23.0%",
+                "amount": "2300.00"
+              }
+            ],
+            "amount": "2300.00"
+          }
+        ],
+        "sum": "2300.00"
+      },
+      "tax": "2300.00",
+      "total_with_tax": "12300.00",
+      "payable": "12300.00",
+      "advance": "6150.00",
+      "due": "6150.00"
+    },
+    "notes": [
+      {
+        "key": "general",
+        "text": "This is a settlement invoice that finalizes the transaction including all previous advance payments."
+      }
+    ]
+  }
+}

@@ -3,8 +3,10 @@ package ksef
 import (
 	"github.com/invopop/gobl/addons/pl/favat"
 	"github.com/invopop/gobl/bill"
+	"github.com/invopop/gobl/cbc"
 	"github.com/invopop/gobl/l10n"
 	"github.com/invopop/gobl/org"
+	"github.com/invopop/gobl/tax"
 )
 
 // Address defines the XML structure for KSeF addresses
@@ -277,4 +279,153 @@ func newThirdPartyFromIdentity(identity *org.Identity) *ThirdParty {
 	}
 
 	return thirdParty
+}
+
+// ToGOBL converts a KSEF Seller to a GOBL Party (supplier).
+func (s *Seller) ToGOBL() *org.Party {
+	party := &org.Party{
+		Name: s.Name,
+	}
+
+	// Parse tax ID
+	if s.NIP != "" {
+		country := l10n.PL.Tax()
+		if s.VATPrefix != "" && s.VATPrefix != "PL" {
+			country = l10n.Code(s.VATPrefix).Tax()
+		}
+		party.TaxID = &tax.Identity{
+			Country: country,
+			Code:    cbc.Code(s.NIP),
+		}
+	}
+
+	// Parse address
+	if s.Address != nil {
+		party.Addresses = []*org.Address{parseAddress(s.Address)}
+	}
+
+	// Parse contact details
+	if s.Contact != nil {
+		if s.Contact.Email != "" {
+			party.Emails = []*org.Email{{Address: s.Contact.Email}}
+		}
+		if s.Contact.Phone != "" {
+			party.Telephones = []*org.Telephone{{Number: s.Contact.Phone}}
+		}
+	}
+
+	return party
+}
+
+// ToGOBL converts a KSEF Buyer to a GOBL Party (customer).
+func (b *Buyer) ToGOBL() *org.Party {
+	// Check if buyer has no ID (simplified invoice)
+	if b.NoID == 1 {
+		return nil
+	}
+
+	party := &org.Party{
+		Name: b.Name,
+	}
+
+	// Parse tax ID
+	if b.NIP != "" {
+		party.TaxID = &tax.Identity{
+			Country: l10n.PL.Tax(),
+			Code:    cbc.Code(b.NIP),
+		}
+	} else if b.UEVatNumber != "" && b.UECode != "" {
+		party.TaxID = &tax.Identity{
+			Country: l10n.Code(b.UECode).Tax(),
+			Code:    cbc.Code(b.UEVatNumber),
+		}
+	} else if b.IDNumber != "" {
+		country := l10n.PL.Tax()
+		if b.CountryCode != "" {
+			country = l10n.Code(b.CountryCode).Tax()
+		}
+		party.TaxID = &tax.Identity{
+			Country: country,
+			Code:    cbc.Code(b.IDNumber),
+		}
+	}
+
+	// Parse address
+	if b.Address != nil {
+		party.Addresses = []*org.Address{parseAddress(b.Address)}
+	}
+
+	// Parse contact details
+	if b.Contact != nil {
+		if b.Contact.Email != "" {
+			party.Emails = []*org.Email{{Address: b.Contact.Email}}
+		}
+		if b.Contact.Phone != "" {
+			party.Telephones = []*org.Telephone{{Number: b.Contact.Phone}}
+		}
+	}
+
+	// Parse extensions
+	if b.JST == "1" || b.GV == "1" {
+		if party.Ext == nil {
+			party.Ext = make(tax.Extensions)
+		}
+
+		if b.JST == "1" {
+			party.Ext[favat.ExtKeyJST] = "1"
+		}
+
+		if b.GV == "1" {
+			party.Ext[favat.ExtKeyGroupVAT] = "1"
+		}
+	}
+
+	return party
+}
+
+// toIdentity converts a KSEF ThirdParty to a GOBL Identity.
+func (tp *ThirdParty) toIdentity() *org.Identity {
+	if tp.NoID == 1 {
+		return nil
+	}
+
+	identity := &org.Identity{
+		Ext: make(tax.Extensions),
+	}
+
+	// Set role
+	if tp.Role != "" {
+		identity.Ext[favat.ExtKeyThirdPartyRole] = cbc.Code(tp.Role)
+	}
+
+	// Parse tax ID
+	if tp.NIP != "" {
+		identity.Country = l10n.PL.ISO()
+		identity.Code = cbc.Code(tp.NIP)
+	} else if tp.UEVatNumber != "" && tp.UECode != "" {
+		identity.Country = l10n.ISOCountryCode(tp.UECode)
+		identity.Code = cbc.Code(tp.UEVatNumber)
+	} else if tp.IDNumber != "" {
+		if tp.CountryCode != "" {
+			identity.Country = l10n.ISOCountryCode(tp.CountryCode)
+		}
+		identity.Code = cbc.Code(tp.IDNumber)
+	} else if tp.InternalID != "" {
+		identity.Code = cbc.Code(tp.InternalID)
+	}
+
+	return identity
+}
+
+// parseAddress converts a KSEF Address to a GOBL Address.
+func parseAddress(addr *Address) *org.Address {
+	addressLine := addr.AddressL1
+	if addr.AddressL2 != "" {
+		addressLine += " " + addr.AddressL2
+	}
+
+	return &org.Address{
+		Country: l10n.ISOCountryCode(addr.CountryCode),
+		Street:  addressLine,
+	}
 }
