@@ -130,7 +130,7 @@ func (d *Invoice) ToGOBL() (*bill.Invoice, error) {
 
 	// Calculate totals and adjust for rounding if needed
 	if err := AdjustRounding(inv, d.Inv.TotalAmountDue); err != nil {
-		return nil, fmt.Errorf("adjusting rounding: %w", err)
+		return nil, err
 	}
 
 	return inv, nil

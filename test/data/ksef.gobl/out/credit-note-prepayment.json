@@ -1,10 +1,10 @@
 {
   "$schema": "https://gobl.org/draft-0/envelope",
   "head": {
-    "uuid": "019c05af-43d3-7354-b832-d62a2d8d87f1",
+    "uuid": "019c2860-22c9-7dab-b113-0276ae8c9ebe",
     "dig": {
       "alg": "sha256",
-      "val": "5b7c4a2c211d21ad63d4a6f27d7e7539974d8dee8383dbd8d4da6b82274b24c8"
+      "val": "18d85907fb9f9b20c988e9e57ace59711d3ea2969b2dec9dcbd0127772acb9b3"
     }
   },
   "doc": {
@@ -16,7 +16,7 @@
     "$tags": [
       "partial"
     ],
-    "uuid": "019c05af-43d3-736d-b205-4a370acba144",
+    "uuid": "019c2860-22c9-7de9-829d-7a708b7a67b8",
     "type": "credit-note",
     "code": "KOR-ZAL-001",
     "issue_date": "2026-01-20",

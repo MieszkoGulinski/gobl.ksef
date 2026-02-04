@@ -7,6 +7,20 @@ import (
 	"github.com/invopop/gobl/num"
 )
 
+// RoundingError represents a rounding discrepancy that exceeded acceptable thresholds.
+// The error contains the invoice with the rounding adjustment applied, allowing callers
+// to use the invoice despite the warning.
+type RoundingError struct {
+	Invoice    *bill.Invoice
+	Diff       num.Amount
+	MaxAllowed num.Amount
+}
+
+func (e *RoundingError) Error() string {
+	return fmt.Sprintf("rounding error in totals too high: %s (max allowed: %s)",
+		e.Diff.String(), e.MaxAllowed.String())
+}
+
 // AdjustRounding checks and, if needed, adjusts the rounding in the GOBL invoice to match the
 // KSEF total amount. KSEF calculates totals by rounding each line and then summing,
 // which can lead to a mismatch with the total amount in GOBL.
@@ -39,8 +53,13 @@ func AdjustRounding(inv *bill.Invoice, ksefTotalDue string) error {
 	// Check if the difference can be attributed to rounding
 	maxErr := MaxRoundingError(inv)
 	if diff.Abs().Compare(maxErr) == 1 {
-		// Too much difference. Report the error
-		return fmt.Errorf("rounding error in totals too high: %s (max allowed: %s)", diff.String(), maxErr.String())
+		// Too much difference. Apply the adjustment anyway and return a warning
+		inv.Totals.Rounding = &diff
+		return &RoundingError{
+			Invoice:    inv,
+			Diff:       diff,
+			MaxAllowed: maxErr,
+		}
 	}
 
 	// Apply the rounding adjustment
