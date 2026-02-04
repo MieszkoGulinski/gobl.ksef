@@ -87,9 +87,9 @@ func ParseKSeF(xmlData []byte) (*gobl.Envelope, error) {
 		return nil, fmt.Errorf("unmarshaling XML: %w", err)
 	}
 
-	inv, err := doc.ToGOBL()
-	if err != nil {
-		return nil, fmt.Errorf("converting to GOBL: %w", err)
+	inv, convertErr := doc.ToGOBL()
+	if convertErr != nil && inv == nil {
+		return nil, fmt.Errorf("converting to GOBL: %w", convertErr)
 	}
 
 	env, err := gobl.Envelop(inv)
@@ -97,7 +97,7 @@ func ParseKSeF(xmlData []byte) (*gobl.Envelope, error) {
 		return nil, fmt.Errorf("creating envelope: %w", err)
 	}
 
-	return env, nil
+	return env, convertErr
 }
 
 // ToGOBL converts the KSeF Invoice to a GOBL invoice.
@@ -130,7 +130,7 @@ func (d *Invoice) ToGOBL() (*bill.Invoice, error) {
 
 	// Calculate totals and adjust for rounding if needed
 	if err := AdjustRounding(inv, d.Inv.TotalAmountDue); err != nil {
-		return nil, fmt.Errorf("adjusting rounding: %w", err)
+		return inv, err
 	}
 
 	return inv, nil

@@ -6,6 +6,7 @@ import (
 	"github.com/invopop/gobl/addons/pl/favat"
 	"github.com/invopop/gobl/bill"
 	"github.com/invopop/gobl/cbc"
+	"github.com/invopop/gobl/num"
 	"github.com/invopop/gobl/pay"
 	"github.com/invopop/gobl/tax"
 )
@@ -192,19 +193,12 @@ func (inv *Inv) parsePayment(goblInv *bill.Invoice) error {
 
 	// Parse payment terms (due dates)
 	if len(inv.Payment.DueDates) > 0 {
-		payment.Terms = &pay.Terms{
-			DueDates: make([]*pay.DueDate, 0, len(inv.Payment.DueDates)),
+		termDate, err := parseDate(inv.Payment.DueDates[0].Date)
+		if err != nil {
+			return fmt.Errorf("parsing due date: %w", err)
 		}
-		for _, dd := range inv.Payment.DueDates {
-			if dd.Date != "" {
-				date, err := parseDate(dd.Date)
-				if err != nil {
-					return fmt.Errorf("parsing due date: %w", err)
-				}
-				payment.Terms.DueDates = append(payment.Terms.DueDates, &pay.DueDate{
-					Date: &date,
-				})
-			}
+		payment.Terms = &pay.Terms{
+			DueDates: []*pay.DueDate{{Date: &termDate, Percent: num.NewPercentage(100, 2)}},
 		}
 	}
 
