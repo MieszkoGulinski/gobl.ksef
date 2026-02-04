@@ -193,7 +193,9 @@ func (inv *Inv) parsePayment(goblInv *bill.Invoice) error {
 
 	// Parse payment terms (due dates)
 	if len(inv.Payment.DueDates) > 0 {
-		termDate, err := parseDate(inv.Payment.DueDates[0].Date)
+		// Use the last due date as the final payment deadline
+		lastDueDate := inv.Payment.DueDates[len(inv.Payment.DueDates)-1]
+		termDate, err := parseDate(lastDueDate.Date)
 		if err != nil {
 			return fmt.Errorf("parsing due date: %w", err)
 		}
